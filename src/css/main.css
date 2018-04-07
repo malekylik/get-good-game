@@ -80,19 +80,22 @@ html, body {
 
 html {
     font-size: 10px;
+    background: url(../img/about/pattern.png) 5px 21px;
 }
 
 body {
-    margin: 0;
+    margin: 0 auto;
     display: flex;
     flex-direction: column;
     -moz-user-select: none;
     user-select: none;
+    width: 1600px;
+    position: relative;
 }
 
 body > * {
     width: 100%;
-    min-width: 1600px;
+    background-color: white;
 }
 
 p {
@@ -320,7 +323,6 @@ main > section {
 }
 
 .reservations {
-    background-color: #dde0df;
     background: linear-gradient(103deg,rgba(255, 255, 255, .07),rgba(12, 52 ,53, .07)),
                 url('../img/about/pattern.png') 59px -82px;
     box-shadow: inset 0 0 50px rgba(1, 1, 1, .05);
@@ -547,7 +549,6 @@ input:placeholder {
 
 .about {
     height: 710px;
-    background-color: #dde0df;
     background: linear-gradient(133deg,rgba(255, 255, 255, .09),rgba(1, 1 ,1, .09)),
                 url('../img/about/pattern.png') 3px -70px;
     box-shadow: inset 0 0 50px rgba(1, 1, 1, .14);
@@ -585,14 +586,18 @@ input:placeholder {
     font-weight: bold;
     height: 100%;
     margin-left: 227px;
+    display: flex;
+    flex-wrap: wrap;
+    overflow: hidden;
+    width: 739px;
 }
 
 .header__nav > a {
     height: 100%;
-    display: inline-block;
     padding: 46px 13px 0 13px;
     margin-right: 19px;
     transition: 0.3s;
+    border-top: 3px solid transparent;
 }
 
 .header__nav > a:hover {
@@ -603,7 +608,7 @@ input:placeholder {
     margin-right: 0;
 }
 
-.header__nav-a_active {
+a.header__nav-a_active {
     border-top: 3px solid rgba(255, 255, 255, .71);
 }
 
@@ -613,6 +618,7 @@ input:placeholder {
     list-style: none;
     padding-top: 48px;
     font-size: 2.2rem;
+    margin-left: 4px;
 }
 
 .header__social-links-list li{
@@ -735,7 +741,6 @@ input:placeholder {
 
 .menu {
     height: 994px;
-    background-color: #dde0df;
     background: linear-gradient(-44deg,rgba(255, 255, 255, .09),rgba(32, 90 , 91, .09)),
                 url('../img/menu/pattern.png') 0 -22px;
     box-shadow: inset 0 0 50px rgba(1, 1, 1, .14);
@@ -853,4 +858,43 @@ input:placeholder {
 
 .social-link-discover:hover {
     color: #fa921f;
+}
+
+input::-webkit-inner-spin-button,
+input::-webkit-calendar-picker-indicator {
+    opacity: 0;
+    -webkit-appearance: none;
+}
+
+input.reservation__date-input {
+    color: transparent;
+}
+
+input[type="date"] {
+    color: transparent;
+}
+
+input[type="date"]:hover, input[type="date"]:active {
+    color: #7c7c7c;
+}
+
+input[type="date"]:hover::before, input[type="date"]:active::before {
+    display: none;
+}
+
+input[type="date"]:valid {
+    color: #7c7c7c;
+}
+
+input[type="date"]:valid::before {
+    display: none;
+}
+
+input[type="date"]::before {
+    position: absolute;
+    content: "date *";
+    color: #7c7c7c;
+    font-style: italic;
+    top: 30px;
+    left: 13px;
 }
