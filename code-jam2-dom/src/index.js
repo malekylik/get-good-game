@@ -1,5 +1,13 @@
 class NotificationRenderComponent {
-    constructor(notification) {
+    constructor(notificationText) {
+        this.element = this.createNotificationElement(notificationText);
+    }
+
+    render() {
+        document.body.appendChild(this.element);
+    }
+
+    createNotificationElement(notificationText) {
         const element = document.createElement('div');
         element.classList.add('notification');
 
@@ -9,7 +17,7 @@ class NotificationRenderComponent {
 
         const notificationP = document.createElement('p');
         notificationP.classList.add('notification__text');
-        notificationP.innerText = notification;
+        notificationP.innerText = notificationText;
 
         const inputs = document.createElement('div');
         inputs.classList.add('notification__inputs');
@@ -64,11 +72,7 @@ class NotificationRenderComponent {
         element.appendChild(notificationP);
         element.appendChild(inputs);
 
-        this.element = element;
-    }
-
-    render() {
-        document.body.appendChild(this.element);
+        return element;
     }
 }
 
@@ -85,6 +89,6 @@ class Notification {
     }
 }
 
-const notification = new Notification( ['asd'] );
+const notification = new Notification( ['ad'] );
 
 notification.render();
