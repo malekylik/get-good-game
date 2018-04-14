@@ -8,16 +8,15 @@ p {
 
 .notification {
     position: fixed;
-    display: flex;
-    flex-direction: column;
     right: 10px;
     top: 10px;
     min-height: 150px;
     width: 350px;
-    background-image: linear-gradient(2700deg, #f2f7f6, #e3f7f4);
+    background-image: linear-gradient(270deg, #f2f7f6, #e3f7f4);
     padding: 10px 30px 10px 15px;
     font-size: 1.125rem;
     border-radius: 5px;
+    overflow: hidden;
 }
 
 .notification__exit-button {
@@ -26,9 +25,11 @@ p {
     right: 5px;
 }
 
-.notification__text {
+.notification__texts-container {
+    display: flex;
     margin-bottom: 20px;
-    flex-grow: 1;
+    width: 9999px;
+    height: 108px;
 }
 
 .notification__inputs {
@@ -39,5 +40,12 @@ p {
 .notification__gallery-radio-buttons {
     display: inline-flex;
     width: 63px;
+    overflow: hidden;
+}
+
+.notification__text {
+    width: 330px;
+    height: 100%;
+    margin-right: 20px; 
     overflow: hidden;
 }

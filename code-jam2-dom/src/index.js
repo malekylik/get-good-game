@@ -15,7 +15,7 @@ class NotificationRenderComponent {
         document.body.removeChild(this.element);
     }
 
-    createNotificationElement(notificationText) {
+    createNotificationElement(notificationTexts) {
         const element = document.createElement('div');
         element.classList.add('notification');
 
@@ -23,9 +23,17 @@ class NotificationRenderComponent {
         exitButton.classList.add('notification__exit-button');
         exitButton.innerText = 'X';
 
-        const notificationP = document.createElement('p');
-        notificationP.classList.add('notification__text');
-        notificationP.innerText = notificationText;
+        const notificationTextsContainer = document.createElement('div');
+        notificationTextsContainer.classList.add('notification__texts-container');
+
+
+        for (let i = 0; i < notificationTexts.length; i++) {
+            const notificationP = document.createElement('p');
+            notificationP.classList.add('notification__text');
+            notificationP.innerText = notificationTexts[i];
+
+            notificationTextsContainer.appendChild(notificationP)
+        }
 
         const inputs = document.createElement('div');
         inputs.classList.add('notification__inputs');
@@ -53,7 +61,7 @@ class NotificationRenderComponent {
         const galleryRadiosContainer = document.createElement('div');
         galleryRadiosContainer.classList.add('notification__gallery-radio-buttons');
 
-        for (let i = 0; i < 4; i++) {
+        for (let i = 0; i < notificationTexts.length; i++) {
             const galleryRadio = document.createElement('input');
             galleryRadio.type = 'radio';
             galleryRadio.name = 'notification';
@@ -63,7 +71,6 @@ class NotificationRenderComponent {
             }
 
             galleryRadiosContainer.appendChild(galleryRadio)
-
         }
 
         checkBoxContainer.appendChild(checkBox);
@@ -77,7 +84,7 @@ class NotificationRenderComponent {
         inputs.appendChild(galleryControls);
 
         element.appendChild(exitButton);
-        element.appendChild(notificationP);
+        element.appendChild(notificationTextsContainer);
         element.appendChild(inputs);
 
         this.checkBox = checkBox;
@@ -92,7 +99,7 @@ class Notification {
     constructor(notifications = ['']) {
         this.notifications = notifications;
 
-        this.notificationRenderComponent = new NotificationRenderComponent(this.notifications[0]);
+        this.notificationRenderComponent = new NotificationRenderComponent(this.notifications);
 
         this.disabled = window.sessionStorage.getItem('disabled');
 
@@ -116,6 +123,6 @@ class Notification {
     }
 }
 
-const notification = new Notification( ['ad'] );
+const notification = new Notification( ['m ', 'sdf', 'sdaf', 'sdf'] );
 
 notification.render();
