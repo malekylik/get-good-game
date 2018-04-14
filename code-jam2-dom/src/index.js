@@ -1,10 +1,18 @@
 class NotificationRenderComponent {
     constructor(notificationText) {
         this.element = this.createNotificationElement(notificationText);
+
+        this.removeNotification = this.removeNotification.bind(this);
+
+        this.exitButton.addEventListener('click', this.removeNotification);
     }
 
     render() {
         document.body.appendChild(this.element);
+    }
+
+    removeNotification() {
+        document.body.removeChild(this.element);
     }
 
     createNotificationElement(notificationText) {
@@ -73,6 +81,7 @@ class NotificationRenderComponent {
         element.appendChild(inputs);
 
         this.checkBox = checkBox;
+        this.exitButton = exitButton;
 
         return element;
     }
