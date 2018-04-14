@@ -72,6 +72,8 @@ class NotificationRenderComponent {
         element.appendChild(notificationP);
         element.appendChild(inputs);
 
+        this.checkBox = checkBox;
+
         return element;
     }
 }
@@ -82,10 +84,26 @@ class Notification {
         this.notifications = notifications;
 
         this.notificationRenderComponent = new NotificationRenderComponent(this.notifications[0]);
+
+        this.disabled = window.sessionStorage.getItem('disabled');
+
+        if (this.disabled === null) {
+            this.disabled = false;
+        } else {
+            this.disabled = this.disabled;
+        }
+
+        this.notificationRenderComponent.checkBox.addEventListener('change', this.disableHandler);
     }
 
     render() {
-        this.notificationRenderComponent.render();
+        if (this.disabled !== 'true') {
+            this.notificationRenderComponent.render();
+        }
+    }
+
+    disableHandler(e) {
+        window.sessionStorage.setItem('disabled', e.target.checked);
     }
 }
 
