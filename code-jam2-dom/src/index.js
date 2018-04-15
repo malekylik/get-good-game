@@ -181,7 +181,7 @@ class Notification {
             this.currentNotificationIndex = parseInt(target.dataset.number, 10);
         }
 
-        if (prevIndex !== this.currentNotificationIndex) {
+        if (prevIndex !== this.currentNotificationIndex && this.notifications.length > 0) {
             this.notificationRenderComponent.repaint(this.currentNotificationIndex);
         }
     }
