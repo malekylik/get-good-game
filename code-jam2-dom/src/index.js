@@ -25,6 +25,8 @@ class NotificationRenderComponent {
 
         if (index >= 0) {
             this.galleryRadiosContainer.children[0].style.marginLeft = (-index * this.RADIO_BUTTON_WIDTH) + 'px';
+        } else {
+            this.galleryRadiosContainer.children[0].style.marginLeft = 0 + 'px';
         }
     }
 
@@ -165,12 +167,15 @@ class Notification {
         prevIndex = this.currentNotificationIndex;
 
         if (target === this.notificationRenderComponent.galleryPrev || e.keyCode === 37) {
-            if (this.currentNotificationIndex > 0) {
-                this.currentNotificationIndex -= 1;
+            this.currentNotificationIndex--;
+            if (this.currentNotificationIndex < 0) {
+                this.currentNotificationIndex = this.notifications.length - 1;
             }
         } else if (target === this.notificationRenderComponent.galleryNext || e.keyCode === 39) {
-            if (this.currentNotificationIndex < this.notifications.length - 1) {
-                this.currentNotificationIndex += 1;
+            this.currentNotificationIndex++;
+
+            if (this.currentNotificationIndex >= this.notifications.length) {
+                this.currentNotificationIndex = 0;
             }
         } else if (target.type === 'radio') {
             this.currentNotificationIndex = parseInt(target.dataset.number, 10);
