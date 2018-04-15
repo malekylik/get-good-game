@@ -4,8 +4,6 @@ class NotificationRenderComponent {
 
         this.removeNotification = this.removeNotification.bind(this);
 
-        this.exitButton.addEventListener('click', this.removeNotification);
-
         this.NOTIFICATION_TEXT_WIDTH = 330;
         this.RADIO_BUTTON_WIDTH = 21;
     }
@@ -140,10 +138,16 @@ class Notification {
         } else {
             this.disabled = this.disabled;
         }
-        this.changeIndexHandler = this.changeIndexHandler.bind(this);
 
+        this.changeIndexHandler = this.changeIndexHandler.bind(this);
+        this.removeHandler = this.removeHandler.bind(this);
+
+        this.notificationRenderComponent.exitButton.addEventListener('click', this.notificationRenderComponent.removeNotification);
         this.notificationRenderComponent.galleryControls.addEventListener('click', this.changeIndexHandler);
         this.notificationRenderComponent.checkBox.addEventListener('change', this.disableHandler);
+
+        document.body.addEventListener('keydown', this.changeIndexHandler);
+        document.body.addEventListener('keydown', this.removeHandler);
     }
 
     render() {
@@ -160,11 +164,11 @@ class Notification {
         const target = e.target,
         prevIndex = this.currentNotificationIndex;
 
-        if (target === this.notificationRenderComponent.galleryPrev) {
+        if (target === this.notificationRenderComponent.galleryPrev || e.keyCode === 37) {
             if (this.currentNotificationIndex > 0) {
                 this.currentNotificationIndex -= 1;
             }
-        } else if (target === this.notificationRenderComponent.galleryNext) {
+        } else if (target === this.notificationRenderComponent.galleryNext || e.keyCode === 39) {
             if (this.currentNotificationIndex < this.notifications.length - 1) {
                 this.currentNotificationIndex += 1;
             }
@@ -174,6 +178,12 @@ class Notification {
 
         if (prevIndex !== this.currentNotificationIndex) {
             this.notificationRenderComponent.repaint(this.currentNotificationIndex);
+        }
+    }
+
+    removeHandler(e) {
+        if(e.keyCode === 88) {
+            this.notificationRenderComponent.removeNotification();
         }
     }
 }

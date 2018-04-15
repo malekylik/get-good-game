@@ -52,6 +52,7 @@ p {
 .notification__text {
     width: 330px;
     height: 100%;
+    overflow: hidden;
 }
 
 .left-shift-animation {
