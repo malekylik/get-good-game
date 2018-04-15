@@ -123,6 +123,11 @@ class Notification {
     }
 }
 
-const notification = new Notification( ['m ', 'sdf', 'sdaf', 'sdf'] );
+window.onload = () => {
 
-notification.render();
+    const notification = new Notification( ['m ', 'sdf', 'sdaf', 'sdf'] );
+
+    setTimeout(() => {
+        notification.render();
+    }, 5000);
+}
