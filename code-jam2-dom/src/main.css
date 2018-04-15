@@ -41,11 +41,30 @@ p {
     display: inline-flex;
     width: 63px;
     overflow: hidden;
+    padding-left: 8px;
+}
+
+.notification__gallery-radio-buttons > * {
+    margin-left: 0;
+    margin-right: 8px;
 }
 
 .notification__text {
     width: 330px;
     height: 100%;
-    margin-right: 20px; 
+}
+
+.left-shift-animation {
+    transition-property: margin-left;
+    transition-delay: .1s;
+    transition-duration: .3s;
+}
+
+.notification__gallery-controls {
+    display: flex;
+}
+
+.notification__texts-container-wrapper {
+    width: 330px;
     overflow: hidden;
 }
