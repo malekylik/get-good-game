@@ -1,3 +1,7 @@
+* {
+    box-sizing: border-box;
+}
+
 html {
     font-size: 10px;
 }
@@ -5,4 +9,92 @@ html {
 body {
     margin: 0;
     padding: 0;
+}
+
+ul {
+    margin: 0;
+    padding: 0;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+.header {
+    display: flex;
+    flex-direction: column;
+}
+
+.header__logo {
+    margin: 0 auto;
+    color: #6794b7;
+    font-size: 2.4rem;
+    min-height: 5.3rem;
+    display: flex;
+}
+
+.header__logo > a {
+    display: flex;
+    align-items: center;
+}
+
+.header__nav {
+    display: flex;
+    background-color: #6b9ad0;
+    min-height: 3.4rem;
+    padding: 2px;
+    justify-content: space-between;
+}
+
+.header__menu-buttons {
+    display: inline-flex;
+    list-style-type: none;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 2.0rem;
+}
+
+.header__menu-buttons > li {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 3.0rem;
+    min-width: 3.0rem;
+    background-color: hsl(212, 43%, 67%);
+    margin-right: 3px;
+    color: #608dc1;
+    cursor: pointer;
+}
+
+.header__menu-buttons > li:last-child {
+    margin-right: 0;
+}
+
+.header__menu-buttons > li:hover {
+    background-color: hsl(212, 43%, 87%);
+}
+
+.tag_reverse {
+    transform: rotate(180deg);
+}
+
+.header__nav-option {
+    font-size: 2.0rem;
+    background-color: transparent;
+    border: 0;
+    color: hsl(212, 31%, 75%);
+    cursor: pointer;
+    min-height: 3.0rem;
+    min-width: 3.0rem;
+}
+
+.header__nav-option:hover {
+    color: hsl(212, 40%, 95%);
+}
+
+.header__logo-img {
+    min-width: 36px;
+    min-height: 36px;
+    margin-left: 6px;
+    margin-right: 6px;
 }
