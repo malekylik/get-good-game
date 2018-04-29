@@ -216,4 +216,30 @@ p {
     font-size: 1.3rem;
 }
 
+.article__spinner-wrapper {
+    display: flex;
+    min-height: 100px;
+    justify-content: center;
+    align-items: center;
+}
+
+.article__spinner {
+    width: 40px;
+    height: 40px;
+    background-image: url("./img/spinner.png");
+    background-size: 100% 100%;
+    background-repeat: no-repeat; 
+    animation: spinner-rotation linear 2s infinite;
+}
+
+@keyframes spinner-rotation {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.content__article:last-of-type {
+    margin-bottom: 0;
+}
+
 
