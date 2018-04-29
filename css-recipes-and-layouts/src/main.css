@@ -9,6 +9,7 @@ html {
 body {
     margin: 0;
     padding: 0;
+    min-width: 320px;
 }
 
 ul {
@@ -19,6 +20,18 @@ ul {
 a {
     text-decoration: none;
     color: inherit;
+}
+
+figure {
+    margin: 0;
+}
+
+cite {
+    font-style: normal;
+}
+
+p {
+    margin: 0;
 }
 
 .header {
@@ -50,7 +63,7 @@ a {
 .header__menu-buttons {
     display: inline-flex;
     list-style-type: none;
-    font-family: Arial, Helvetica, sans-serif;
+    font-family: 'Arial Regular', Arial, Helvetica, sans-serif;
     font-size: 2.0rem;
 }
 
@@ -98,3 +111,100 @@ a {
     margin-left: 6px;
     margin-right: 6px;
 }
+
+.content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 16px 0 16px;
+}
+
+.content__article-caption {
+    font-size: 1.8rem;
+    font-family: "Arial Narrow", Arial, Helvetica, sans-serif;
+    text-align: center;
+    color: #5d6871;
+    background-color: #f4f5f6;
+    padding: 10px 40px;
+    font-weight: bold;
+}
+
+.content__article {
+    min-width: 28.8rem;
+    width: 100%;
+    margin-bottom: 40px;
+}
+
+.content__article-img {
+    width: 100%;
+    height: 32.5vw;
+}
+
+.content__article-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 1.2rem;
+    color: #69747c;
+    font-family: 'Arial Regular', Arial, Helvetica, sans-serif;
+    min-height: 40px;
+    align-items: center;
+    border-bottom: 1px solid #e2e5e8;
+}
+
+.content__article-meta span {
+    margin-right: 3px;
+}
+
+.content__article-text {
+    font-family: 'Arial Regular', Arial, Helvetica, sans-serif;
+    color: #69747c;
+    font-size: 1.2rem;
+    text-align: justify;
+    padding-top: 16px;
+    margin-bottom: 20px;
+}
+
+.content__article-links {
+    display: flex;
+    justify-content: space-around;
+    list-style-type: none;
+    color: #fff;
+    font-size: 1.6rem;
+}
+
+.content__article-link {
+    min-width: 40px;
+    min-height: 24px;
+    border-radius: 3px;
+    cursor: pointer;
+    justify-content: space-around;
+    align-items: center;
+    display: flex;
+    width: 12.5%;
+}
+
+.content__article-link_facebook {
+    background-color: #3c5a98;
+}
+
+.content__article-link_google-plus {
+    background-color: #c25234;
+}
+
+.content__article-link_twitter {
+    background-color: #00aced;
+}
+
+.content__article-link_vk {
+    background-color: #48729e;
+}
+
+.content__article-link_male {
+    background-color: #d83933;
+}
+
+.content__article-link-count {
+    font-size: 1.3rem;
+}
+
+
