@@ -62,8 +62,6 @@ const create768NavElements = () => {
     const tab4 = document.createElement('li');
     const tabA4 = document.createElement('a');
     tabA4.innerText = 'HTML';
-    tab4.classList.add('header__nav-tab_active');
-    activeTab = tab4;
     tab4.appendChild(tabA4);
 
     const tab5 = document.createElement('li');
@@ -80,6 +78,44 @@ const create768NavElements = () => {
     return [navButtonLeft, tabs, navButtonRight];
 };
 
+const create1024NavElements = () => {
+    const tabs = document.createElement('ul');
+    tabs.classList.add('header__nav-tabs');
+
+    const tab1 = document.createElement('li');
+    const tabA1 = document.createElement('a');
+    tabA1.innerText = 'JAVASCRIPT';
+    tab1.appendChild(tabA1);
+
+    const tab2 = document.createElement('li');
+    const tabA2 = document.createElement('a');
+    tabA2.innerText = 'CSS';
+    tab2.appendChild(tabA2);
+
+    const tab3 = document.createElement('li');
+    const tabA3 = document.createElement('a');
+    tabA3.innerText = 'LATES';
+    tab3.appendChild(tabA3);
+
+    const tab4 = document.createElement('li');
+    const tabA4 = document.createElement('a');
+    tabA4.innerText = 'HTML';
+    tab4.appendChild(tabA4);
+
+    const tab5 = document.createElement('li');
+    const tabA5 = document.createElement('a');
+    tabA5.innerText = 'DESIGH';
+    tab5.appendChild(tabA5);
+
+    tabs.appendChild(tab1);
+    tabs.appendChild(tab2);
+    tabs.appendChild(tab3);
+    tabs.appendChild(tab4);
+    tabs.appendChild(tab5);
+
+    return [tabs];
+};
+
 const tabPressHandler = (e) => {
     let target = e.target;
 
@@ -91,16 +127,27 @@ const tabPressHandler = (e) => {
         return;
     }
 
-    activeTab.classList.remove('header__nav-tab_active');
+    if (activeTab) {
+        activeTab.classList.remove('header__nav-tab_active');
+    }
     target.classList.add('header__nav-tab_active');
     activeTab = target;
 };
 
 const nav320 = create320NavElements();
 const nav768 = create768NavElements();
+const nav1024 = create1024NavElements();
 
 const nav = document.getElementsByClassName('header__nav')[0];
 nav.addEventListener('click', tabPressHandler);
+
+const content = document.getElementsByClassName('content')[0];
+const aside = document.getElementsByClassName('content__aside')[0];
+const tags = document.getElementsByClassName('content__tags')[0];
+
+const articles = document.getElementsByClassName('content__article');
+const socialLinks =  document.getElementsByClassName('content__article-links');
+const articleMeta =  document.getElementsByClassName('content__article-meta');
 
 let devices = -1;
 const onResize = () => {
@@ -113,7 +160,7 @@ const onResize = () => {
 
         nav320.forEach((e) => {
             nav.appendChild(e);
-        })
+        });
 
         devices = 'phone';
     }
@@ -123,12 +170,59 @@ const onResize = () => {
             nav.removeChild(nav.children[0]);
         }
 
+        content.insertBefore(tags, content.children[0]);
+
+        for (let i = 0; i < articles.length; i++) {
+            articles[i].appendChild(socialLinks[i]);
+        }
+
         nav768.forEach((e) => {
+            if (e.localName === 'ul') {
+                for (let i = 0; i < e.children.length; i++) {
+                    if (activeTab && activeTab.innerText === e.children[i].innerText) {
+                        activeTab.classList.remove('header__nav-tab_active');
+                        e.children[i].classList.add('header__nav-tab_active');
+                        activeTab = e.children[i];
+                    }
+                }
+            }
+
             nav.appendChild(e);
-        })
+        });
 
         devices = 'tablet';
     }
+
+    if (contentWidth >= 1024 && devices !== 'desktop') {
+        while(nav.children.length !== 0) {
+            nav.removeChild(nav.children[0]);
+        }
+
+        aside.appendChild(tags);
+
+        for (let i = 0; i < articleMeta.length; i++) {
+            articleMeta[i].appendChild(socialLinks[i]);
+        }
+
+        nav1024.forEach((e) => {
+            if (e.localName === 'ul') {
+                for (let i = 0; i < e.children.length; i++) {
+                    if (activeTab && activeTab.innerText === e.children[i].innerText) {
+                        activeTab.classList.remove('header__nav-tab_active');
+                        e.children[i].classList.add('header__nav-tab_active');
+                        activeTab = e.children[i];
+                    }
+                }
+            }
+
+
+            nav.appendChild(e);
+        });
+
+        devices = 'desktop';
+    }
+
+
 };
 
 
