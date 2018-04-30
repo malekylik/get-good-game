@@ -87,7 +87,7 @@ const tabPressHandler = (e) => {
         target = target.parentNode;
     }
 
-    if (target === null || target.localName !== 'li') {
+    if (target === null || target.localName !== 'li' || !target.parentNode.classList.contains('header__nav-tabs')) {
         return;
     }
 

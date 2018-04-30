@@ -88,6 +88,7 @@ p {
     margin-right: 3px;
     color: #608dc1;
     cursor: pointer;
+    user-select: none;
 }
 
 .header__menu-buttons > li:last-child {
@@ -260,6 +261,7 @@ p {
     color: #608dc1;
     cursor: pointer;
     border: 0;
+    user-select: none;
 }
 
 .header__nav-button:hover {
@@ -283,6 +285,7 @@ p {
     padding-left: 15px;
     padding-right: 15px;
     cursor: pointer;
+    user-select: none;
 }
 
 .header__nav-tabs > li:hover {
@@ -310,7 +313,7 @@ p {
 }
 
 .content__tags {
-    display: flex;
+    display: none;
     flex-wrap: wrap;
     justify-content: center;
 }
@@ -328,6 +331,8 @@ p {
     height: 16px;
     margin-right: 15px;
     margin-bottom: 10px;
+    user-select: none;
+    cursor: pointer;
 }
 
 .content__tag::after {
@@ -415,7 +420,7 @@ p {
     }
 
     .content {
-        padding-bottom: 34px;
+        padding-top: 34px;
     }
 
     .header__menu-buttons > li {
@@ -429,6 +434,7 @@ p {
     }
 
     .content__tags {
+        display: flex;
         margin-bottom: 24px;
         width: 100%;
         padding-left: 45px;
