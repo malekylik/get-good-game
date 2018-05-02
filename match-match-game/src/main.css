@@ -9,7 +9,7 @@ body {
 
 .wrapper {
     margin: 0 auto;
-    width: 1200px;
+    max-width: 1200px;
     display: flex;
     flex-direction: column;
 }
@@ -32,7 +32,7 @@ body {
     width: 200px;
     height: 300px;
     cursor: pointer;
-    animation-duration: 1.25s;
+    animation-duration: .75s;
     animation-timing-function: linear;
     user-select: none;
 }
@@ -40,6 +40,8 @@ body {
 .card {
     display: inline-block;
     position: relative;
+    margin: 0;
+    justify-self: center;
 }
 
 .card-side-bottom {
@@ -120,6 +122,9 @@ body {
 
 .cards {
     width: 100%;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    grid-gap: 5px;
 }
 
 .header {

@@ -7,6 +7,23 @@ const createElement = (tag, style = '', value = '') => {
     return el;
 };
 
+const createCards = (count) => {
+    const temp = [];
+
+    for (let i = 0; i < count; i++) {
+        temp.push(
+            {
+                rand: Math.random(),
+                value: i
+            }
+        );
+    }
+
+    temp.sort((l, r) => l.rand - r.rand);
+
+    return temp;    
+}
+
 
 class HTMLTimerGraphicComponent {
     constructor(element) {
@@ -30,13 +47,12 @@ class HTMLCardGraphicComponent {
     constructor(card, top, bottom) {
         this.topSide = top;
         this.bottomSide = bottom;
+        this.card = card;
 
         this.isTurning = false;
 
-        this.render = this.render.bind(this);
         this.removeAnimation = this.removeAnimation.bind(this);
 
-        card.onclick = this.render;
         card.addEventListener('animationend', this.removeAnimation);
     }
 
@@ -49,7 +65,7 @@ class HTMLCardGraphicComponent {
         }
     }
 
-    removeAnimation() {
+    removeAnimation(cardObj) {
         if (this.isTurning) {
             this.topSide.classList.toggle('card-side-top-turned');
             this.bottomSide.classList.toggle('card-side-bottom-turned');
@@ -130,17 +146,24 @@ class Timer {
 }
 
 class Card {
-    constructor(top, bottom, value) {
+    constructor(top, bottom, value, player) {
         const [card, cardTop, cardBottom] = this.createCartElement(top, bottom);
 
-        this.cardEl = card;
+        this.card = card;
 
-        this.graphicComponent = new HTMLCardGraphicComponent(card, cardTop, cardBottom);
+        this.graphicComponent = new HTMLCardGraphicComponent(card, cardTop, cardBottom, this);
+
         this.value = value;
+
+        this.isSelected = false;
+        this.matched = false;
+        
+        this.select = this.select.bind(this, player);
+        card.addEventListener('click', this.select);
     }
 
     render(container) {
-        container.appendChild(this.cardEl);
+        container.appendChild(this.card);
     }
 
     createCartElement(top, bottom) {
@@ -157,38 +180,85 @@ class Card {
 
         return [card, cardTop, cardBottom];
     }
-}
 
-const createCards = (count) => {
-    const temp = [];
+    select(player) {
+        if(!this.isSelected && player.selectedCard.length < 2 
+            && !this.graphicComponent.isTurning) {
+            this.graphicComponent.render(this);
 
-    for (let i = 0; i < count; i++) {
-        temp.push(
-            {
-                rand: Math.random(),
-                value: i
-            }
-        );
+            this.isSelected = true;
+
+            player.selectedCard.push(this);
+
+            console.log(this.value);
+        }
     }
 
-    temp.sort((l, r) => l.rand - r.rand);
+    match() {
+        this.matched = true;
+    }
 
-    return temp;    
+    turn() {
+        setTimeout(() => {
+            this.graphicComponent.render();
+            this.isSelected = false;
+        }, 1250);
+    }
 }
 
-createCards(10);
+class Player {
+    constructor() {
+        this.selectedCard = [];
+        this.name = 'ads';
+    }
+
+    addCard(card) {
+        this.selectedCard.push(card);
+    }
+
+    isPresent(card) {
+        return this.selectedCard.includes(card);
+    }
+
+    match() {
+        let answer = [];
+
+        if (this.selectedCard.length === 2) {
+            const [firstCard, secondCard] = this.selectedCard;
+
+            const isMatch = firstCard.value === secondCard.value;
+
+            if (isMatch) {
+                firstCard.match();
+                secondCard.match();
+                answer = this.selectedCard;
+            } else {
+                firstCard.turn();
+                secondCard.turn();
+            }
+
+            this.selectedCard = [];
+
+        }
+
+        return answer;
+    }
+}
 
 class Game {
     constructor(timerEl) {
         this.timer = new Timer(new HTMLTimerGraphicComponent(timerEl));
         this.cards = [];
+        this.matchedCards = [];
 
         const count = 10;
 
-        const randomSequence = createCards(count);
+        this.player = new Player();
 
+        const randomSequence = createCards(count);
+        
         for (let i = 0; i < count; i++) {
-            this.cards.push(new Card('playing-cards-by-david-kapah-ace-of-hearts.jpg', 'playing-cards-by-david-kapah-ace-of-spades.jpg', Math.floor(randomSequence[i].value / 2)));
+            this.cards.push(new Card('playing-cards-by-david-kapah-ace-of-hearts.jpg', 'playing-cards-by-david-kapah-ace-of-spades.jpg', Math.floor(randomSequence[i].value / 2), this.player));
         }
 
         const container = document.getElementsByClassName('cards')[0];
@@ -207,6 +277,7 @@ class Game {
         this.update();
 
         this.render();
+        // console.log(this.matchedCards);
     }
 
     render() {
@@ -214,8 +285,10 @@ class Game {
     }
 
     update() {
-        
+        const matched = this.player.match();
+
+        if (matched.length > 0) {
+            this.matchedCards = [...this.matchedCards, ...matched];
+        }
     }
 }
-
-
