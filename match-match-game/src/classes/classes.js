@@ -223,6 +223,40 @@ class HTMLStartPageGraphicComponent {
     }
 }
 
+class HTMLResultPageGraphicComponent {
+    constructor() {
+        this.container = document.getElementsByClassName('result-page')[0];
+
+        this.nameField = document.getElementsByClassName('result-page__name')[0];
+        this.lastNameField = document.getElementsByClassName('result-page__last-name')[0];
+        this.difficultyField = document.getElementsByClassName('result-page__difficulty')[0];
+        this.timeField = document.getElementsByClassName('result-page__time')[0];
+    }
+
+    render() {
+        this.container.style.display = 'block';
+    }
+
+    remove() {
+        this.container.style.display = 'none';
+    }
+
+    set name(name) {
+        this.nameField.innerText = name;
+    }
+
+    set lastName(lastName) {
+        this.lastNameField.innerText = lastName;
+    }
+
+    set difficulty(difficulty) {
+        this.difficultyField.innerText = difficulty;
+    }
+
+    set time(time) {
+        this.timeField.innerText = time;
+    }
+}
 
 class StartPage {
     constructor() {
@@ -237,7 +271,7 @@ class StartPage {
         this.graphicComponent.remove();
     }
 
-    getDifficulty() {
+    get difficulty() {
         const difficultyRadios = this.graphicComponent.difficultyRadios;
         let difficulty;
 
@@ -251,7 +285,7 @@ class StartPage {
         return difficultyNumberOfCard[difficulty];
     }
 
-    getSkirt() {
+    get skirt() {
         const skirtRadios = this.graphicComponent.skirtRadios;
         let skirt;
 
@@ -265,16 +299,46 @@ class StartPage {
         return topCards[skirt];
     }
 
-    getName() {
+    get name() {
         return this.graphicComponent.firstNameInput.value;
     }
 
-    getLastName() {
+    get lastName() {
         return this.graphicComponent.lastNameInput.value;
     }
 
-    getEmail() {
+    get email() {
         return this.graphicComponent.emailInput.value;
+    }
+}
+
+class ResultPage {
+    constructor() {
+        this.graphicComponent = new HTMLResultPageGraphicComponent();
+    }
+
+    set name(name) {
+        this.graphicComponent.name = name;
+    }
+
+    set lastName(lastName) {
+        this.graphicComponent.lastName = lastName;
+    }
+
+    set difficulty(difficulty) {
+        this.graphicComponent.difficulty = difficulty;
+    }
+
+    set time(time) {
+        this.graphicComponent.time = time;
+    }
+
+    render() {
+        this.graphicComponent.render();
+    }
+
+    remove() {
+        this.graphicComponent.remove();
     }
 }
 
@@ -382,25 +446,29 @@ class Game {
         this.timer = new Timer(new HTMLTimerGraphicComponent(createElement('div', 'timer', '00:00:00')));
         this.cards = [];
         this.matchedCards = [];
+        this.running = true;
 
         this.player = new Player();
         this.startPage = new StartPage();
+        this.resultPage = new ResultPage();
     
         this.start = this.start.bind(this);
         this.main = this.main.bind(this);
 
         this.startPage.graphicComponent.submitButton.addEventListener('click', this.start);
+
+        this.startPage.render();
     }
 
     start(e) {
         e.preventDefault();
 
-        this.count = this.startPage.getDifficulty();
-        this.skirt = this.startPage.getSkirt();
+        this.count = this.startPage.difficulty;
+        this.skirt = this.startPage.skirt;
 
-        this.player.name = this.startPage.getName();
-        this.player.lastName = this.startPage.getLastName();
-        this.player.email = this.startPage.getEmail();
+        this.player.name = this.startPage.name;
+        this.player.lastName = this.startPage.lastName;
+        this.player.email = this.startPage.email;
 
         const randomSequence = createCards(this.count);
 
@@ -409,11 +477,15 @@ class Game {
             this.cards.push(new Card(this.skirt, bottomCards[value], value, this.player));
         }
 
+        this.resultPage.name = this.player.name;
+        this.resultPage.lastName = this.player.lastName;
+        this.resultPage.difficulty = this.count;
+
         this.startPage.remove();
 
         const header = document.getElementsByClassName('header')[0];
 
-        const container = document.createElement('vid');
+        const container = document.createElement('div');
         container.classList.add('cards');
         document.body.appendChild(container);
 
@@ -424,13 +496,24 @@ class Game {
     }
 
     main() {
-        requestAnimationFrame(this.main);
+        if (this.running) {
+            requestAnimationFrame(this.main);
+        } else {
+            this.end();
+        }
         
 
         this.update();
 
         this.render();
-        // console.log(this.matchedCards);
+    }
+
+    end() {
+        this.timer.terminate();
+
+        this.resultPage.time = this.timer.getTime();
+
+        this.resultPage.render();
     }
 
     render() {
@@ -442,6 +525,10 @@ class Game {
 
         if (matched.length > 0) {
             this.matchedCards = [...this.matchedCards, ...matched];
+        }
+
+        if (this.matchedCards.length === this.count) {
+            this.running = false;
         }
     }
 }
