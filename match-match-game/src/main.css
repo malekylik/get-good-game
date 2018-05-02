@@ -5,6 +5,7 @@ html {
 body {
     padding: 0;
     margin: 0;
+    background-image: url('./imgs/back.png');
 }
 
 .wrapper {
@@ -15,13 +16,10 @@ body {
 }
 
 .timer {
-    /* position: absolute; */
     width: 200px;
     height: 100%;
     padding-top: 10px;
     padding-bottom: 10px;
-    /* right: 0;
-    top: 0; */
     font-size: 2.4rem;
     background-color: #ddd;
     text-align: center;
@@ -50,7 +48,7 @@ body {
 
 .card-side-bottom-turned {
     opacity: 1;
-    transform: rotate3d(0,1,0,180deg);
+    transform: rotate3d(0,1,0,0deg);
     animation-direction: reverse;
     z-index: -1;
 }
@@ -102,7 +100,7 @@ body {
 
 @keyframes card-turn-bottom {
     0% {
-        transform: rotate3d(0,1,0,0); 
+        transform: rotate3d(0,1,0,180deg); 
         opacity: 0;
     }
 
@@ -116,7 +114,7 @@ body {
 
     100% {
         opacity: 1;
-        transform: rotate3d(0,1,0,180deg);
+        transform: rotate3d(0,1,0,0deg);
     }
 }
 
@@ -128,5 +126,82 @@ body {
 }
 
 .header {
+    margin-bottom: 15px;
+    display: flex;
+    flex-direction: row-reverse;
+}
 
+.start-page {
+    color: white;
+    text-shadow: 0 1px black;
+    background-color: rgba(20,20,20,.85);
+    font-size: 1.8rem;
+    padding-top: 15px;
+    padding-bottom: 15px;
+    border-radius: 20px;
+    margin: 15px 10px 15px 10px;
+}
+
+.welcome {
+    text-align: center;
+    font-size: 2.5rem;
+}
+
+.start-page > h2 {
+    font-size: 2rem;
+    text-align: center;
+}
+
+.start-page__how-to {
+    width: 600px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.start-page__rule-list > li {
+    margin-bottom: 15px;
+}
+
+.start-page  fieldset {
+    border: none;
+}
+
+.start-page__game-options-fieldset {
+    display: flex;
+}
+
+.start-page__form {
+    width: 70%;
+    margin: 0 auto;
+    padding-left: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+}
+
+.start-page__form > * {
+    margin-right: 20px;
+}
+
+.start-page__form > div {
+    justify-self: center;
+}
+
+.start-page__submit {
+    width: 300px;
+    height: 30px;
+    margin-top: 30px;
+}
+
+.start-page__skirt-inputs {
+    display: flex;
+}
+
+.start-difficulty-inputs {
+    margin-right: 40px;
+}
+
+.start-difficulty-input {
+    display: flex;
+    justify-content: space-between;;
 }
