@@ -264,6 +264,18 @@ class StartPage {
 
         return topCards[skirt];
     }
+
+    getName() {
+        return this.graphicComponent.firstNameInput.value;
+    }
+
+    getLastName() {
+        return this.graphicComponent.lastNameInput.value;
+    }
+
+    getEmail() {
+        return this.graphicComponent.emailInput.value;
+    }
 }
 
 class Card {
@@ -330,7 +342,6 @@ class Card {
 class Player {
     constructor() {
         this.selectedCard = [];
-        this.name = 'ads';
     }
 
     addCard(card) {
@@ -386,6 +397,10 @@ class Game {
 
         this.count = this.startPage.getDifficulty();
         this.skirt = this.startPage.getSkirt();
+
+        this.player.name = this.startPage.getName();
+        this.player.lastName = this.startPage.getLastName();
+        this.player.email = this.startPage.getEmail();
 
         const randomSequence = createCards(this.count);
 

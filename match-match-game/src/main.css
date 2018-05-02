@@ -140,6 +140,7 @@ body {
     padding-bottom: 15px;
     border-radius: 20px;
     margin: 15px 10px 15px 10px;
+    display: none;
 }
 
 .welcome {
@@ -204,4 +205,38 @@ body {
 .start-difficulty-input {
     display: flex;
     justify-content: space-between;;
+}
+
+.result-page {
+    position: absolute;
+    color: white;
+    text-shadow: 0 1px black;
+    background-color: rgba(20,20,20,.85);
+    font-size: 1.8rem;
+    padding: 15px 10px 15px 10px;
+    border-radius: 20px;
+    width: 500px;
+    left: calc(50% - 250px);
+}
+
+.result-page__congratulation {
+    text-align: center;
+}
+
+.result-page__heading {
+    text-align: center;
+}
+
+.result-page__results {
+    display: grid;
+    grid-row-gap: 5px;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr 1fr;
+    min-width: 70%;
+    margin: 0 auto;
+}
+
+.result-page__results > * {
+    margin-top: 5px;
+    margin-bottom: 5px;
 }
