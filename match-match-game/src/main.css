@@ -40,6 +40,8 @@ body {
     position: relative;
     margin: 0;
     justify-self: center;
+    animation-duration: 0.3s;
+    animation-fill-mode: forwards;
 }
 
 .card-side-bottom {
@@ -76,6 +78,10 @@ body {
 
 .card-rotate-animation {
     animation-name: card-turn;
+}
+
+.card-disappear-animation {
+    animation-name: card-disappear;
 }
 
 @keyframes card-turn-top {
@@ -115,6 +121,12 @@ body {
     100% {
         opacity: 1;
         transform: rotate3d(0,1,0,0deg);
+    }
+}
+
+@keyframes card-disappear{
+    to {
+        opacity: 0;
     }
 }
 
@@ -242,3 +254,5 @@ body {
     margin-top: 5px;
     margin-bottom: 5px;
 }
+
+

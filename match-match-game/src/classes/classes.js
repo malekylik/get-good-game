@@ -88,7 +88,7 @@ class Timer {
     
             this.intervalId = setInterval(this.changeTime, 1000);
     
-            return this.getTime();
+            return this.formatedTime;
         }
     }
 
@@ -110,7 +110,7 @@ class Timer {
         }
     }
 
-    getTime() {
+    get formatedTime() {
         const time = this.time;
 
         let sec = time % 60,
@@ -143,7 +143,7 @@ class HTMLTimerGraphicComponent {
         if (!timer.isRun) {
             this.element.innerText = timer.start();
         } else {
-            const time = timer.getTime();
+            const time = timer.formatedTime;
 
             if (this.element.innerText !== time) {
                 this.element.innerText = time;
@@ -153,7 +153,7 @@ class HTMLTimerGraphicComponent {
 }
 
 class HTMLCardGraphicComponent {
-    constructor(card, top, bottom) {
+    constructor(card, top, bottom, cardObj) {
         this.topSide = top;
         this.bottomSide = bottom;
         this.card = card;
@@ -386,13 +386,17 @@ class Card {
             this.isSelected = true;
 
             player.selectedCard.push(this);
-
-            console.log(this.value);
         }
     }
 
     match() {
         this.matched = true;
+        this.graphicComponent.topSide.style.cursor = 'default';
+        this.graphicComponent.bottomSide.style.cursor = 'default';
+       
+        setTimeout(() => {
+            this.graphicComponent.card.classList.add('card-disappear-animation');
+        }, 1250);
     }
 
     turn() {
@@ -511,7 +515,7 @@ class Game {
     end() {
         this.timer.terminate();
 
-        this.resultPage.time = this.timer.getTime();
+        this.resultPage.time = this.timer.formatedTime;
 
         this.resultPage.render();
     }
