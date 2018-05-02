@@ -1,0 +1,127 @@
+html {
+    font-size: 10px;
+}
+
+body {
+    padding: 0;
+    margin: 0;
+}
+
+.wrapper {
+    margin: 0 auto;
+    width: 1200px;
+    display: flex;
+    flex-direction: column;
+}
+
+.timer {
+    /* position: absolute; */
+    width: 200px;
+    height: 100%;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    /* right: 0;
+    top: 0; */
+    font-size: 2.4rem;
+    background-color: #ddd;
+    text-align: center;
+    border: 1px solid #bbb;
+}
+
+.card > img {
+    width: 200px;
+    height: 300px;
+    cursor: pointer;
+    animation-duration: 1.25s;
+    animation-timing-function: linear;
+    user-select: none;
+}
+
+.card {
+    display: inline-block;
+    position: relative;
+}
+
+.card-side-bottom {
+    opacity: 0;
+}
+
+.card-side-bottom-turned {
+    opacity: 1;
+    transform: rotate3d(0,1,0,180deg);
+    animation-direction: reverse;
+    z-index: -1;
+}
+
+.card-side-top-turned {
+    opacity: 0;
+    transform: rotate3d(0,1,0,180deg);
+    animation-direction: reverse;
+    z-index: -1;
+}
+
+.card-side-bottom-turn {
+    animation-name: card-turn-bottom; 
+} 
+
+.card-side-top {
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.card-side-top-turn {
+    animation-name: card-turn-top; 
+}
+
+.card-rotate-animation {
+    animation-name: card-turn;
+}
+
+@keyframes card-turn-top {
+    0% {
+        transform: rotate3d(0,1,0,0); 
+        opacity: 1;
+    }
+
+    49.99% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0;
+    }
+
+    100% {
+        opacity: 0;
+        transform: rotate3d(0,1,0,180deg);
+    }
+}
+
+@keyframes card-turn-bottom {
+    0% {
+        transform: rotate3d(0,1,0,0); 
+        opacity: 0;
+    }
+
+    49.99% {
+        opacity: 0;
+    }
+
+    50% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 1;
+        transform: rotate3d(0,1,0,180deg);
+    }
+}
+
+.cards {
+    width: 100%;
+}
+
+.header {
+
+}
