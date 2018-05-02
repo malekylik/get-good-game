@@ -17,7 +17,7 @@ body {
 
 .timer {
     width: 200px;
-    height: 100%;
+    justify-self: end;
     padding-top: 10px;
     padding-bottom: 10px;
     font-size: 2.4rem;
@@ -139,8 +139,8 @@ body {
 
 .header {
     margin-bottom: 15px;
-    display: flex;
-    flex-direction: row-reverse;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
 }
 
 .start-page {
@@ -225,7 +225,7 @@ body {
     text-shadow: 0 1px black;
     background-color: rgba(20,20,20,.85);
     font-size: 1.8rem;
-    padding: 15px 10px 15px 10px;
+    padding: 15px 10px;
     border-radius: 20px;
     width: 500px;
     height: 300px;
@@ -255,4 +255,26 @@ body {
     margin-bottom: 5px;
 }
 
+.header__top-button {
+    width: 150px;
+    height: 50px;
+}
 
+.top {
+    color: white;
+    text-shadow: 0 1px black;
+    background-color: rgba(5,5,5,.95);
+    border-radius: 20px;
+    font-size: 1.8rem;  
+    display: inline-block;
+    z-index: 5;
+    display: none;
+    position: absolute;
+    left: 5px;
+}
+
+.top td, .top th {
+    text-align: center;
+    padding: 5px 10px;
+    padding: 15px 10px;
+}

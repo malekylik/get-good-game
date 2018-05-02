@@ -258,6 +258,38 @@ class HTMLResultPageGraphicComponent {
     }
 }
 
+class HTMLTopPageGraphicComponent{
+    constructor() {
+        this.element = document.getElementsByClassName('top')[0];
+
+        this.button = document.getElementsByClassName('header__top-button')[0];
+
+        this.table = document.getElementsByClassName('top__table')[0];
+
+        this.toggle = this.toggle.bind(this);
+
+        this.button.addEventListener('click', this.toggle);
+    }
+
+    render() {
+        this.element.style.top = this.calculateTop();
+        this.element.style.display = 'inline-block';
+    }
+
+    toggle() {
+        this.element.style.top = this.calculateTop();
+        this.element.style.display = 'inline-block' === this.element.style.display ? 'none': 'inline-block';
+    }
+
+    remove() {
+        this.element.style.display = 'none';
+    }
+
+    calculateTop() {
+        return this.button.getBoundingClientRect().bottom + 5 + 'px';
+    }
+}
+
 class StartPage {
     constructor() {
        this.graphicComponent = new HTMLStartPageGraphicComponent();
@@ -309,6 +341,82 @@ class StartPage {
 
     get email() {
         return this.graphicComponent.emailInput.value;
+    }
+}
+
+class StorageManager {
+    constructor() {
+        this.keys = [];
+        this.records = [];
+
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+
+            if (key.match(/match-match-game/)) {
+                this.keys.push(key);
+            }
+        }
+
+        this.parseRecords();
+        console.log(this.records);
+        
+    }
+
+    saveResult(name, lastName, email, difficulty, time) {
+        this.records.push({
+            name,
+            lastName,
+            email,
+            difficulty,
+            time
+        });
+
+        this.records.sort((l, r) => l.time - r.time);
+
+        for (let i = 0; i < this.records.length && i < 10; i++) {
+            const { name, lastName, email, difficulty, time } = this.records[i];
+
+            const record = `name=${name};lastName=${lastName};email=${email};difficulty=${difficulty};time=${time};`;
+            localStorage.setItem('match-match-game=' + i, record);
+        }
+    }
+
+    parseRecords() {
+        for (let i = 0; i < this.keys.length; i++) {
+            const record = localStorage.getItem(this.keys[i]).split(';');
+
+            const name = record[0].split('=')[1],
+            lastName = record[1].split('=')[1],
+            email = record[2].split('=')[1],
+            difficulty = record[3].split('=')[1],
+            time = record[4].split('=')[1];
+
+            const recordObject = {
+                name,
+                lastName,
+                email,
+                difficulty,
+                time,
+            }
+
+            this.records.push(recordObject);
+        }
+    }
+}
+
+class TopPage {
+    constructor() {
+        this.graphicComponent = new HTMLTopPageGraphicComponent();
+
+
+    }
+
+    render() {
+        this.container.style.display = 'block';
+    }
+
+    remove() {
+        this.container.style.display = 'none';
     }
 }
 
@@ -438,7 +546,6 @@ class Player {
             }
 
             this.selectedCard = [];
-
         }
 
         return answer;
@@ -455,6 +562,8 @@ class Game {
         this.player = new Player();
         this.startPage = new StartPage();
         this.resultPage = new ResultPage();
+        this.topPage = new TopPage();
+        this.storageManager = new StorageManager();
     
         this.start = this.start.bind(this);
         this.main = this.main.bind(this);
@@ -515,7 +624,14 @@ class Game {
     end() {
         this.timer.terminate();
 
-        this.resultPage.time = this.timer.formatedTime;
+        const { name, lastName, email } = this.player,
+        difficulty = this.count,
+        time = this.timer.time,
+        formatedTime = this.timer.formatedTime;
+
+        this.storageManager.saveResult(name, lastName, email, difficulty, time);
+
+        this.resultPage.time = formatedTime;
 
         this.resultPage.render();
     }
