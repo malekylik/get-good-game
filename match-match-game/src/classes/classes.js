@@ -111,25 +111,27 @@ class Timer {
     }
 
     get formatedTime() {
-        const time = this.time;
+        return this.formatTime(this.time); 
+    }
 
+    formatTime(time) {
         let sec = time % 60,
-            minutes = Math.floor(time / 60),
-            hours = Math.floor(time / 3600);
-            
-            if (sec < 10) {
-                sec = `0${sec}`;
-            }
-
-            if (minutes < 10) {
-                minutes = `0${minutes}`;
-            }
-
-            if (hours < 10) {
-                hours = `0${hours}`;
-            }
+        minutes = Math.floor(time / 60),
+        hours = Math.floor(time / 3600);
         
-        return `${hours}:${minutes}:${sec}`; 
+        if (sec < 10) {
+            sec = `0${sec}`;
+        }
+
+        if (minutes < 10) {
+            minutes = `0${minutes}`;
+        }
+
+        if (hours < 10) {
+            hours = `0${hours}`;
+        }
+
+        return `${hours}:${minutes}:${sec}`
     }
 }
 
@@ -266,9 +268,22 @@ class HTMLTopPageGraphicComponent{
 
         this.table = document.getElementsByClassName('top__table')[0];
 
-        this.toggle = this.toggle.bind(this);
+        const tbody = this.table.tBodies[0];
+        for (let i = 0; i < 10; i++) {
+            const row = document.createElement('tr');
 
-        this.button.addEventListener('click', this.toggle);
+            for (let j = 0; j < 6; j++) {
+                const td = document.createElement('td');
+
+                if (j === 0) {
+                    td.innerText = i + 1;
+                }
+    
+                row.appendChild(td);
+            }
+
+            tbody.appendChild(row);
+        }
     }
 
     render() {
@@ -287,6 +302,31 @@ class HTMLTopPageGraphicComponent{
 
     calculateTop() {
         return this.button.getBoundingClientRect().bottom + 5 + 'px';
+    }
+
+    setRecords(records) {
+        const tbody = this.table.tBodies[0];
+
+        for (let i = 0; i < records.length &&  i < 10; i++) {
+            const row = tbody.rows[i + 1];
+
+            if (i < records.length) {
+                const { name, lastName, email, time, difficulty } = records[i];
+
+                row.cells[1].innerText = email;  
+                row.cells[2].innerText = name;  
+                row.cells[3].innerText = lastName;  
+                row.cells[4].innerText = difficulty;  
+                row.cells[5].innerText = time;  
+            } else {
+                row.cells[1].innerText = '';  
+                row.cells[2].innerText = '';  
+                row.cells[3].innerText = '';  
+                row.cells[4].innerText = '';  
+                row.cells[5].innerText = '';  
+            }            
+
+        }
     }
 }
 
@@ -357,9 +397,7 @@ class StorageManager {
             }
         }
 
-        this.parseRecords();
-        console.log(this.records);
-        
+        this.parseRecords();        
     }
 
     saveResult(name, lastName, email, difficulty, time) {
@@ -402,13 +440,20 @@ class StorageManager {
             this.records.push(recordObject);
         }
     }
+
+    get sortedRecords() {
+        this.records.sort((l, r) => l.time - r.time);
+        return this.records;
+    }
 }
 
 class TopPage {
-    constructor() {
+    constructor(storageManager, timeFormatF) {
         this.graphicComponent = new HTMLTopPageGraphicComponent();
+        this.timeFormatF = timeFormatF;
 
-
+        this.toggle = this.toggle.bind(this, storageManager);
+        this.graphicComponent.button.addEventListener('click', this.toggle);
     }
 
     render() {
@@ -417,6 +462,26 @@ class TopPage {
 
     remove() {
         this.container.style.display = 'none';
+    }
+
+    toggle(storageManager) {
+        this.setRecords(storageManager.sortedRecords);
+
+        this.graphicComponent.toggle();
+    }
+
+    setRecords(records) {
+        const formatedRecords = records.map(e => {
+            return {
+                name: e.name,
+                lastName: e.lastName,
+                email: e.email,
+                difficulty: e.difficulty,
+                time: this.timeFormatF(e.time)
+            };
+        });
+
+        this.graphicComponent.setRecords(formatedRecords);
     }
 }
 
@@ -562,8 +627,8 @@ class Game {
         this.player = new Player();
         this.startPage = new StartPage();
         this.resultPage = new ResultPage();
-        this.topPage = new TopPage();
         this.storageManager = new StorageManager();
+        this.topPage = new TopPage(this.storageManager, this.timer.formatTime);
     
         this.start = this.start.bind(this);
         this.main = this.main.bind(this);
