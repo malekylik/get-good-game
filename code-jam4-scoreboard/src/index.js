@@ -140,13 +140,36 @@
         lastToolTip.style.visibility = 'visible';
     };
 
+    const changeSession = (e) => {
+
+        puzzlesInfo = getPuzzlesUnfo(sessionsJSON[e.target.dataset.name], usersInfo);
+
+        while(tableHead.children.length !== 0) {
+            tableHead.removeChild(tableHead.children[0])
+        }
+
+        while(tableBody.children.length !== 0) {
+            tableBody.removeChild(tableBody.children[0])
+        }
+
+        drawHeader(puzzlesInfo);
+        drawBody(usersInfo, puzzlesInfo);
+
+    };
+
     let lastToolTip = null;
+
+    let radios = document.querySelectorAll('input[type=radio]');
+
+    radios.forEach((e) => {
+        e.addEventListener('click', changeSession);
+    });
 
     let userJSON = await (await fetch('/src/dumps/users.json')).json();
     let sessionsJSON = await (await fetch('/src/dumps/sessions.json')).json();
 
-    const usersInfo = getUserInfo(userJSON);
-    const puzzlesInfo = getPuzzlesUnfo(sessionsJSON.rsschool, usersInfo);
+    let usersInfo = getUserInfo(userJSON);
+    let puzzlesInfo = getPuzzlesUnfo(sessionsJSON.rsschool, usersInfo);
 
     drawHeader(puzzlesInfo);
 
@@ -165,8 +188,6 @@
 
         const answer = td.dataset.answer;
 
-
-
         if (answer != undefined && lastToolTip === null) {
             createTooltip(answer, td.getBoundingClientRect());
         }
@@ -179,5 +200,7 @@
             lastToolTip = null;
         }
     });
+
+
 })();
 
