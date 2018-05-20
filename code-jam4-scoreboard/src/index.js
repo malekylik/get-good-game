@@ -77,7 +77,13 @@
                 const puzzleInfo = document.createElement('td');
 
                 if (e.results[keys[i]] != undefined) {
-                    puzzleInfo.innerText = e.results[keys[i]].time['$numberLong'];
+                    let numberLong = parseInt(e.results[keys[i]].time['$numberLong'], 10);
+
+                    if (numberLong > e.timeLimit) {
+                        numberLong = e.timeLimit;
+                    }
+                    puzzleInfo.innerText = numberLong;
+
                     puzzleInfo.dataset.answer = `${e.results[keys[i]].correct}: ${e.results[keys[i]].code}`;
                 } else {
                     puzzleInfo.innerText = e.timeLimit;
@@ -109,7 +115,32 @@
         });
     };
 
-    
+    const createTooltip = (data = '', position = {}) => {
+        lastToolTip = document.createElement('div');
+        lastToolTip.classList.add('tooltip');
+        lastToolTip.innerText = data;
+
+
+
+        lastToolTip.style.top = 0 + 'px';
+        lastToolTip.style.left = position.left;
+        lastToolTip.style.visibility = 'hidden';
+        
+
+        document.body.appendChild(lastToolTip);
+
+        const toolTipHeight = lastToolTip.getBoundingClientRect().height;
+
+        if (position.top > toolTipHeight) {
+            lastToolTip.style.top = document.body.scrollTop + position.top - 5 - lastToolTip.getBoundingClientRect().height + 'px';
+        } else {
+            lastToolTip.style.top = document.body.scrollTop + position.top + 5 + lastToolTip.getBoundingClientRect().height + 'px'
+        }
+       
+        lastToolTip.style.visibility = 'visible';
+    };
+
+    let lastToolTip = null;
 
     let userJSON = await (await fetch('/src/dumps/users.json')).json();
     let sessionsJSON = await (await fetch('/src/dumps/sessions.json')).json();
@@ -117,11 +148,36 @@
     const usersInfo = getUserInfo(userJSON);
     const puzzlesInfo = getPuzzlesUnfo(sessionsJSON.rsschool, usersInfo);
 
-    console.log(usersInfo);
-    console.log(puzzlesInfo);
-
     drawHeader(puzzlesInfo);
 
     drawBody(usersInfo, puzzlesInfo);
+
+    tableBody.addEventListener('mouseover', (e) => {
+        let td = e.target;
+
+        while (td.localName != 'td' && td != null) {
+            td = td.parentElement;
+        }
+
+        if (td === null) {
+            return;
+        }
+
+        const answer = td.dataset.answer;
+
+
+
+        if (answer != undefined && lastToolTip === null) {
+            createTooltip(answer, td.getBoundingClientRect());
+        }
+    });
+
+    tableBody.addEventListener('mouseout', () => {
+        if (lastToolTip !== null) {
+            document.body.removeChild(lastToolTip);
+
+            lastToolTip = null;
+        }
+    });
 })();
 
