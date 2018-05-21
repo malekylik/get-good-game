@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Page Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" media="screen" href="./src/main.css" />
+</head>
+<body>
+    <div class="wrapper">
+        <header class="header">
+            <button class="header__top-button">TOP</button>
+        </header>
+        <main>
+            <section class="start-page">
+                <h1 class="welcome">Hello! This is match-match-game!</h1>
+                <h2 class>How to play:</h2>
+                <p class="start-page__how-to">
+                    Memory is a counter game where the object is to find pairs.
+                    <br />
+                    <br />
+                    When the game begins, all pictures are hidden.
+                </p>
+                <h2>To Play:</h2>
+                <ol class="start-page__rule-list">
+                    <li>
+                        Select two cards to try to match the pictures.
+                    </li>
+                    <li>
+                        If you match the pictures you can go again.
+                    </li>
+                    <li>
+                        If they don't match it is the computer turn them.
+                    </li>
+                    <li>
+                        The player that finds all pairs wins!
+                    </li>
+                    <li>
+                        Have Fun!
+                    </li>
+                </ol>
+                <form class="start-page__form">
+                    <div>
+                        <p>
+                            <label for="first-name-input">First Name</label>
+                            <br />
+                            <input id="first-name-input" type="text" name="first-name" placeholder="first name" required />
+                        </p>
+                        <p>
+                            <label for="last-name-input">Last Name</label>
+                            <br />
+                            <input id="last-name-input" type="text" name="last-name" placeholder="last name" required />
+                        </p>
+                        <p>
+                            <label for="email-input">Email</label>
+                            <br />
+                            <input id="email-input" type="email" name="email" placeholder="email" required />
+                        </p>
+                    </div>
+                    <div class="start-page__game-options-fieldset">
+                        <div class="start-difficulty-inputs">
+                            <span>Game difficulty</span>
+                            <p class="start-difficulty-input">
+                                <label for="low-dif">Low (5x2)</label>
+                                <input id="low-dif" type="radio" name='difficulty' checked />
+                            </p>
+                            <p class="start-difficulty-input">
+                                <label for="med-dif">Medium (6x3)</label>
+                                <input id="med-dif" type="radio" name='difficulty' />
+                            </p>
+                            <p class="start-difficulty-input">
+                                <label for="hight-dif">Hight (8x3)</label>
+                                <input id="hight-dif" type="radio" name='difficulty' />
+                            </p>
+                        </div>
+
+                        <div>
+                            <span>Skirt Cards</span>
+                            <div class="start-page__skirt-inputs">
+                                <p>
+                                    <label for="skirt1">
+                                        <img width="45" height="70" src='./src/imgs/cards/back1.jpg' alt='skirt1' />
+                                    </label>
+                                    <input id="skirt1" type="radio" name='skirt' checked />
+                                </p>
+        
+                                <p>
+                                    <label for="skirt2">
+                                        <img width="45" height="70" src='./src/imgs/cards/back2.jpg' alt='skirt2' />
+                                    </label>
+                                    <input id="skirt2" type="radio" name='skirt' />
+                                </p>
+                                <p>
+                                    <label for="skirt3">
+                                        <img width="45" height="70" src='./src/imgs/cards/back3.jpg' alt='skirt3' />
+                                    </label>
+                                    <input id="skirt3" type="radio" name='skirt' />
+                                </p>
+                            </div>
+                        </div>                   
+                    </div>
+                    <input class="start-page__submit" type="submit" />
+                </form>              
+            </section>
+        </main>
+
+
+        <section class="result-page">
+            <h2 class="result-page__congratulation">
+                Congratulation! You are winner!:)
+            </h2>
+            <h3 class="result-page__heading">
+                Game result:
+            </h3>
+            <article class="result-page__results">
+                <span>
+                    Name:
+                </span>
+                <span class="result-page__name">  
+                </span>
+                <span>
+                    Last Name:
+                </span>
+                <span class="result-page__last-name">
+                </span>
+                <span>
+                    Difficulty:
+                </span>
+                <span class="result-page__difficulty">
+                </span>
+                <span>
+                    Time:
+                </span>
+                <span class="result-page__time">
+                </span>
+            </article>
+        </section>
+
+    </div>
+
+
+    <div class="top">
+        <table class="top__table">
+            <tbody>
+                <tr>
+                    <th>
+                        №
+                    </th>
+                    <th>
+                        email
+                    </th>
+                    <th>
+                        Name
+                    </th>
+                    <th>
+                        Last Name
+                    </th>
+                    <th>
+                        difficulty
+                    </th>
+                    <th>
+                        time
+                    </th>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script src="./src/index.js"></script>
+</body>
+</html>

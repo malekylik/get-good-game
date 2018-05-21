@@ -1,0 +1,280 @@
+html {
+    font-size: 10px;
+}
+
+body {
+    padding: 0;
+    margin: 0;
+    background-image: url('./imgs/back.png');
+}
+
+.wrapper {
+    margin: 0 auto;
+    max-width: 1200px;
+    display: flex;
+    flex-direction: column;
+}
+
+.timer {
+    width: 200px;
+    justify-self: end;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    font-size: 2.4rem;
+    background-color: #ddd;
+    text-align: center;
+    border: 1px solid #bbb;
+}
+
+.card > img {
+    width: 200px;
+    height: 300px;
+    cursor: pointer;
+    animation-duration: .75s;
+    animation-timing-function: linear;
+    user-select: none;
+}
+
+.card {
+    display: inline-block;
+    position: relative;
+    margin: 0;
+    justify-self: center;
+    animation-duration: 0.3s;
+    animation-fill-mode: forwards;
+}
+
+.card-side-bottom {
+    opacity: 0;
+}
+
+.card-side-bottom-turned {
+    opacity: 1;
+    transform: rotate3d(0,1,0,0deg);
+    animation-direction: reverse;
+    z-index: -1;
+}
+
+.card-side-top-turned {
+    opacity: 0;
+    transform: rotate3d(0,1,0,180deg);
+    animation-direction: reverse;
+    z-index: -1;
+}
+
+.card-side-bottom-turn {
+    animation-name: card-turn-bottom; 
+} 
+
+.card-side-top {
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.card-side-top-turn {
+    animation-name: card-turn-top; 
+}
+
+.card-rotate-animation {
+    animation-name: card-turn;
+}
+
+.card-disappear-animation {
+    animation-name: card-disappear;
+}
+
+@keyframes card-turn-top {
+    0% {
+        transform: rotate3d(0,1,0,0); 
+        opacity: 1;
+    }
+
+    49.99% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0;
+    }
+
+    100% {
+        opacity: 0;
+        transform: rotate3d(0,1,0,180deg);
+    }
+}
+
+@keyframes card-turn-bottom {
+    0% {
+        transform: rotate3d(0,1,0,180deg); 
+        opacity: 0;
+    }
+
+    49.99% {
+        opacity: 0;
+    }
+
+    50% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 1;
+        transform: rotate3d(0,1,0,0deg);
+    }
+}
+
+@keyframes card-disappear{
+    to {
+        opacity: 0;
+    }
+}
+
+.cards {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    grid-gap: 5px;
+}
+
+.header {
+    margin-bottom: 15px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+}
+
+.start-page {
+    color: white;
+    text-shadow: 0 1px black;
+    background-color: rgba(20,20,20,.85);
+    font-size: 1.8rem;
+    padding-top: 15px;
+    padding-bottom: 15px;
+    border-radius: 20px;
+    margin: 15px 10px 15px 10px;
+    display: none;
+}
+
+.welcome {
+    text-align: center;
+    font-size: 2.5rem;
+}
+
+.start-page > h2 {
+    font-size: 2rem;
+    text-align: center;
+}
+
+.start-page__how-to {
+    width: 600px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.start-page__rule-list > li {
+    margin-bottom: 15px;
+}
+
+.start-page  fieldset {
+    border: none;
+}
+
+.start-page__game-options-fieldset {
+    display: flex;
+}
+
+.start-page__form {
+    width: 70%;
+    margin: 0 auto;
+    padding-left: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+}
+
+.start-page__form > * {
+    margin-right: 20px;
+}
+
+.start-page__form > div {
+    justify-self: center;
+}
+
+.start-page__submit {
+    width: 300px;
+    height: 30px;
+    margin-top: 30px;
+}
+
+.start-page__skirt-inputs {
+    display: flex;
+}
+
+.start-difficulty-inputs {
+    margin-right: 40px;
+}
+
+.start-difficulty-input {
+    display: flex;
+    justify-content: space-between;
+}
+
+.result-page {
+    position: fixed;
+    color: white;
+    text-shadow: 0 1px black;
+    background-color: rgba(20,20,20,.85);
+    font-size: 1.8rem;
+    padding: 15px 10px;
+    border-radius: 20px;
+    width: 500px;
+    height: 300px;
+    left: calc(50% - 250px);
+    top: calc(50vh - 150px);
+    display: none;
+    z-index: 10;
+}
+
+.result-page__congratulation {
+    text-align: center;
+}
+
+.result-page__heading {
+    text-align: center;
+}
+
+.result-page__results {
+    display: grid;
+    grid-row-gap: 5px;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr 1fr;
+}
+
+.result-page__results > * {
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+.header__top-button {
+    width: 150px;
+    height: 50px;
+}
+
+.top {
+    color: white;
+    text-shadow: 0 1px black;
+    background-color: rgba(5,5,5,.95);
+    border-radius: 20px;
+    font-size: 1.8rem;  
+    display: inline-block;
+    z-index: 5;
+    display: none;
+    position: absolute;
+    left: 5px;
+}
+
+.top td, .top th {
+    text-align: center;
+    padding: 5px 10px;
+    padding: 15px 10px;
+}
