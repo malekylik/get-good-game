@@ -31,6 +31,9 @@
         const tdName = document.createElement('td');
         tdName.innerText = 'user name:';
 
+        const tdComparison = document.createElement('td');
+        tdComparison.innerText = 'Comparison';
+
         const tdPuzzlesName = [];
 
         puzzlesInfo.forEach(({ name }) => {
@@ -50,6 +53,8 @@
         });
 
         tableHeadRow.appendChild(tdTime);
+
+        tableHeadRow.appendChild(tdComparison);
 
         tableHead.appendChild(tableHeadRow);
     };
@@ -105,7 +110,13 @@
                 tableBodyRow.appendChild(e);
             });
 
+            const checkBoxTd = document.createElement('td');
+            const checkBox = document.createElement('input');
+            checkBox.type = 'checkBox';
+
+            checkBoxTd.appendChild(checkBox);
             tableBodyRow.appendChild(tdTotalTime);
+            tableBodyRow.appendChild(checkBoxTd);
 
             tableRows.push(tableBodyRow);
         }
@@ -120,13 +131,10 @@
         lastToolTip.classList.add('tooltip');
         lastToolTip.innerText = data;
 
-
-
         lastToolTip.style.top = 0 + 'px';
         lastToolTip.style.left = position.left;
         lastToolTip.style.visibility = 'hidden';
         
-
         document.body.appendChild(lastToolTip);
 
         const toolTipHeight = lastToolTip.getBoundingClientRect().height;
@@ -141,7 +149,6 @@
     };
 
     const changeSession = (e) => {
-
         puzzlesInfo = getPuzzlesUnfo(sessionsJSON[e.target.dataset.name], usersInfo);
 
         while(tableHead.children.length !== 0) {
@@ -165,20 +172,19 @@
         e.addEventListener('click', changeSession);
     });
 
-    let userJSON = await (await fetch('/src/dumps/users.json')).json();
-    let sessionsJSON = await (await fetch('/src/dumps/sessions.json')).json();
+    let [user, sessions] = await Promise.all([fetch('/src/dumps/users.json'), fetch('/src/dumps/sessions.json')]);
+    let [userJSON, sessionsJSON] = await Promise.all([user.json(), sessions.json()]);
 
     let usersInfo = getUserInfo(userJSON);
     let puzzlesInfo = getPuzzlesUnfo(sessionsJSON.rsschool, usersInfo);
 
     drawHeader(puzzlesInfo);
-
     drawBody(usersInfo, puzzlesInfo);
 
     tableBody.addEventListener('mouseover', (e) => {
         let td = e.target;
 
-        while (td.localName != 'td' && td != null) {
+        while (td != null && td.localName != 'td') {
             td = td.parentElement;
         }
 
