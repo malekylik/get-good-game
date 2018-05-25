@@ -164,7 +164,7 @@
 
     };
 
-    const checkedRows = [];
+    let checkedRows = [];
 
     let lastToolTip = null;
 
@@ -207,6 +207,8 @@
 
             lastToolTip = null;
         }
+
+        checkedRows = [];
     });
 
     tableBody.addEventListener('change', (e) => {
@@ -223,8 +225,6 @@
         } else {
             checkedRows.splice(checkedRows.indexOf(tr), 1);
         }
-
-        console.log(checkedRows);
     });
 })();
 
