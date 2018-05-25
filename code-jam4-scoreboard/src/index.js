@@ -164,6 +164,8 @@
 
     };
 
+    const checkedRows = [];
+
     let lastToolTip = null;
 
     let radios = document.querySelectorAll('input[type=radio]');
@@ -207,6 +209,22 @@
         }
     });
 
+    tableBody.addEventListener('change', (e) => {
+        let tr = e.target;
 
+        while (tr != null && tr.localName != 'tr') {
+            tr = tr.parentElement;
+        }
+
+        if (e.target.checked) {
+            if (checkedRows.length < 10) {
+                checkedRows.push(tr);
+            }
+        } else {
+            checkedRows.splice(checkedRows.indexOf(tr), 1);
+        }
+
+        console.log(checkedRows);
+    });
 })();
 
