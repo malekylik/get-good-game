@@ -159,12 +159,81 @@
             tableBody.removeChild(tableBody.children[0])
         }
 
+        checkedRows = [];
+
         drawHeader(puzzlesInfo);
         drawBody(usersInfo, puzzlesInfo);
 
+        while (chart.data.labels != 0) {
+            chart.data.labels.pop();
+        }
+
+        while (chart.data.datasets != 0) {
+            chart.data.datasets.pop();
+        }
+
+        chart.data.labels = puzzlesInfo.map(({ name }) => name);
+
+        chart.update();
     };
 
+    const createChart = (canvas, puzzlesInfo = []) => {
+        return new Chart(ctx, { 
+            type: 'line',
+            data: {
+                labels: puzzlesInfo.map(({ name }) => name),
+            },
+            options: {
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero: true,
+                        }
+                    }]
+                }, 
+                legend: {
+                    display: true,
+                    position: 'bottom',
+                }
+            },
+        });
+    };
+
+    const updateChart = (chart, name, times, color) => {
+        chart.data.datasets.push({
+            label: name,
+            data: times,
+            backgroundColor: [color],
+            borderColor: [color],
+            borderWidth: 1,
+            fill: false,
+        });
+
+        chart.update();
+    };
+
+    const removeChartItem = (chart, index) => {
+        chart.data.datasets.splice(index, 1);
+
+        chart.update();
+    };
+
+    const colors = [
+        'red',
+        'green',
+        'blue',
+        'Gold',
+        'Gray',
+        'LawnGreen',
+        'LightPink',
+        'MediumAquaMarine',
+        'Orchid',
+        'Peru',
+    ];
+
     let checkedRows = [];
+
+    const ctx = document.body.getElementsByClassName('chart')[0].getContext('2d');
 
     let lastToolTip = null;
 
@@ -182,6 +251,7 @@
 
     drawHeader(puzzlesInfo);
     drawBody(usersInfo, puzzlesInfo);
+    let chart = createChart(ctx, puzzlesInfo);
 
     tableBody.addEventListener('mouseover', (e) => {
         let td = e.target;
@@ -207,8 +277,6 @@
 
             lastToolTip = null;
         }
-
-        checkedRows = [];
     });
 
     tableBody.addEventListener('change', (e) => {
@@ -221,9 +289,22 @@
         if (e.target.checked) {
             if (checkedRows.length < 10) {
                 checkedRows.push(tr);
+
+                updateChart(
+                    chart,
+                    tr.cells[0].innerText,
+                    Array.prototype.slice.call(tr.cells, 1, tr.cells.length - 2).map(({ innerText }) => innerText),
+                    colors[checkedRows.length - 1],
+                );
+            } else {
+                e.target.checked = false;
             }
         } else {
-            checkedRows.splice(checkedRows.indexOf(tr), 1);
+            const index = checkedRows.indexOf(tr);
+
+            removeChartItem(chart, index);
+
+            checkedRows.splice(index, 1);
         }
     });
 })();
