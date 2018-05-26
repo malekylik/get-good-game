@@ -195,6 +195,9 @@
                         }
                     }]
                 }, 
+                tooltips: {
+                    mode: 'x',
+                },
                 legend: {
                     display: true,
                     position: 'bottom',
@@ -209,6 +212,8 @@
             data: times,
             backgroundColor: [color],
             borderColor: [color],
+            pointBorderColor: color,
+            pointBackgroundColor: color,
             borderWidth: 1,
             fill: false,
         });
