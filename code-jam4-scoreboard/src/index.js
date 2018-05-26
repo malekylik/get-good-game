@@ -161,6 +161,10 @@
 
         checkedRows = [];
 
+        colors.forEach((e) => {
+            e.isUsed = false
+        });
+
         drawHeader(puzzlesInfo);
         drawBody(usersInfo, puzzlesInfo);
 
@@ -219,16 +223,46 @@
     };
 
     const colors = [
-        'red',
-        'green',
-        'blue',
-        'Gold',
-        'Gray',
-        'LawnGreen',
-        'LightPink',
-        'MediumAquaMarine',
-        'Orchid',
-        'Peru',
+        {
+            color: 'red',
+            isUsed: false
+        },
+        {
+            color: 'green',
+            isUsed: false
+        },
+        {
+            color: 'blue',
+            isUsed: false
+        },
+        {
+            color: 'Gold',
+            isUsed: false
+        },
+        {
+            color: 'Gray',
+            isUsed: false
+        },
+        {
+            color: 'LawnGreen',
+            isUsed: false
+        },
+        {
+            color: 'LightPink',
+            isUsed: false
+        },
+        {
+            color: 'MediumAquaMarine',
+            isUsed: false
+        },
+        {
+            color: 'Orchid',
+            isUsed: false
+        },
+        {
+            color: 'Peru',
+            isUsed: false
+        },
     ];
 
     let checkedRows = [];
@@ -288,19 +322,26 @@
 
         if (e.target.checked) {
             if (checkedRows.length < 10) {
-                checkedRows.push(tr);
+                const colorIndex = colors.findIndex((e) => !e.isUsed);
+                colors[colorIndex].isUsed = true;
+
+                checkedRows.push({ 
+                        tr,
+                        color: colors[colorIndex].color
+                    });
 
                 updateChart(
                     chart,
                     tr.cells[0].innerText,
                     Array.prototype.slice.call(tr.cells, 1, tr.cells.length - 2).map(({ innerText }) => innerText),
-                    colors[checkedRows.length - 1],
+                    colors[colorIndex].color,
                 );
             } else {
                 e.target.checked = false;
             }
         } else {
-            const index = checkedRows.indexOf(tr);
+            const index = checkedRows.findIndex((e) => e.tr === tr);
+            colors.find((e) => e.color === checkedRows[index].color).isUsed = false;
 
             removeChartItem(chart, index);
 
