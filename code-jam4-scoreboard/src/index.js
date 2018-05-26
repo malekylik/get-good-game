@@ -229,43 +229,43 @@
 
     const colors = [
         {
-            color: 'red',
+            color: '#ff0000',
             isUsed: false
         },
         {
-            color: 'green',
+            color: '#00ff00',
             isUsed: false
         },
         {
-            color: 'blue',
+            color: '#0000ff',
             isUsed: false
         },
         {
-            color: 'Gold',
+            color: '#ffd700',
             isUsed: false
         },
         {
-            color: 'Gray',
+            color: '#808080',
             isUsed: false
         },
         {
-            color: 'LawnGreen',
+            color: '#3CB371',
             isUsed: false
         },
         {
-            color: 'LightPink',
+            color: '#ffb6c1',
             isUsed: false
         },
         {
-            color: 'MediumAquaMarine',
+            color: '#66CDAA',
             isUsed: false
         },
         {
-            color: 'Orchid',
+            color: '#da70d6',
             isUsed: false
         },
         {
-            color: 'Peru',
+            color: '#cd853f',
             isUsed: false
         },
     ];
