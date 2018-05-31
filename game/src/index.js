@@ -49,7 +49,7 @@ class Component {
         this.setBoundingClientRect(top, left, width, height);
 
         this.drawBorder = false;
-        this.overflow = '';
+        this.overflow = 'visible';
 
         this.color = {
             backgroundColor: '#000000',
@@ -112,11 +112,17 @@ class Component {
 
     draw(context) {
         context.save();
-        let { top, left, right, bottom, width, height } = this.getBoundingClientRect();
+        let { top, left, width, height } = this.getBoundingClientRect();
         const parent = this.getParentComponent();
 
         if (parent !== null) {
             context.translate(parent.getBoundingClientRect().left, parent.getBoundingClientRect().top);
+        }
+
+        if (this.overflow === 'hidden') {
+            const path = new Path2D();
+            path.rect(left, top, width, height);
+            context.clip(path, "nonzero");
         }
         
 
@@ -128,9 +134,7 @@ class Component {
             context.strokeRect(left, top, width, height);
         }
 
-        if (this.overflow === 'hidden') {
-            // context.clip();
-        }
+
 
         for (let o of this.children) {
             o.draw(context);
@@ -164,8 +168,8 @@ scene.addComponent(componentItem1);
 scene.addComponent(componentItem3);
 componentItem1.addComponent(componentItem2);
 
+// scene.overflow = 'hidden';
 componentItem1.overflow = 'hidden';
-scene.overflow = 'hidden';
 
 canvas.addScene(scene);
 
