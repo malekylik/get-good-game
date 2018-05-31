@@ -40,7 +40,7 @@ class Canvas {
             o.draw(this.context);
         }
     }
-};
+}
 
 
 class Component {
@@ -52,11 +52,9 @@ class Component {
         this.overflow = 'visible';
 
         this.color = {
-            backgroundColor: '#000000',
+            backgroundColor: 'rgba(0,0,0,0)',
             borderColor: '#000000',
         };
-
-        this.children = [];
     }
 
     getBoundingClientRect() {
@@ -86,22 +84,6 @@ class Component {
         this.parentComponent = parentComponent;
     }
 
-    addComponent(component) {
-        component.setParentComponent(this);
-        this.children.push(component);
-    }
-
-    removeComponent(component) {
-        const index = this.children.indexOf(component);
-
-        if ((~index) !== 0) {
-            this.children.splice(index, 1);
-            return true;
-        }
-
-        return false;
-    }
-
     getParentComponent() {
         return this.parentComponent;
     }
@@ -110,8 +92,21 @@ class Component {
         return this.overflow;
     }
 
+    addComponent(component) {
+
+    }
+
+    removeComponent(component) {
+
+    }
+
+    drawComponent(context) {
+        
+    }
+
     draw(context) {
         context.save();
+
         let { top, left, width, height } = this.getBoundingClientRect();
         const parent = this.getParentComponent();
 
@@ -134,27 +129,147 @@ class Component {
             context.strokeRect(left, top, width, height);
         }
 
+        this.drawComponent(context);
 
-
-        for (let o of this.children) {
-            o.draw(context);
+        if (this.children) {
+            for (let o of this.children) {
+                o.draw(context);
+            }
         }
 
         context.restore();
     }
-};
+}
+
+class CompositeComponent extends Component {
+    constructor(top = 0, left = 0, width = 0, height = 0, parentComponent = null) {
+        super(top, left, width, height, parentComponent);
+
+        this.children = [];
+    }
+
+    addComponent(component) {
+        component.setParentComponent(this);
+        this.children.push(component);
+    }
+
+    removeComponent(component) {
+        const index = this.children.indexOf(component);
+
+        if ((~index) !== 0) {
+            this.children.splice(index, 1);
+            return true;
+        }
+
+        return false;
+    }
+}
+
+class Label extends Component {
+    constructor(top = 0, left = 0, width = 0, height = 0, text = '', parentComponent = null) {
+        super(top, left, width, height, parentComponent);
+
+        this.text = text;
+        this.color.textColor = '#000000';
+        this.textProperties = {
+            textAlign: 'center',
+            textBaseline: 'middle',
+            fontSize: 16,
+            fontFamily: 'Arial'
+        };
+
+        this.neededToRecalculate = true;
+    }
+
+    setText(text = '') {
+        this.neededToRecalculate = true;
+        this.text = text;
+    }
+
+    getText() {
+        return this.getText();
+    }
+
+    setTextColor(color = '#000000') {
+        this.color.textColor = color;
+    }
+
+    setFont(font) {
+        this.textProperties.font = font;
+    }
+
+    calculateLines(context, text) {
+        if (this.neededToRecalculate) {
+            this.textLines = [];
+
+            const width = this.getBoundingClientRect().width;
+            let words = this.text.split(' ');
+                
+            let line = '';
+            let lineWidth = 0;
+            words.forEach((word) => {
+                if (lineWidth !== 0) {
+                    word = ' ' + word;
+                }
+    
+                const wordWidth = context.measureText(word).width;
+                
+                if (lineWidth + wordWidth <= width) {
+                    lineWidth += wordWidth;
+                    line += word;
+    
+                    return;
+                }
+    
+                this.textLines.push(line.trim());
+                line = word;
+                lineWidth = context.measureText(word.trim()).width;
+            });
+    
+            if (line !== '') {
+                this.textLines.push(line.trim());
+            }
+
+            this.neededToRecalculate = false;
+        }
+    }
+
+    drawComponent(context) {
+        context.save();
+
+        let { bottom, left, width, height } = this.getBoundingClientRect();
+
+        context.translate(left, bottom);
+
+        context.fillStyle = this.color.textColor;
+        context.font = `${this.textProperties.fontSize}px ${this.textProperties.fontFamily}`;
+        context.textAlign = this.textProperties.textAlign;
+        context.textBaseline = this.textProperties.textBaseline;
+
+        this.calculateLines(context, this.text);
+
+        this.textLines.forEach((line, i) => {        
+            context.fillText(line, width / 2, -height / 2 + i * this.textProperties.fontSize);
+        });
+       
+        context.restore();
+    }
+}
 
 const canvas = new Canvas(document.getElementsByClassName('canvas')[0]);
 
-const scene = new Component(20, 50, 1000, 750);
-const componentItem1 = new Component(10, 10, 200, 200);
-const componentItem2 = new Component(10,-5, 250, 100);
-const componentItem3 = new Component(250,250, 25, 10);
+const scene = new CompositeComponent(50, 100, 1000, 750);
+const componentItem1 = new CompositeComponent(10, 10, 200, 200);
+const componentItem2 = new CompositeComponent(10,-5, 250, 100);
+const componentItem3 = new CompositeComponent(250,250, 25, 10);
+const textLabel = new Label(220,10,200,100,'hello   hello hello hello hello hello hello');
 
 scene.setBackgroundColor('#aa0000');
 componentItem1.setBackgroundColor('#00aa00');
 componentItem2.setBackgroundColor('#0000aa');
 componentItem3.setBackgroundColor('#aa00aa');
+textLabel.setBackgroundColor('#aaaaaa');
+
 
 scene.drawBorder = true;
 componentItem1.drawBorder = true;
@@ -167,9 +282,10 @@ componentItem2.setBorderColor('#aa0000');
 scene.addComponent(componentItem1);
 scene.addComponent(componentItem3);
 componentItem1.addComponent(componentItem2);
+scene.addComponent(textLabel);
 
 // scene.overflow = 'hidden';
-componentItem1.overflow = 'hidden';
+// componentItem1.overflow = 'hidden';
 
 canvas.addScene(scene);
 
