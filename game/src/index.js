@@ -142,8 +142,6 @@ class Component {
 
         this.properties = {};
 
-        this.setBoundingClientRect(top, left, width, height);
-
         this.properties.drawBorder = false;
         this.properties.overflow = 'visible';
 
@@ -156,6 +154,8 @@ class Component {
         this.animations = new Animatable(this);
 
         this.handlers = new EventHandlers();
+
+        this.setBoundingClientRect(top, left, width, height);
     }
 
     getBoundingClientRect() {
@@ -171,14 +171,25 @@ class Component {
             right: left + width,
             bottom: top + height
         };
+
+        this.animations.animatedProperties.boundingClientRect = {
+            top,
+            left,
+            width,
+            height,
+            right: left + width,
+            bottom: top + height
+        };
     }
 
     setBackgroundColor(color = '#000000') {
         this.properties.color.backgroundColor = color;
+        this.animations.animatedProperties.color.backgroundColor = color;
     }
 
     setBorderColor(color = '#000000') {
         this.properties.color.borderColor = color;
+        this.animations.animatedProperties.color.borderColor = color;
     }
 
     setParentComponent(parentComponent) {
@@ -209,7 +220,7 @@ class Component {
         context.save();
         let { top, left, width, height } = this.getBoundingClientRect();
 
-        context.fillStyle = this.properties.color.backgroundColor;
+        context.fillStyle = this.animations.animatedProperties.color.backgroundColor;
         context.fillRect(left, top, width, height);
         context.restore();
     }
@@ -240,7 +251,7 @@ class Component {
         }
         
         if (this.drawBorder) {
-            context.strokeStyle = this.properties.color.borderColor;
+            context.strokeStyle = this.animations.animatedProperties.color.borderColor;
             context.strokeRect(left, top, width, height);
         }
 
@@ -358,6 +369,8 @@ class Label extends Component {
             fontFamily: 'Arial'
         };
 
+        _.merge(this.animations.animatedProperties, this.properties);
+
         this.neededToRecalculate = true;
     }
 
@@ -415,10 +428,10 @@ class Label extends Component {
     }
 
     setContextProperties(context, elapseTime) {
-        context.fillStyle = this.properties.color.textColor;
-        context.font = `${this.properties.textProperties.fontSize}px ${this.properties.textProperties.fontFamily}`;
-        context.textAlign = this.properties.textProperties.textAlign;
-        context.textBaseline = this.properties.textProperties.textBaseline;     
+        context.fillStyle = this.animations.animatedProperties.color.textColor;
+        context.font = `${this.animations.animatedProperties.textProperties.fontSize}px ${this.animations.animatedProperties.textProperties.fontFamily}`;
+        context.textAlign = this.animations.animatedProperties.textProperties.textAlign;
+        context.textBaseline = this.animations.animatedProperties.textProperties.textBaseline;     
 
         super.setContextProperties(context, elapseTime)
     }
@@ -432,7 +445,7 @@ class Label extends Component {
         this.calculateLines(context, this.text);
 
         this.textLines.forEach((line, i) => {        
-            context.fillText(line, width / 2, -height / 2 + i * this.properties.textProperties.fontSize);
+            context.fillText(line, width / 2, -height / 2 + i * this.animations.animatedProperties.textProperties.fontSize);
         });
     }
 }
@@ -538,7 +551,7 @@ componentItem1.handlers.onmousemove = (e) => {
 };
 
 scene.animations.setAnimation('background', 2, (context,initialProperties, properties, elapseTime) => {
-    properties.boundingClientRect.left = initialProperties.boundingClientRect.left + 50 * elapseTime;
+    properties.boundingClientRect.left = initialProperties.boundingClientRect.left + 150 * elapseTime;
 });
 
 const ui = new UI();
