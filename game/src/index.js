@@ -1,3 +1,10 @@
+let mouseCoord = {
+    top: 0,
+    left: 0,
+    width: 1,
+    height: 1
+};
+
 class Canvas {
     constructor(canvas) {
         this.width = canvas.width;
@@ -7,6 +14,10 @@ class Canvas {
         this.context = this.htmlComponent.getContext('2d');
 
         this.scenes = [];
+    }
+
+    getHtml() {
+        return this.htmlComponent;
     }
 
     clear(color = '#000000') {
@@ -42,6 +53,20 @@ class Canvas {
     }
 }
 
+class Collision {
+    isInside(firstMetric, secondMetric) {
+        const keys = Object.keys(firstMetric);
+
+        if (firstMetric.left < secondMetric.left + secondMetric.width &&
+            firstMetric.left + firstMetric.width > secondMetric.left &&
+            firstMetric.top < secondMetric.top + secondMetric.height &&
+            firstMetric.height + firstMetric.top > secondMetric.top) {
+                return true;
+            }
+
+        return false
+    }
+}
 
 class Component {
     constructor(top = 0, left = 0, width = 0, height = 0, parentComponent = null) {
@@ -55,6 +80,8 @@ class Component {
             backgroundColor: 'rgba(0,0,0,0)',
             borderColor: '#000000',
         };
+
+        this.collision = new Collision();
     }
 
     getBoundingClientRect() {
@@ -120,7 +147,6 @@ class Component {
             context.clip(path, "nonzero");
         }
         
-
         context.fillStyle = this.color.backgroundColor;
         context.fillRect(left, top, width, height);
 
@@ -162,6 +188,71 @@ class CompositeComponent extends Component {
         }
 
         return false;
+    }
+
+    traverse(callback) {
+        callback(this);
+
+        if (this.children) {
+            for (let o of this.children) {
+                if (o.traverse) {
+                    o.traverse(callback);
+                } else {
+                    callback(o);
+                }
+            } 
+        } 
+    }
+
+    checkForCollision(objectMetric) {
+        const elementInside = [];
+        let biggestDepth = 1;
+
+        this.traverse((o) => {
+            const { top, left, width, height } = o.getBoundingClientRect();
+            const oCoord = {
+                width,
+                height
+            };
+
+            let absoluteTop = top;
+            let absoluteLeft = left;
+
+            let depth = 1;
+
+            let parent = o.getParentComponent();
+
+            while (parent !== null) {
+                const { top, left } = parent.getBoundingClientRect();
+                
+                absoluteTop += top;
+                absoluteLeft += left;
+
+                depth += 1;
+
+                parent = parent.getParentComponent();
+            }
+
+            oCoord.top = absoluteTop;
+            oCoord.left = absoluteLeft;
+
+            if (this.collision.isInside(oCoord, objectMetric)) {
+                elementInside.push({
+                    o,
+                    depth
+                });
+
+                if (depth > biggestDepth) {
+                    biggestDepth = depth;
+                }
+            }
+        });
+
+        if (elementInside.length !== 0) {
+            return elementInside;
+        }
+
+        return null;
     }
 }
 
@@ -270,7 +361,6 @@ componentItem2.setBackgroundColor('#0000aa');
 componentItem3.setBackgroundColor('#aa00aa');
 textLabel.setBackgroundColor('#aaaaaa');
 
-
 scene.drawBorder = true;
 componentItem1.drawBorder = true;
 componentItem2.drawBorder = true;
@@ -289,8 +379,18 @@ scene.addComponent(textLabel);
 
 canvas.addScene(scene);
 
+canvas.getHtml().addEventListener('mousemove', (e) => {
+    mouseCoord.top = e.offsetY;
+    mouseCoord.left = e.offsetX;
+});
+
 const main = () => {
     requestAnimationFrame(main);
+
+    const element = scene.checkForCollision(mouseCoord);
+    if (element !== null) {
+        console.log(element);
+    }
 
     canvas.draw();
 };
