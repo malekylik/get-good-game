@@ -1,8 +1,5 @@
-let mouseCoord = {
-    top: 0,
-    left: 0,
-    width: 1,
-    height: 1
+const events = {
+    MOUSE_MOVE: 'mousemove'
 };
 
 class EventQueue {
@@ -49,8 +46,19 @@ class EventQueue {
     }
 }
 
-const eventQueue = new EventQueue();
+class EventHandlers {
+    constructor() {
+        this.onmousemove = null;
+    }
 
+    handle(event) {
+        const handler = this[`on${event.type}`];
+
+        if (handler) {
+            handler(event.payload);
+        }
+    }
+}
 
 class Canvas {
     constructor(canvas) {
@@ -129,6 +137,8 @@ class Component {
         };
 
         this.collision = new Collision();
+
+        this.handlers = new EventHandlers();
     }
 
     getBoundingClientRect() {
@@ -421,23 +431,59 @@ scene.addComponent(componentItem3);
 componentItem1.addComponent(componentItem2);
 scene.addComponent(textLabel);
 
+scene.handlers.onmousemove = (e) => {
+    console.log(e.mouseCoord);
+};
+
 // scene.overflow = 'hidden';
 // componentItem1.overflow = 'hidden';
 
 canvas.addScene(scene);
 
+const eventQueue = new EventQueue();
+
 canvas.getHtml().addEventListener('mousemove', (e) => {
-    mouseCoord.top = e.offsetY;
-    mouseCoord.left = e.offsetX;
+    const event = {
+        type: events.MOUSE_MOVE,
+        payload: {
+            mouseCoord: {
+                top: e.offsetY,
+                left: e.offsetX,
+            }
+        }
+    };
+
+    eventQueue.add(event);
 });
+
+
+
+const update = () => {
+    while (eventQueue.hasNext()) {
+        const event = eventQueue.getNext();
+
+        const elements = scene.checkForCollision({ ...event.payload.mouseCoord, width: 1, height: 1 }); 
+        if (elements !== null) {
+            let mostDepth = 0;
+            let index = -1;
+    
+            elements.forEach(({ depth }, i) => {
+                if (depth > mostDepth) {
+                    mostDepth = depth;
+                    index = i;
+                };
+            });
+            
+            const element = elements[index].o;
+            element.handlers.handle(event);
+        }
+    }
+};
 
 const main = () => {
     requestAnimationFrame(main);
 
-    const element = scene.checkForCollision(mouseCoord);
-    // if (element !== null) {
-    //     console.log(element);
-    // }
+    update();
 
     canvas.draw();
 };
