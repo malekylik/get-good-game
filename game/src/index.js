@@ -48,7 +48,12 @@ class Component {
         this.parentComponent = parentComponent;
         this.setBoundingClientRect(top, left, width, height);
 
-        this.backgroundColor = '#000000';
+        this.drawBorder = false;
+
+        this.color = {
+            backgroundColor: '#000000',
+            borderColor: '#000000',
+        };
 
         this.children = [];
     }
@@ -76,7 +81,11 @@ class Component {
     }
 
     setBackgroundColor(color = '#000000') {
-        this.backgroundColor = color;
+        this.color.backgroundColor = color;
+    }
+
+    setBorderColor(color = '#000000') {
+        this.color.borderColor = color;
     }
 
     setParentComponent(parentComponent) {
@@ -107,9 +116,14 @@ class Component {
 
     draw(context) {
         let { top, left, width, height } = this.getBoundingClientRect();
-
-        context.fillStyle = this.backgroundColor;
+        
+        context.fillStyle = this.color.backgroundColor;
         context.fillRect(top, left, width, height);
+
+        if (this.drawBorder) {
+            context.strokeStyle = this.color.borderColor;
+            context.strokeRect(top, left, width, height);
+        }
 
         for (let o of this.children) {
             o.draw(context);
@@ -119,13 +133,21 @@ class Component {
 
 const canvas = new Canvas(document.getElementsByClassName('canvas')[0]);
 
-const scene = new Component(20, 50, 100, 75);
-const componentItem1 = new Component(20, 20, 20, 20);
-const componentItem2 = new Component(5, 5, 10, 10);
+const scene = new Component(20, 50, 1000, 750);
+const componentItem1 = new Component(20, 20, 200, 200);
+const componentItem2 = new Component(5, 5, 100, 100);
 
 scene.setBackgroundColor('#aa0000');
 componentItem1.setBackgroundColor('#00aa00');
 componentItem2.setBackgroundColor('#0000aa');
+
+scene.drawBorder = true;
+componentItem1.drawBorder = true;
+componentItem2.drawBorder = true;
+
+scene.setBorderColor('#ffffff');
+componentItem1.setBorderColor('#ffffff');
+componentItem2.setBorderColor('#aa0000');
 
 scene.addComponent(componentItem1);
 componentItem1.addComponent(componentItem2);
