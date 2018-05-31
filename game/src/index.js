@@ -4,6 +4,15 @@ const events = {
 
 const FPS = 60;
 
+const rgbColorInterpolation = (first, second, t) => {
+    const interpolateR = (first.r + (second.r - first.r) * t).toString(16);
+    const interpolateG = (first.g + (second.g - first.g) * t).toString(16);
+    const interpolateB = (first.b + (second.b - first.b) * t).toString(16);
+    const interpolateA = (first.a + (second.a - first.a) * t).toString(16);
+
+    return `#${interpolateR}${interpolateG}${interpolateB}`;
+}
+
 class EventQueue {
     constructor() {
         this.queue = [];
