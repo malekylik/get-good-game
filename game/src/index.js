@@ -49,6 +49,7 @@ class Component {
         this.setBoundingClientRect(top, left, width, height);
 
         this.drawBorder = false;
+        this.overflow = '';
 
         this.color = {
             backgroundColor: '#000000',
@@ -63,13 +64,6 @@ class Component {
     }
 
     setBoundingClientRect(top = 0, left = 0, width = 0, height = 0) {
-        if (this.parentComponent !== null) {
-            let { top: topParent, left: leftParent } = this.parentComponent.getBoundingClientRect();
-
-            top += topParent;
-            left += leftParent;
-        }
-
         this.boundingClientRect = {
             top,
             left,
@@ -90,8 +84,6 @@ class Component {
 
     setParentComponent(parentComponent) {
         this.parentComponent = parentComponent;
-        const { top, left, width, height } = this.getBoundingClientRect();
-        this.setBoundingClientRect(top, left, width, height);
     }
 
     addComponent(component) {
@@ -114,32 +106,51 @@ class Component {
         return this.parentComponent;
     }
 
+    getOverflow() {
+        return this.overflow;
+    }
+
     draw(context) {
-        let { top, left, width, height } = this.getBoundingClientRect();
+        context.save();
+        let { top, left, right, bottom, width, height } = this.getBoundingClientRect();
+        const parent = this.getParentComponent();
+
+        if (parent !== null) {
+            context.translate(parent.getBoundingClientRect().left, parent.getBoundingClientRect().top);
+        }
         
+
         context.fillStyle = this.color.backgroundColor;
-        context.fillRect(top, left, width, height);
+        context.fillRect(left, top, width, height);
 
         if (this.drawBorder) {
             context.strokeStyle = this.color.borderColor;
-            context.strokeRect(top, left, width, height);
+            context.strokeRect(left, top, width, height);
+        }
+
+        if (this.overflow === 'hidden') {
+            // context.clip();
         }
 
         for (let o of this.children) {
             o.draw(context);
         }
+
+        context.restore();
     }
 };
 
 const canvas = new Canvas(document.getElementsByClassName('canvas')[0]);
 
 const scene = new Component(20, 50, 1000, 750);
-const componentItem1 = new Component(20, 20, 200, 200);
-const componentItem2 = new Component(5, 5, 100, 100);
+const componentItem1 = new Component(10, 10, 200, 200);
+const componentItem2 = new Component(10,-5, 250, 100);
+const componentItem3 = new Component(250,250, 25, 10);
 
 scene.setBackgroundColor('#aa0000');
 componentItem1.setBackgroundColor('#00aa00');
 componentItem2.setBackgroundColor('#0000aa');
+componentItem3.setBackgroundColor('#aa00aa');
 
 scene.drawBorder = true;
 componentItem1.drawBorder = true;
@@ -150,7 +161,11 @@ componentItem1.setBorderColor('#ffffff');
 componentItem2.setBorderColor('#aa0000');
 
 scene.addComponent(componentItem1);
+scene.addComponent(componentItem3);
 componentItem1.addComponent(componentItem2);
+
+componentItem1.overflow = 'hidden';
+scene.overflow = 'hidden';
 
 canvas.addScene(scene);
 
