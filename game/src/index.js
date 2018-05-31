@@ -2,6 +2,8 @@ const events = {
     MOUSE_MOVE: 'mousemove'
 };
 
+const FPS = 60;
+
 class EventQueue {
     constructor() {
         this.queue = [];
@@ -69,6 +71,7 @@ class Canvas {
         this.context = this.htmlComponent.getContext('2d');
 
         this.scenes = [];
+        this.ui = [];
     }
 
     getHtml() {
@@ -82,6 +85,10 @@ class Canvas {
 
     addScene(scene) {
         this.scenes.push(scene);
+    }
+
+    addUI(ui) {
+        this.ui.push(ui);
     }
 
     removeScene(scene) {
@@ -99,11 +106,17 @@ class Canvas {
         this.scenes = [];
     }
 
-    draw() {
+    draw(elapseTime) {
         this.clear();
 
         for (let o of this.scenes) {
-            o.draw(this.context);
+            o.draw(this.context, elapseTime);
+        }
+
+        for (let o of this.ui) {
+            for (let i of o.uiComponents) {
+                i.draw(this.context, elapseTime);
+            }
         }
     }
 }
@@ -126,27 +139,31 @@ class Collision {
 class Component {
     constructor(top = 0, left = 0, width = 0, height = 0, parentComponent = null) {
         this.parentComponent = parentComponent;
+
+        this.properties = {};
+
         this.setBoundingClientRect(top, left, width, height);
 
-        this.drawBorder = false;
-        this.overflow = 'visible';
+        this.properties.drawBorder = false;
+        this.properties.overflow = 'visible';
 
-        this.color = {
+        this.properties.color = {
             backgroundColor: 'rgba(0,0,0,0)',
             borderColor: '#000000',
         };
 
         this.collision = new Collision();
+        this.animations = new Animatable(this);
 
         this.handlers = new EventHandlers();
     }
 
     getBoundingClientRect() {
-        return this.boundingClientRect;
+        return this.animations.animatedProperties.boundingClientRect;
     }
 
     setBoundingClientRect(top = 0, left = 0, width = 0, height = 0) {
-        this.boundingClientRect = {
+        this.properties.boundingClientRect = {
             top,
             left,
             width,
@@ -157,11 +174,11 @@ class Component {
     }
 
     setBackgroundColor(color = '#000000') {
-        this.color.backgroundColor = color;
+        this.properties.color.backgroundColor = color;
     }
 
     setBorderColor(color = '#000000') {
-        this.color.borderColor = color;
+        this.properties.color.borderColor = color;
     }
 
     setParentComponent(parentComponent) {
@@ -173,7 +190,7 @@ class Component {
     }
 
     getOverflow() {
-        return this.overflow;
+        return this.properties.overflow;
     }
 
     addComponent(component) {
@@ -184,13 +201,31 @@ class Component {
 
     }
 
-    drawComponent(context) {
-        
+    setContextProperties(context, elapseTime) {
+        this.animations.animate(context, this, elapseTime);
     }
 
-    draw(context) {
+    paintComponent(context, elapseTime) {
+        context.save();
+        let { top, left, width, height } = this.getBoundingClientRect();
+
+        context.fillStyle = this.properties.color.backgroundColor;
+        context.fillRect(left, top, width, height);
+        context.restore();
+    }
+
+    drawComponent(context, elapseTime) {
         context.save();
 
+        this.setContextProperties(context, elapseTime);
+        this.paintComponent(context, elapseTime);
+
+        context.restore();
+    }
+
+    draw(context, elapseTime) {
+        context.save();
+        
         let { top, left, width, height } = this.getBoundingClientRect();
         const parent = this.getParentComponent();
 
@@ -204,19 +239,16 @@ class Component {
             context.clip(path, "nonzero");
         }
         
-        context.fillStyle = this.color.backgroundColor;
-        context.fillRect(left, top, width, height);
-
         if (this.drawBorder) {
-            context.strokeStyle = this.color.borderColor;
+            context.strokeStyle = this.properties.color.borderColor;
             context.strokeRect(left, top, width, height);
         }
 
-        this.drawComponent(context);
+        this.drawComponent(context, elapseTime);
 
         if (this.children) {
             for (let o of this.children) {
-                o.draw(context);
+                o.draw(context, elapseTime);
             }
         }
 
@@ -318,8 +350,8 @@ class Label extends Component {
         super(top, left, width, height, parentComponent);
 
         this.text = text;
-        this.color.textColor = '#000000';
-        this.textProperties = {
+        this.properties.color.textColor = '#000000';
+        this.properties.textProperties = {
             textAlign: 'center',
             textBaseline: 'middle',
             fontSize: 16,
@@ -382,25 +414,95 @@ class Label extends Component {
         }
     }
 
-    drawComponent(context) {
-        context.save();
+    setContextProperties(context, elapseTime) {
+        context.fillStyle = this.properties.color.textColor;
+        context.font = `${this.properties.textProperties.fontSize}px ${this.properties.textProperties.fontFamily}`;
+        context.textAlign = this.properties.textProperties.textAlign;
+        context.textBaseline = this.properties.textProperties.textBaseline;     
 
-        let { bottom, left, width, height } = this.getBoundingClientRect();
+        super.setContextProperties(context, elapseTime)
+    }
+
+    paintComponent(context, elapseTime) { 
+        super.paintComponent(context, elapseTime);
+        let { width, height, bottom, left } = this.getBoundingClientRect();
 
         context.translate(left, bottom);
-
-        context.fillStyle = this.color.textColor;
-        context.font = `${this.textProperties.fontSize}px ${this.textProperties.fontFamily}`;
-        context.textAlign = this.textProperties.textAlign;
-        context.textBaseline = this.textProperties.textBaseline;
 
         this.calculateLines(context, this.text);
 
         this.textLines.forEach((line, i) => {        
-            context.fillText(line, width / 2, -height / 2 + i * this.textProperties.fontSize);
+            context.fillText(line, width / 2, -height / 2 + i * this.properties.textProperties.fontSize);
         });
-       
-        context.restore();
+    }
+}
+
+class Animatable {
+    constructor(component) {
+        this.animatedProperties = {};
+        _.merge(this.animatedProperties, component.properties);
+
+        this.animations = {
+
+        };
+    }
+
+    setAnimation(name, time, animationFunc) {
+        this.animations[name] = {
+            animationFunc,
+            time: time * 1000,
+            elapseTime: 0,
+        };
+    }
+
+    animate(context, component, elapseTime) {
+        const keys = Object.keys(this.animations);
+
+        for (let i = 0; i < keys.length; i++) {
+            const a = this.animations[keys[i]];
+
+            a.animationFunc(context,component.properties, this.animatedProperties, a.elapseTime / a.time);
+
+            a.elapseTime += elapseTime;
+
+            if (a.elapseTime > a.time) {
+                a.elapseTime = 0;
+
+                this.animatedProperties = {};
+                _.merge(this.animatedProperties, component.properties);
+            } 
+        }
+    }
+}
+
+class UI {
+    constructor() {
+        this.selected = null;
+        this.uiComponents = [];
+    }
+
+    handleEvent(event) {
+        if (event.type === events.MOUSE_MOVE) {
+            const elements = scene.checkForCollision({ ...event.payload.mouseCoord, width: 1, height: 1 }); 
+            if (elements !== null) {
+                let mostDepth = 0;
+                let index = -1;
+        
+                elements.forEach(({ depth }, i) => {
+                    if (depth > mostDepth) {
+                        mostDepth = depth;
+                        index = i;
+                    };
+                });
+                
+                const element = elements[index].o;
+                element.handlers.handle(event);
+            }
+        }
+    }
+
+    add(component) {
+        this.uiComponents.push(component);
     }
 }
 
@@ -410,7 +512,7 @@ const scene = new CompositeComponent(50, 100, 1000, 750);
 const componentItem1 = new CompositeComponent(10, 10, 200, 200);
 const componentItem2 = new CompositeComponent(10,-5, 250, 100);
 const componentItem3 = new CompositeComponent(250,250, 25, 10);
-const textLabel = new Label(220,10,200,100,'hello   hello hello hello hello hello hello');
+const textLabel = new Label(220,10,200,100,'hello   hello hello hello hello hello hello hello');
 
 scene.setBackgroundColor('#aa0000');
 componentItem1.setBackgroundColor('#00aa00');
@@ -431,14 +533,18 @@ scene.addComponent(componentItem3);
 componentItem1.addComponent(componentItem2);
 scene.addComponent(textLabel);
 
-scene.handlers.onmousemove = (e) => {
+componentItem1.handlers.onmousemove = (e) => {
     console.log(e.mouseCoord);
 };
 
-// scene.overflow = 'hidden';
-// componentItem1.overflow = 'hidden';
+scene.animations.setAnimation('background', 2, (context,initialProperties, properties, elapseTime) => {
+    properties.boundingClientRect.left = initialProperties.boundingClientRect.left + 50 * elapseTime;
+});
 
-canvas.addScene(scene);
+const ui = new UI();
+ui.add(scene);
+
+canvas.addUI(ui);
 
 const eventQueue = new EventQueue();
 
@@ -456,36 +562,39 @@ canvas.getHtml().addEventListener('mousemove', (e) => {
     eventQueue.add(event);
 });
 
-
-
 const update = () => {
     while (eventQueue.hasNext()) {
         const event = eventQueue.getNext();
 
-        const elements = scene.checkForCollision({ ...event.payload.mouseCoord, width: 1, height: 1 }); 
-        if (elements !== null) {
-            let mostDepth = 0;
-            let index = -1;
-    
-            elements.forEach(({ depth }, i) => {
-                if (depth > mostDepth) {
-                    mostDepth = depth;
-                    index = i;
-                };
-            });
-            
-            const element = elements[index].o;
-            element.handlers.handle(event);
-        }
+        ui.handleEvent(event);
     }
 };
 
-const main = () => {
+let prevTime;
+
+const main = (time) => {
+    // if (time === undefined) {
+    //     console.log(0);
+    // } else {
+    //     console.log(time);
+    // }
+
     requestAnimationFrame(main);
 
-    update();
+    if (time !== undefined) {
+        if (prevTime === undefined) {
+            prevTime = time;
+        }
 
-    canvas.draw();
+        update();
+
+        canvas.draw(time - prevTime);
+
+        prevTime = time;
+    }
 };
 
-main();
+window.onload = () => {
+    main();
+};
+
