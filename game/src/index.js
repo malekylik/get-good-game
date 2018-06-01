@@ -1,6 +1,8 @@
 const events = {
     MOUSE: {
         MOUSE_MOVE: 'mousemove',
+        MOUSE_ENTER: 'mouseenter',
+        MOUSE_LEAVE: 'mouseleave'
     }
 };
 
@@ -87,12 +89,16 @@ class EventHandlers {
         this[events.MOUSE.MOUSE_MOVE] = [];
     }
 
-    handle(event, c) {
+    handle(event) {
         const handlers = this[event.type];
+
+        if (event.type !== events.MOUSE.MOUSE_MOVE) {
+            console.log(event);
+        }
 
         if (handlers) {
             for (let handler of handlers) {
-                handler(event.payload, c);
+                handler(event);
             }
         }
     }
@@ -209,7 +215,8 @@ class Component {
 
     }
 
-    handleHover(e, c) {
+    handleHover(e) {
+        const c = e.target;
         if (canvasHTML.style.cursor !== c.properties.cursor) {
             canvasHTML.style.cursor = c.properties.cursor;
         }
@@ -277,7 +284,7 @@ class Component {
     paintComponent(context, elapseTime) {
         context.save();
         let { top, left, width, height } = this.getBoundingClientRect();
-        let color = /*this.hovered ? this.hoverProperties.color :*/ this.animations.animatedProperties.color;
+        let color = this.animations.animatedProperties.color;
                 
         if (this.drawBorder) {
             context.strokeStyle = color.borderColor;
@@ -558,12 +565,16 @@ class Animatable {
 class UI {
     constructor() {
         this.selected = null;
+        this.hovered = null;
         this.uiComponents = [];
     }
 
     handleEvent(event) {
         if (events[event.subtype] === events.MOUSE) {
             const elements = scene.checkForCollision({ ...event.payload.mouseCoord, width: 1, height: 1 }); 
+
+            let element = null;
+
             if (elements !== null) {
                 let mostDepth = 0;
                 let index = -1;
@@ -575,12 +586,38 @@ class UI {
                     };
                 });
                 
-                const element = elements[index].o;
-                element.handlers.handle(event, element);
+                element = elements[index].o;
+                event.target = element;
             } else {
                 if (canvasHTML.style.cursor !== 'auto') {
                     canvasHTML.style.cursor = 'auto';
                 }
+            }
+
+            if (this.hovered !== element) {
+                if (this.hovered !== null) {
+                    this.hovered.handlers.handle({
+                        ...event,
+                        type: events.MOUSE.MOUSE_LEAVE,
+                        target: this.hovered,
+                        relatedTarget: element
+                    });
+                }
+
+                if (element !== null) {
+                    element.handlers.handle({
+                        ...event,
+                        type: events.MOUSE.MOUSE_ENTER,
+                        target: element,
+                        relatedTarget: this.hovered,
+                    });
+                }
+
+                this.hovered = element;
+            }
+            
+            if (element !== null) {
+                element.handlers.handle(event);
             }
         }
     }
@@ -624,8 +661,8 @@ componentItem1.handlers.addEventListener(events.MOUSE.MOUSE_MOVE, (e) => {
     console.log(e.mouseCoord);
 });
 
-textLabel.handlers.addEventListener(events.MOUSE.MOUSE_MOVE, (e, component) => {
-    component.hoverProperties.color.backgroundColor = '#000000';
+textLabel.handlers.addEventListener(events.MOUSE.MOUSE_MOVE, (e) => {
+    e.target.hoverProperties.color.backgroundColor = '#000000';
 });
 
 textLabel.animations.setAnimation('background', 2, (context,initialProperties, properties, elapseTime) => {
