@@ -1,5 +1,8 @@
 const events = {
-    MOUSE_MOVE: 'mousemove'
+    MOUSE: {
+        MOUSE_MOVE: 'mousemove',
+        HOVER: 'hover'
+    }
 };
 
 const FPS = 60;
@@ -59,14 +62,23 @@ class EventQueue {
 
 class EventHandlers {
     constructor() {
-        this.onmousemove = null;
+        this[events.MOUSE.MOUSE_MOVE] = [];
+        this[events.MOUSE.HOVER] = [];
     }
 
     handle(event) {
-        const handler = this[`on${event.type}`];
+        const handlers = this[event.type];
 
-        if (handler) {
-            handler(event.payload);
+        if (handlers) {
+            for (let handler of handlers) {
+                handler(event.payload);
+            }
+        }
+    }
+
+    addEventListener(name, event) {
+        if (this[name]) {
+            this[name].push(event);
         }
     }
 }
@@ -159,12 +171,22 @@ class Component {
             borderColor: '#000000',
         };
 
+        this.properties.cursor = 'auto';
+
         this.collision = new Collision();
         this.animations = new Animatable(this);
 
         this.handlers = new EventHandlers();
+        this.handlers.addEventListener(events.MOUSE.HOVER, this.handleHover.bind(this));
+        
 
         this.setBoundingClientRect(top, left, width, height);
+    }
+
+    handleHover(e) {
+        if (canvasHTML.style.cursor !== this.properties.cursor) {
+            canvasHTML.style.cursor = this.properties.cursor;
+        }
     }
 
     getBoundingClientRect() {
@@ -378,9 +400,12 @@ class Label extends Component {
             fontFamily: 'Arial'
         };
 
+        this.properties.cursor = 'text';
+
         _.merge(this.animations.animatedProperties, this.properties);
 
         this.neededToRecalculate = true;
+        this.cursorPosition = -1;
     }
 
     setText(text = '') {
@@ -504,7 +529,7 @@ class UI {
     }
 
     handleEvent(event) {
-        if (event.type === events.MOUSE_MOVE) {
+        if (events[event.subtype] === events.MOUSE) {
             const elements = scene.checkForCollision({ ...event.payload.mouseCoord, width: 1, height: 1 }); 
             if (elements !== null) {
                 let mostDepth = 0;
@@ -519,6 +544,10 @@ class UI {
                 
                 const element = elements[index].o;
                 element.handlers.handle(event);
+            } else {
+                if (canvasHTML.style.cursor !== 'auto') {
+                    canvasHTML.style.cursor = 'auto';
+                }
             }
         }
     }
@@ -528,7 +557,8 @@ class UI {
     }
 }
 
-const canvas = new Canvas(document.getElementsByClassName('canvas')[0]);
+const canvasHTML = document.getElementsByClassName('canvas')[0];
+const canvas = new Canvas(canvasHTML);
 
 const scene = new CompositeComponent(50, 100, 1000, 750);
 const componentItem1 = new CompositeComponent(10, 10, 200, 200);
@@ -546,6 +576,8 @@ scene.drawBorder = true;
 componentItem1.drawBorder = true;
 componentItem2.drawBorder = true;
 
+componentItem1.overflow = 'hidden';
+
 scene.setBorderColor('#ffffff');
 componentItem1.setBorderColor('#ffffff');
 componentItem2.setBorderColor('#aa0000');
@@ -555,13 +587,13 @@ scene.addComponent(componentItem3);
 componentItem1.addComponent(componentItem2);
 scene.addComponent(textLabel);
 
-componentItem1.handlers.onmousemove = (e) => {
+componentItem1.handlers.addEventListener(events.MOUSE_MOVE, (e) => {
     console.log(e.mouseCoord);
-};
-
-scene.animations.setAnimation('background', 2, (context,initialProperties, properties, elapseTime) => {
-    properties.boundingClientRect.left = initialProperties.boundingClientRect.left + 150 * elapseTime;
 });
+
+// scene.animations.setAnimation('background', 2, (context,initialProperties, properties, elapseTime) => {
+//     properties.boundingClientRect.left = initialProperties.boundingClientRect.left + 150 * elapseTime;
+// });
 
 const ui = new UI();
 ui.add(scene);
@@ -571,8 +603,9 @@ canvas.addUI(ui);
 const eventQueue = new EventQueue();
 
 canvas.getHtml().addEventListener('mousemove', (e) => {
-    const event = {
-        type: events.MOUSE_MOVE,
+    let event = {
+        type: events.MOUSE.MOUSE_MOVE,
+        subtype: 'MOUSE',
         payload: {
             mouseCoord: {
                 top: e.offsetY,
@@ -580,6 +613,10 @@ canvas.getHtml().addEventListener('mousemove', (e) => {
             }
         }
     };
+
+    eventQueue.add(event);
+
+    event.type = events.MOUSE.HOVER;
 
     eventQueue.add(event);
 });
@@ -595,12 +632,6 @@ const update = () => {
 let prevTime;
 
 const main = (time) => {
-    // if (time === undefined) {
-    //     console.log(0);
-    // } else {
-    //     console.log(time);
-    // }
-
     requestAnimationFrame(main);
 
     if (time !== undefined) {
