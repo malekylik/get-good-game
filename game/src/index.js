@@ -1,20 +1,42 @@
 const events = {
     MOUSE: {
         MOUSE_MOVE: 'mousemove',
-        HOVER: 'hover'
     }
 };
 
 const FPS = 60;
 
 const rgbColorInterpolation = (first, second, t) => {
-    const interpolateR = (first.r + (second.r - first.r) * t).toString(16);
-    const interpolateG = (first.g + (second.g - first.g) * t).toString(16);
-    const interpolateB = (first.b + (second.b - first.b) * t).toString(16);
-    const interpolateA = (first.a + (second.a - first.a) * t).toString(16);
+    let interpolateR = Math.floor((first.r + (second.r - first.r) * t)).toString(16);
+    let interpolateG = Math.floor((first.g + (second.g - first.g) * t)).toString(16);
+    let interpolateB = Math.floor((first.b + (second.b - first.b) * t)).toString(16);
+    const interpolateA = Math.floor((first.a + (second.a - first.a) * t)).toString(16);
+
+    if (interpolateR.length < 2) {
+        interpolateR = interpolateR.padStart(2, '0');
+    }
+
+    if (interpolateG.length < 2) {
+        interpolateG = interpolateG.padStart(2, '0');
+    }
+
+    if (interpolateB.length < 2) {
+        interpolateB = interpolateB.padStart(2, '0');
+    }
 
     return `#${interpolateR}${interpolateG}${interpolateB}`;
 }
+
+const parseRGBHexToDecObj = (color) => {
+    let colorArr = color.slice(1, color.length).match(/.{1,2}/g);
+
+    return {
+        r: parseInt(colorArr[0], 16),
+        g: parseInt(colorArr[1], 16),
+        b: parseInt(colorArr[2], 16),
+    };
+
+};
 
 class EventQueue {
     constructor() {
@@ -63,15 +85,14 @@ class EventQueue {
 class EventHandlers {
     constructor() {
         this[events.MOUSE.MOUSE_MOVE] = [];
-        this[events.MOUSE.HOVER] = [];
     }
 
-    handle(event) {
+    handle(event, c) {
         const handlers = this[event.type];
 
         if (handlers) {
             for (let handler of handlers) {
-                handler(event.payload);
+                handler(event.payload, c);
             }
         }
     }
@@ -165,6 +186,7 @@ class Component {
 
         this.properties.drawBorder = false;
         this.properties.overflow = 'visible';
+        this.hovered = false;
 
         this.properties.color = {
             backgroundColor: 'rgba(0,0,0,0)',
@@ -177,15 +199,23 @@ class Component {
         this.animations = new Animatable(this);
 
         this.handlers = new EventHandlers();
-        this.handlers.addEventListener(events.MOUSE.HOVER, this.handleHover.bind(this));
+        this.handlers.addEventListener(events.MOUSE.MOUSE_MOVE, this.handleHover.bind(this));
         
-
         this.setBoundingClientRect(top, left, width, height);
+
+        this.hoverProperties = {};
+
+        _.merge(this.hoverProperties, this.properties);
+
     }
 
-    handleHover(e) {
-        if (canvasHTML.style.cursor !== this.properties.cursor) {
-            canvasHTML.style.cursor = this.properties.cursor;
+    handleHover(e, c) {
+        if (canvasHTML.style.cursor !== c.properties.cursor) {
+            canvasHTML.style.cursor = c.properties.cursor;
+        }
+
+        if (c.hovered !== true) {
+            c.hovered = true;
         }
     }
 
@@ -203,23 +233,20 @@ class Component {
             bottom: top + height
         };
 
-        this.animations.animatedProperties.boundingClientRect = {
-            top,
-            left,
-            width,
-            height,
-            right: left + width,
-            bottom: top + height
-        };
+        this.animations.animatedProperties.boundingClientRect = {};
+
+        _.merge(this.animations.animatedProperties.boundingClientRect, this.properties.boundingClientRect);
     }
 
     setBackgroundColor(color = '#000000') {
         this.properties.color.backgroundColor = color;
+        this.hoverProperties.color.backgroundColor = color;
         this.animations.animatedProperties.color.backgroundColor = color;
     }
 
     setBorderColor(color = '#000000') {
         this.properties.color.borderColor = color;
+        this.hoverProperties.color.borderColor = color;
         this.animations.animatedProperties.color.borderColor = color;
     }
 
@@ -250,8 +277,14 @@ class Component {
     paintComponent(context, elapseTime) {
         context.save();
         let { top, left, width, height } = this.getBoundingClientRect();
+        let color = /*this.hovered ? this.hoverProperties.color :*/ this.animations.animatedProperties.color;
+                
+        if (this.drawBorder) {
+            context.strokeStyle = color.borderColor;
+            context.strokeRect(left, top, width, height);
+        }
 
-        context.fillStyle = this.animations.animatedProperties.color.backgroundColor;
+        context.fillStyle = color.backgroundColor;
         context.fillRect(left, top, width, height);
         context.restore();
     }
@@ -279,11 +312,6 @@ class Component {
             const path = new Path2D();
             path.rect(left, top, width, height);
             context.clip(path, "nonzero");
-        }
-        
-        if (this.drawBorder) {
-            context.strokeStyle = this.animations.animatedProperties.color.borderColor;
-            context.strokeRect(left, top, width, height);
         }
 
         this.drawComponent(context, elapseTime);
@@ -403,6 +431,7 @@ class Label extends Component {
         this.properties.cursor = 'text';
 
         _.merge(this.animations.animatedProperties, this.properties);
+        _.merge(this.hoverProperties, this.properties);
 
         this.neededToRecalculate = true;
         this.cursorPosition = -1;
@@ -516,7 +545,11 @@ class Animatable {
                 a.elapseTime = 0;
 
                 this.animatedProperties = {};
-                _.merge(this.animatedProperties, component.properties);
+                if (component.hovered) {
+                    _.merge(this.animatedProperties, component.hoverProperties);                    
+                } else {
+                    _.merge(this.animatedProperties, component.properties);
+                }
             } 
         }
     }
@@ -543,7 +576,7 @@ class UI {
                 });
                 
                 const element = elements[index].o;
-                element.handlers.handle(event);
+                element.handlers.handle(event, element);
             } else {
                 if (canvasHTML.style.cursor !== 'auto') {
                     canvasHTML.style.cursor = 'auto';
@@ -587,13 +620,21 @@ scene.addComponent(componentItem3);
 componentItem1.addComponent(componentItem2);
 scene.addComponent(textLabel);
 
-componentItem1.handlers.addEventListener(events.MOUSE_MOVE, (e) => {
+componentItem1.handlers.addEventListener(events.MOUSE.MOUSE_MOVE, (e) => {
     console.log(e.mouseCoord);
 });
 
-// scene.animations.setAnimation('background', 2, (context,initialProperties, properties, elapseTime) => {
-//     properties.boundingClientRect.left = initialProperties.boundingClientRect.left + 150 * elapseTime;
-// });
+textLabel.handlers.addEventListener(events.MOUSE.MOUSE_MOVE, (e, component) => {
+    component.hoverProperties.color.backgroundColor = '#000000';
+});
+
+textLabel.animations.setAnimation('background', 2, (context,initialProperties, properties, elapseTime) => {
+    properties.color.backgroundColor = rgbColorInterpolation(
+        parseRGBHexToDecObj(initialProperties.color.backgroundColor),
+        parseRGBHexToDecObj('#0000ff'),
+        elapseTime
+    );
+});
 
 const ui = new UI();
 ui.add(scene);
@@ -603,7 +644,7 @@ canvas.addUI(ui);
 const eventQueue = new EventQueue();
 
 canvas.getHtml().addEventListener('mousemove', (e) => {
-    let event = {
+    eventQueue.add({
         type: events.MOUSE.MOUSE_MOVE,
         subtype: 'MOUSE',
         payload: {
@@ -612,13 +653,7 @@ canvas.getHtml().addEventListener('mousemove', (e) => {
                 left: e.offsetX,
             }
         }
-    };
-
-    eventQueue.add(event);
-
-    event.type = events.MOUSE.HOVER;
-
-    eventQueue.add(event);
+    });
 });
 
 const update = () => {

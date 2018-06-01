@@ -1,3 +1,27 @@
 body {
     margin: 0;
 }
+
+.check {
+    width: 300px;
+    height: 200px;
+    cursor: pointer;
+    position: relative;
+    background: '#aaaaaa';
+    animation-name: color;
+    animation-duration: 2s;
+    animation-iteration-count: infinite;
+}
+
+.check:hover {
+    left: 0px;
+}
+
+@keyframes color {
+    from {
+        background: #aaaaaa;
+    }
+    to {
+        background: #0000ff;
+    }
+}
