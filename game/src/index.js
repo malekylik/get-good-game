@@ -1,3 +1,5 @@
+import { merge } from 'lodash';
+
 const events = {
     MOUSE: {
         MOUSE_MOVE: 'mousemove',
@@ -211,8 +213,11 @@ class Component {
 
         this.hoverProperties = {};
 
-        _.merge(this.hoverProperties, this.properties);
+        merge(this.hoverProperties, this.properties);
 
+    }
+
+    traverse(callback) {
     }
 
     handleHover(e) {
@@ -230,6 +235,10 @@ class Component {
         return this.animations.animatedProperties.boundingClientRect;
     }
 
+    getClippedBoundingClientRect() {
+        return this.animations.animatedProperties.clippedBoundingClientRect;
+    }
+
     setBoundingClientRect(top = 0, left = 0, width = 0, height = 0) {
         this.properties.boundingClientRect = {
             top,
@@ -241,8 +250,23 @@ class Component {
         };
 
         this.animations.animatedProperties.boundingClientRect = {};
+        merge(this.animations.animatedProperties.boundingClientRect, this.properties.boundingClientRect);
 
-        _.merge(this.animations.animatedProperties.boundingClientRect, this.properties.boundingClientRect);
+        this.calculateClippedSize(this.properties.overflow);
+    }
+
+    setBoundingClippedClientRect(top = 0, left = 0, width = 0, height = 0) {
+        this.properties.clippedBoundingClientRect = {
+            top,
+            left,
+            width,
+            height,
+            right: left + width,
+            bottom: top + height
+        };
+
+        this.animations.animatedProperties.clippedBoundingClientRect = {};
+        merge(this.animations.animatedProperties.clippedBoundingClientRect, this.properties.clippedBoundingClientRect);
     }
 
     setBackgroundColor(color = '#000000') {
@@ -259,6 +283,42 @@ class Component {
 
     setParentComponent(parentComponent) {
         this.parentComponent = parentComponent;
+    }
+
+    setOverflow(overflow) {
+        this.properties.overflow = overflow;
+        this.hoverProperties.overflow = overflow;
+        this.animations.animatedProperties.overflow = overflow;
+        this.calculateClippedSize(overflow);
+    }
+
+    calculateClippedSize(overflow) {
+        this.traverse((o) => {
+            const parent = o.getParentComponent();
+
+            let { top, right, bottom, left } = o.getBoundingClientRect();
+                if (parent !== null) {
+                    const parentBox = parent.getClippedBoundingClientRect();
+    
+                    if (left < 0) {
+                        left = 0;
+                    }
+        
+                    if (top < 0) {
+                        top = 0;
+                    }
+        
+                    if (parentBox.width < right) {
+                        right = parentBox.width;
+                    }
+        
+                    if (parentBox.height < bottom) {
+                        bottom = parentBox.height;
+                    }
+                } 
+
+            o.setBoundingClippedClientRect(top, left, Math.abs(right - left), Math.abs(bottom - top));
+        });
     }
 
     getParentComponent() {
@@ -283,7 +343,7 @@ class Component {
 
     paintComponent(context, elapseTime) {
         context.save();
-        let { top, left, width, height } = this.getBoundingClientRect();
+        let { top, left, width, height } = this.getClippedBoundingClientRect();
         let color = this.animations.animatedProperties.color;
                 
         if (this.drawBorder) {
@@ -308,17 +368,11 @@ class Component {
     draw(context, elapseTime) {
         context.save();
         
-        let { top, left, width, height } = this.getBoundingClientRect();
+        let { top, left, width, height } = this.getClippedBoundingClientRect();
         const parent = this.getParentComponent();
 
         if (parent !== null) {
-            context.translate(parent.getBoundingClientRect().left, parent.getBoundingClientRect().top);
-        }
-
-        if (this.overflow === 'hidden') {
-            const path = new Path2D();
-            path.rect(left, top, width, height);
-            context.clip(path, "nonzero");
+            context.translate(parent.getClippedBoundingClientRect().left, parent.getClippedBoundingClientRect().top);
         }
 
         this.drawComponent(context, elapseTime);
@@ -375,7 +429,7 @@ class CompositeComponent extends Component {
         let biggestDepth = 1;
 
         this.traverse((o) => {
-            const { top, left, width, height } = o.getBoundingClientRect();
+            const { top, left, width, height } = o.getClippedBoundingClientRect();
             const oCoord = {
                 width,
                 height
@@ -389,7 +443,7 @@ class CompositeComponent extends Component {
             let parent = o.getParentComponent();
 
             while (parent !== null) {
-                const { top, left } = parent.getBoundingClientRect();
+                const { top, left } = parent.getClippedBoundingClientRect();
                 
                 absoluteTop += top;
                 absoluteLeft += left;
@@ -437,8 +491,8 @@ class Label extends Component {
 
         this.properties.cursor = 'text';
 
-        _.merge(this.animations.animatedProperties, this.properties);
-        _.merge(this.hoverProperties, this.properties);
+        merge(this.animations.animatedProperties, this.properties);
+        merge(this.hoverProperties, this.properties);
 
         this.neededToRecalculate = true;
         this.cursorPosition = -1;
@@ -523,7 +577,7 @@ class Label extends Component {
 class Animatable {
     constructor(component) {
         this.animatedProperties = {};
-        _.merge(this.animatedProperties, component.properties);
+        merge(this.animatedProperties, component.properties);
 
         this.animations = {
 
@@ -553,9 +607,9 @@ class Animatable {
 
                 this.animatedProperties = {};
                 if (component.hovered) {
-                    _.merge(this.animatedProperties, component.hoverProperties);                    
+                    merge(this.animatedProperties, component.hoverProperties);                    
                 } else {
-                    _.merge(this.animatedProperties, component.properties);
+                    merge(this.animatedProperties, component.properties);
                 }
             } 
         }
@@ -632,7 +686,7 @@ const canvas = new Canvas(canvasHTML);
 
 const scene = new CompositeComponent(50, 100, 1000, 750);
 const componentItem1 = new CompositeComponent(10, 10, 200, 200);
-const componentItem2 = new CompositeComponent(10,-5, 250, 100);
+const componentItem2 = new CompositeComponent(-5,10, 250, 100);
 const componentItem3 = new CompositeComponent(250,250, 25, 10);
 const textLabel = new Label(220,10,200,100,'hello   hello hello hello hello hello hello hello');
 
@@ -646,7 +700,7 @@ scene.drawBorder = true;
 componentItem1.drawBorder = true;
 componentItem2.drawBorder = true;
 
-componentItem1.overflow = 'hidden';
+
 
 scene.setBorderColor('#ffffff');
 componentItem1.setBorderColor('#ffffff');
@@ -655,11 +709,16 @@ componentItem2.setBorderColor('#aa0000');
 scene.addComponent(componentItem1);
 scene.addComponent(componentItem3);
 componentItem1.addComponent(componentItem2);
-scene.addComponent(textLabel);
+
+componentItem1.setOverflow('hidden');
+//bug
+// scene.addComponent(textLabel);
 
 componentItem1.handlers.addEventListener(events.MOUSE.MOUSE_MOVE, (e) => {
     console.log(e.mouseCoord);
 });
+
+
 
 textLabel.handlers.addEventListener(events.MOUSE.MOUSE_MOVE, (e) => {
     e.target.hoverProperties.color.backgroundColor = '#000000';
@@ -671,6 +730,10 @@ textLabel.animations.setAnimation('background', 2, (context,initialProperties, p
         parseRGBHexToDecObj('#0000ff'),
         elapseTime
     );
+});
+
+componentItem1.animations.setAnimation('tranlate', 2, (context,initialProperties, properties, elapseTime) => {
+    properties.clippedBoundingClientRect.left = initialProperties.clippedBoundingClientRect.left + 50 * elapseTime;
 });
 
 const ui = new UI();

@@ -6,15 +6,24 @@ body {
     width: 300px;
     height: 200px;
     cursor: pointer;
-    position: relative;
-    background: '#aaaaaa';
+    /* position: relative; */
+    background: #aaaaaa;
     animation-name: color;
     animation-duration: 2s;
     animation-iteration-count: infinite;
+
+    padding: 20px;
+    /* overflow: hidden; */
 }
 
 .check:hover {
     left: 0px;
+}
+
+.check1 {
+    width: 500px;
+    height: 20px;
+    background: #aa0000;
 }
 
 @keyframes color {
