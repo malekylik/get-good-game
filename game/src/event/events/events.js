@@ -4,6 +4,9 @@ const events = {
         MOUSE_ENTER: 'mouseenter',
         MOUSE_LEAVE: 'mouseleave',
         MOUSE_DOWN: 'mousedown',
+    },
+    KEYBOARD: {
+        KEY_PRESS: 'keypress'
     }
 };
 

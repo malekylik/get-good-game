@@ -55,11 +55,30 @@ export default class UI {
     
                     this.hovered = element;
                 }
-                
+
+                if (event.type === events.MOUSE.MOUSE_DOWN) {
+                    if (this.selected !== element) {
+                        if (this.selected) {
+                            this.selected.isSelected = false;
+                        }
+    
+                        this.selected = element;
+    
+                        if (element !== null) {
+                            element.isSelected = true;
+                        }
+                    }
+                }
+
                 if (element !== null) {
-                    element.handlers.handle(event);
+                        element.handlers.handle(event);
                 }
             }
+        }
+
+        if (events[event.subtype] === events.KEYBOARD && this.selected) {
+            event.target = this.selected;
+            this.selected.handlers.handle(event);
         }
     }
 

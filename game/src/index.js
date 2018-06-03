@@ -18,7 +18,7 @@ const scene = new CompositeComponent(50, 100, 1000, 750);
 const componentItem1 = new CompositeComponent(10, 10, 200, 200);
 const componentItem2 = new CompositeComponent(-5,10, 250, 100);
 const componentItem3 = new CompositeComponent(250,250, 25, 10);
-const textLabel = new Label(220,10,200,100,'hello   hello hello hello hello hello hello hello');
+const textLabel = new Label(220,10,201,100,'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff');
 
 scene.setBackgroundColor('#aa0000');
 componentItem1.setBackgroundColor('#00aa00');
@@ -42,7 +42,7 @@ componentItem1.setOverflow('hidden');
 scene.addComponent(textLabel);
 
 componentItem1.handlers.addEventListener(events.MOUSE.MOUSE_MOVE, (e) => {
-    console.log(e.mouseCoord);
+    console.log(e);
 });
 
 textLabel.handlers.addEventListener(events.MOUSE.MOUSE_MOVE, (e) => {
@@ -90,6 +90,16 @@ canvas.getHtml().addEventListener('mousedown', (e) => {
                 top: e.offsetY,
                 left: e.offsetX,
             }
+        }
+    });
+});
+
+canvas.getHtml().addEventListener('keypress', (e) => {
+    eventQueue.add({
+        type: events.KEYBOARD.KEY_PRESS,
+        subtype: 'KEYBOARD',
+        payload: {
+            key: e.key
         }
     });
 });

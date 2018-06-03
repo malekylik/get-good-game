@@ -12,15 +12,17 @@ export default class Label extends Component {
         this.text = text;
         this.properties.color.textColor = '#000000';
         this.properties.textProperties = {
-            textAlign: 'monospace',
+            textAlign: 'left',
             textBaseline: 'top',
             fontSize: 16,
-            fontFamily: 'Arial'
+            fontFamily: 'monospace'
         };
 
         this.handlers.addEventListener(events.MOUSE.MOUSE_DOWN, this.handleMouseDown);
+        this.handlers.addEventListener(events.KEYBOARD.KEY_PRESS, this.handleKeyPress);
 
         this.linesMetric = [];
+        this.textLines = [];
 
         this.cursorPosition = {};
 
@@ -29,7 +31,10 @@ export default class Label extends Component {
         merge(this.animations.animatedProperties, this.properties);
         merge(this.hoverProperties, this.properties);
 
-        this.neededToRecalculate = true;
+        this.neededToRecalculate = {
+            needed: true,
+            row: 0,
+        };
 
         this.cursor = new Cursor(0, 0, 1, this.properties.textProperties.fontSize);
     }
@@ -77,10 +82,13 @@ export default class Label extends Component {
             );
 
             if (isInside) {
-                target.cursor.setPosition(top, left);
-
-                target.isSelected = true;
-            }
+                    target.cursor.setPosition(top, left);
+                    target.cursorPosition = {
+                        row: i,
+                        column: j,
+                        index: target.textLines[i].startOfLine + j
+                    };
+                }
             }
         }
 
@@ -100,17 +108,49 @@ export default class Label extends Component {
             if (isInside) {
                 target.cursor.setPosition(top, width);
 
-                target.isSelected = true;
+                target.cursorPosition = {
+                    row: i,
+                    column: target.glyphPosition[i].length,
+                    index: target.textLines[i].startOfLine + target.glyphPosition[i].length
+                };
             }
             }
         }
 
         if (!isInside) {
-            const { top, left, width, height } = target.linesMetric[target.linesMetric.length - 1];
+            const { top, width } = target.linesMetric[target.linesMetric.length - 1];
             target.cursor.setPosition(top, width);
 
-            target.isSelected = true;
+            target.cursorPosition = {
+                row: target.linesMetric.length - 1,
+                column: target.glyphPosition[target.glyphPosition.length - 1].length,
+                index: target.textLines[target.glyphPosition.length - 1].startOfLine + target.glyphPosition[target.glyphPosition.length - 1].length
+            };
         }
+    }
+
+    handleKeyPress(e) {
+        const target = e.target;
+        target.neededToRecalculate.needed = true;
+
+        target.edit = target.editString(e.payload.key, target.cursorPosition.index);
+        target.cursorPosition.index += 1;
+
+        // target.textLines[target.cursorPosition.row] = target.textLines[target.cursorPosition.row].slice(0, target.cursorPosition.column) + e.payload.key + target.textLines[target.cursorPosition.row].slice(target.cursorPosition.column);
+    }
+
+    editString(key, index) {
+        return (string, context) => {
+            if (index >= string.length) {
+                return string + key;
+            }
+
+            if (index === 0) {
+                return key + string;
+            }
+
+            return string.slice(0, index) + key + string.slice(index);
+        };
     }
 
     setText(text = '') {
@@ -130,69 +170,74 @@ export default class Label extends Component {
         this.textProperties.font = font;
     }
 
-    calculateLines(context, text) {
-        if (this.neededToRecalculate) {
-            this.textLines = [];
-            const fontSize = this.animations.animatedProperties.textProperties.fontSize;
+    calculateLines(context, text, row) {
+        const width = this.getBoundingClientRect().width;
+        const fontSize = this.animations.animatedProperties.textProperties.fontSize;
+        this.textLines = [];
+        this.linesMetric = [];
 
-            const width = this.getBoundingClientRect().width;
-            let words = this.text.split(' ');
-                
-            let line = '';
-            let lineWidth = 0;
-            words.forEach((word) => {
-                if (lineWidth !== 0) {
-                    word = ' ' + word;
-                }
-    
-                const wordWidth = context.measureText(word).width;
-                
-                if (lineWidth + wordWidth <= width) {
-                    lineWidth += wordWidth;
-                    line += word;
-    
-                    return;
-                }
+        if (this.edit) {
+            this.text = this.edit(this.text);
+        }
 
-                line = line.trim();
-    
-                this.linesMetric.push({
-                    top: this.textLines.length * fontSize,
-                    left: 0,
-                    width: context.measureText(line).width,
-                    height: fontSize,
-                });
-                this.textLines.push(line);
-                line = word;
-                lineWidth = context.measureText(word.trim()).width;
-            });
-    
-            if (line !== '') {
-                line = line.trim();
+        let glyphs = this.text.split('');
 
-                this.linesMetric.push({
-                    top: this.textLines.length * fontSize,
-                    left: 0,
-                    width: context.measureText(line).width,
-                    height: fontSize,
-                });
+        let lineWidth = 0;
+        let glyphWidth = 0;
+        let startOfLine = 0;
+        let line = '';
+        glyphs.forEach((glyph, i) => {
+            glyphWidth = context.measureText(glyph).width;
 
-                this.textLines.push(line.trim());
+            if (lineWidth + glyphWidth < width) {
+                line += glyph;
+                lineWidth += glyphWidth;
+
+                return;
             }
 
-            this.calculateGlyphPosition(context);
+            this.linesMetric.push({
+                top: this.textLines.length * fontSize,
+                left: 0,
+                width: lineWidth,
+                height: fontSize,
+            });
+            this.textLines.push({
+                startOfLine,
+                line
+            });
 
-            this.neededToRecalculate = false;
+            startOfLine += line.length;
+
+            glyphWidth = context.measureText(glyph).width;
+            lineWidth = glyphWidth;
+            line = glyph;
+        });
+
+        if (line !== '') {
+            this.linesMetric.push({
+                top: this.textLines.length * fontSize,
+                left: 0,
+                width: context.measureText(line).width,
+                height: fontSize,
+            });
+
+            this.textLines.push({
+                    startOfLine,
+                    line
+                });
         }
+
+        this.calculateGlyphPosition(context);
     }
 
     calculateGlyphPosition(context) {
         this.glyphPosition = [];
 
         const fontSize = this.animations.animatedProperties.textProperties.fontSize;
-        this.textLines.forEach((e, i) => {
+        this.textLines.forEach(({ line }, i) => {
             const glyphPosition = [];
-            const glyphs = e.split('');
+            const glyphs = line.split('');
 
             let lineWidth = 0;
 
@@ -206,7 +251,7 @@ export default class Label extends Component {
                     width: width,
                     height: fontSize
                 });
-
+        
                 lineWidth += width;
             });
 
@@ -229,10 +274,37 @@ export default class Label extends Component {
 
         context.translate(left, top);
 
-        this.calculateLines(context, this.text);
+        if (this.neededToRecalculate.needed) {
+            this.calculateLines(context, this.text, this.neededToRecalculate.row);
+            if (this.edit) {
+                this.edit = null;
 
-        this.textLines.forEach((line, i) => {        
-            context.fillText(line, 0, i * this.animations.animatedProperties.textProperties.fontSize);
+                let row = 0;
+                let index =  this.cursorPosition.index;
+                for (let i = 0; i < this.textLines.length; i++) {
+                    if (this.textLines[i].startOfLine < index) {
+                        row = i;
+                    } else {
+                        break;
+                    }
+                }
+
+                this.cursorPosition.row = row;
+                this.column = index - this.textLines[row].startOfLine;
+
+                if (this.column >= this.glyphPosition[row].length) {
+                    this.column = this.glyphPosition[row].length;
+                    this.cursor.setPosition(this.glyphPosition[row][this.column - 1].top, this.glyphPosition[row][this.column - 1].left + this.glyphPosition[row][this.column - 1].width);  
+                } else {
+                    this.cursor.setPosition(this.glyphPosition[row][this.column].top, this.glyphPosition[row][this.column].left);                    
+                }
+            }
+
+            this.neededToRecalculate.needed = false;
+        }
+
+        this.textLines.forEach(({ line }, i) => {        
+            context.fillText(line, 0, this.linesMetric[i].top);
         });
 
         if (this.isSelected) {
