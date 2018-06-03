@@ -40,7 +40,7 @@ componentItem1.addComponent(componentItem2);
 
 componentItem1.setOverflow('hidden');
 //bug
-// scene.addComponent(textLabel);
+scene.addComponent(textLabel);
 
 componentItem1.handlers.addEventListener(events.MOUSE.MOUSE_MOVE, (e) => {
     console.log(e.mouseCoord);

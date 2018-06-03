@@ -37,6 +37,7 @@ export class Component {
     }
 
     traverse(callback) {
+        callback(this);
     }
 
     handleHover(e) {
