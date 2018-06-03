@@ -39,7 +39,6 @@ scene.addComponent(componentItem3);
 componentItem1.addComponent(componentItem2);
 
 componentItem1.setOverflow('hidden');
-//bug
 scene.addComponent(textLabel);
 
 componentItem1.handlers.addEventListener(events.MOUSE.MOUSE_MOVE, (e) => {
@@ -47,7 +46,7 @@ componentItem1.handlers.addEventListener(events.MOUSE.MOUSE_MOVE, (e) => {
 });
 
 textLabel.handlers.addEventListener(events.MOUSE.MOUSE_MOVE, (e) => {
-    e.target.hoverProperties.color.backgroundColor = '#000000';
+  
 });
 
 textLabel.animations.setAnimation('background', 2, (context,initialProperties, properties, elapseTime) => {
@@ -72,6 +71,19 @@ const eventQueue = new EventQueue();
 canvas.getHtml().addEventListener('mousemove', (e) => {
     eventQueue.add({
         type: events.MOUSE.MOUSE_MOVE,
+        subtype: 'MOUSE',
+        payload: {
+            mouseCoord: {
+                top: e.offsetY,
+                left: e.offsetX,
+            }
+        }
+    });
+});
+
+canvas.getHtml().addEventListener('mousedown', (e) => {
+    eventQueue.add({
+        type: events.MOUSE.MOUSE_DOWN,
         subtype: 'MOUSE',
         payload: {
             mouseCoord: {

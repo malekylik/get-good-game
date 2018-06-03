@@ -3,6 +3,7 @@ import events from '../events/events';
 export default class EventsHandler {
     constructor() {
         this[events.MOUSE.MOUSE_MOVE] = [];
+        this[events.MOUSE.MOUSE_DOWN] = [];
     }
 
     handle(event) {
