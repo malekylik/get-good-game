@@ -20,6 +20,8 @@ export class Component {
             borderColor: '#000000',
         };
 
+        this.backgroundImage = null;
+
         this.properties.top = top;
         this.properties.left = left;
         this.properties.width = width;
@@ -83,6 +85,14 @@ export class Component {
         callback(this);
     }
 
+    setBackgroundImage(image = null) {
+        this.backgroundImage = image;
+
+        const { width, height } = this.getClippedBoundingClientRect();
+
+        this.backgroundImage.setSize(width, height);
+    }
+
     handleHover(e) {
         const c = e.target;
         const canvasHTML = document.querySelector('canvas');
@@ -118,7 +128,11 @@ export class Component {
         merge(this.animations.animatedProperties.boundingClientRect, this.properties.boundingClientRect);
         merge(this.hoverProperties.boundingClientRect, this.properties.boundingClientRect);
 
-        this.calculateClippedSize(this.properties.overflow);
+        if (this.overflow === 'hidden') {
+            this.calculateClippedSize(this.properties.overflow);
+        } else {
+            this.setBoundingClippedClientRect(top, left, width, height);
+        }
     }
 
     setBoundingClippedClientRect(top = 0, left = 0, width = 0, height = 0) {
@@ -225,6 +239,11 @@ export class Component {
 
         context.fillStyle = color.backgroundColor;
         context.fillRect(left, top, width, height);
+
+        if (this.backgroundImage !== null) {
+            this.backgroundImage.draw(context, left, top);
+        }
+        
         context.restore();
     }
 

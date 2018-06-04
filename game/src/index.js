@@ -4,6 +4,7 @@ import EventQueue from './event/EventQueue/EventQueue';
 import UI from './UI/UI';
 import Label from './UI/Component/Label';
 import Canvas from './Canvas/Canvas';
+import ImageComponent from './UI/ImageComponent/ImageComponent';
 
 import { Component, CompositeComponent } from './UI/Component/Component';
 
@@ -14,7 +15,7 @@ const FPS = 60;
 const canvas = new Canvas();
 
 const scene = new CompositeComponent('10%', '7.5%', '75%', '125%');
-const componentItem1 = new CompositeComponent(10, '50%', '50%', 200);
+const componentItem1 = new CompositeComponent(10, '50%', '100%', 200);
 const componentItem2 = new CompositeComponent(-5,10, 250, 100);
 const componentItem3 = new CompositeComponent(250,250, 25, 10);
 const textLabel = new Label(220,10,201,100,'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff');
@@ -67,6 +68,14 @@ canvas.addUI(ui);
 
 const eventQueue = new EventQueue();
 
+let image = new Image();
+image.src = '../assets/maxresdefault.jpg';
+image.onload = (e) => {
+    console.log('loaded');
+
+    componentItem1.setBackgroundImage(new ImageComponent(image, 0, 0, 200, 200, 0, 0, 300, 1080));
+};
+
 window.onresize = (e) => {
     canvas.setSize(window.innerWidth, window.innerHeight);
 };
@@ -83,6 +92,7 @@ canvas.getHtml().addEventListener('mousemove', (e) => {
         }
     });
 });
+
 
 canvas.getHtml().addEventListener('mousedown', (e) => {
     eventQueue.add({
