@@ -11,8 +11,7 @@ import { parseRGBHexToDecObj, rgbColorInterpolation } from './utils/colorInterpo
 
 const FPS = 60;
 
-const canvasHTML = document.querySelector('canvas');
-const canvas = new Canvas(canvasHTML);
+const canvas = new Canvas();
 
 const scene = new CompositeComponent(50, 100, 1000, 750);
 const componentItem1 = new CompositeComponent(10, 10, 200, 200);
@@ -67,6 +66,10 @@ ui.add(scene);
 canvas.addUI(ui);
 
 const eventQueue = new EventQueue();
+
+window.onresize = (e) => {
+    canvas.setSize(window.innerWidth, window.innerHeight);
+};
 
 canvas.getHtml().addEventListener('mousemove', (e) => {
     eventQueue.add({

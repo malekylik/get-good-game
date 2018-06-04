@@ -1,10 +1,21 @@
 export default class Canvas {
-    constructor(canvas) {
-        this.width = canvas.width;
-        this.height = canvas.height;
+    constructor(width, height) {
+        this.htmlComponent = document.createElement('canvas');
+        this.htmlComponent.setAttribute('tabindex', 0);
 
-        this.htmlComponent = canvas;
         this.context = this.htmlComponent.getContext('2d');
+
+        if (width === undefined) {
+            width = window.innerWidth;
+        }
+
+        if (height === undefined) {
+            height = window.innerHeight;
+        }
+
+        this.setSize(width, height);
+
+        document.body.appendChild(this.htmlComponent);
 
         this.scenes = [];
         this.ui = [];
@@ -12,6 +23,17 @@ export default class Canvas {
 
     getHtml() {
         return this.htmlComponent;
+    }
+
+    setSize(width, height) {
+        this.width = width;
+        this.height = height;
+
+        this.htmlComponent.style.width = `${width}px`;
+        this.htmlComponent.style.height = `${height}px`;
+
+        this.context.canvas.width = width;
+        this.context.canvas.height = height;
     }
 
     clear(color = '#000000') {
