@@ -20,6 +20,11 @@ export class Component {
             borderColor: '#000000',
         };
 
+        this.properties.top = top;
+        this.properties.left = left;
+        this.properties.width = width;
+        this.properties.height = height;
+
         this.properties.cursor = 'auto';
 
         this.collision = new Collision();
@@ -28,12 +33,50 @@ export class Component {
         this.handlers = new EventsHandler();
         this.handlers.addEventListener(events.MOUSE.MOUSE_MOVE, this.handleHover.bind(this));
         
-        this.setBoundingClientRect(top, left, width, height);
+        ({ top, left, width, height } = this.convertFromPercentageToPixel(top, left, width, height));
 
         this.hoverProperties = {};
 
         merge(this.hoverProperties, this.properties);
 
+        this.setBoundingClientRect(top, left, width, height);
+    }
+
+    convertFromPercentageToPixel(top, left, width, height) {
+        const parent = this.getParentComponent();
+        let parentWidth, parentHeight;
+        const reg = /%/;
+        const floor = Math.floor;
+
+        if (parent === null) {
+            parentWidth = window.innerWidth;
+            parentHeight = window.innerHeight;
+        } else {
+            ({ width: parentWidth, height: parentHeight } = parent.getBoundingClientRect());
+        }
+
+        if (typeof top === 'string' && reg.test(top)) {
+            top = floor(parseFloat(top) / 100 * parentHeight);
+        }
+
+        if (typeof left === 'string' && reg.test(left)) {
+            left = floor(parseFloat(left) / 100 * parentWidth);
+        }
+
+        if (typeof width === 'string' && reg.test(width)) {
+            width = floor(parseFloat(width) / 100 * parentWidth);
+        }
+        
+        if (typeof height === 'string' && reg.test(height)) {
+            height = floor(parseFloat(height) / 100 * parentHeight);
+        }
+
+        return {
+            top,
+            left,
+            width,
+            height
+        };
     }
 
     traverse(callback) {
@@ -71,7 +114,9 @@ export class Component {
         };
 
         this.animations.animatedProperties.boundingClientRect = {};
+        this.hoverProperties.boundingClientRect = {};
         merge(this.animations.animatedProperties.boundingClientRect, this.properties.boundingClientRect);
+        merge(this.hoverProperties.boundingClientRect, this.properties.boundingClientRect);
 
         this.calculateClippedSize(this.properties.overflow);
     }
@@ -87,7 +132,9 @@ export class Component {
         };
 
         this.animations.animatedProperties.clippedBoundingClientRect = {};
+        this.hoverProperties.clippedBoundingClientRect = {};
         merge(this.animations.animatedProperties.clippedBoundingClientRect, this.properties.clippedBoundingClientRect);
+        merge(this.hoverProperties.clippedBoundingClientRect, this.properties.clippedBoundingClientRect);
     }
 
     setBackgroundColor(color = '#000000') {
@@ -104,6 +151,10 @@ export class Component {
 
     setParentComponent(parentComponent) {
         this.parentComponent = parentComponent;
+
+        let { top, left, width, height } = this.properties;
+        ({ top, left, width, height } = this.convertFromPercentageToPixel(top, left, width, height));
+        this.setBoundingClientRect(top, left, width, height);
     }
 
     setOverflow(overflow) {

@@ -150,6 +150,8 @@ export default class Label extends Component {
         const target = e.target;
 
         if (e.payload.key === 'Delete') return;
+        if (e.payload.key === 'Backspace') return;
+        if (e.payload.key === 'Enter') return;
  
         target.text = target.insertGlyph(e.payload.key, target.cursorPosition.index, target.text);
         target.cursorPosition.index += 1;
