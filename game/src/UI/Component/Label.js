@@ -45,10 +45,22 @@ export default class Label extends Component {
     }
 
     handleMouseDown(e) {
+        const target = e.target;
+
+        if (target.text === '') {
+            target.cursor.setPosition(0, 0);
+
+            target.cursorPosition = {
+                row: 0,
+                column: 0,
+                index: 0
+            };
+
+            return;
+        }
+        
         let isInside = false;
         let line = '';
-
-        const target = e.target;
 
         const { top, left } = target.getClippedBoundingClientRect();
 
@@ -199,6 +211,27 @@ export default class Label extends Component {
         this.textProperties.font = font;
     }
 
+    setCursorPositionFrom2D(row, column) {
+        if (this.glyphPosition.length !== 0) {
+            if (column >= this.glyphPosition[row].length) {
+                this.cursor.setPosition(this.glyphPosition[row][column - 1].top, this.glyphPosition[row][column - 1].left + this.glyphPosition[row][column - 1].width);  
+            } else {
+                this.cursor.setPosition(this.glyphPosition[row][column].top, this.glyphPosition[row][column].left);                    
+            }
+        } else {
+            this.cursor.setPosition(0, 0);
+        }
+    }
+
+    setContextProperties(context, elapsedTime) {
+        context.fillStyle = this.animations.animatedProperties.color.textColor;
+        context.font = `${this.animations.animatedProperties.textProperties.fontSize}px ${this.animations.animatedProperties.textProperties.fontFamily}`;
+        context.textAlign = this.animations.animatedProperties.textProperties.textAlign;
+        context.textBaseline = this.animations.animatedProperties.textProperties.textBaseline;     
+
+        super.setContextProperties(context, elapsedTime)
+    }
+
     calculateLines(context, text, row) {
         const width = this.getBoundingClientRect().width;
         const fontSize = this.animations.animatedProperties.textProperties.fontSize;
@@ -312,27 +345,6 @@ export default class Label extends Component {
             column,
             index
         };
-    }
-
-    setCursorPositionFrom2D(row, column) {
-        if (this.glyphPosition.length !== 0) {
-            if (column >= this.glyphPosition[row].length) {
-                this.cursor.setPosition(this.glyphPosition[row][column - 1].top, this.glyphPosition[row][column - 1].left + this.glyphPosition[row][column - 1].width);  
-            } else {
-                this.cursor.setPosition(this.glyphPosition[row][column].top, this.glyphPosition[row][column].left);                    
-            }
-        } else {
-            this.cursor.setPosition(0, 0);
-        }
-    }
-
-    setContextProperties(context, elapsedTime) {
-        context.fillStyle = this.animations.animatedProperties.color.textColor;
-        context.font = `${this.animations.animatedProperties.textProperties.fontSize}px ${this.animations.animatedProperties.textProperties.fontFamily}`;
-        context.textAlign = this.animations.animatedProperties.textProperties.textAlign;
-        context.textBaseline = this.animations.animatedProperties.textProperties.textBaseline;     
-
-        super.setContextProperties(context, elapsedTime)
     }
 
     paintComponent(context, elapsedTime) { 
