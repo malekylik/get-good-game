@@ -94,6 +94,16 @@ canvas.getHtml().addEventListener('mousedown', (e) => {
     });
 });
 
+canvas.getHtml().addEventListener('keydown', (e) => {
+    eventQueue.add({
+        type: events.KEYBOARD.KEY_DOWN,
+        subtype: 'KEYBOARD',
+        payload: {
+            key: e.key
+        }
+    });
+});
+
 canvas.getHtml().addEventListener('keypress', (e) => {
     eventQueue.add({
         type: events.KEYBOARD.KEY_PRESS,

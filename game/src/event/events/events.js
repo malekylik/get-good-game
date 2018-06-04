@@ -6,7 +6,8 @@ const events = {
         MOUSE_DOWN: 'mousedown',
     },
     KEYBOARD: {
-        KEY_PRESS: 'keypress'
+        KEY_PRESS: 'keypress',
+        KEY_DOWN: 'keydown'
     }
 };
 

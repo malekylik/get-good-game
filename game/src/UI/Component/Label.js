@@ -20,11 +20,16 @@ export default class Label extends Component {
 
         this.handlers.addEventListener(events.MOUSE.MOUSE_DOWN, this.handleMouseDown);
         this.handlers.addEventListener(events.KEYBOARD.KEY_PRESS, this.handleKeyPress);
+        this.handlers.addEventListener(events.KEYBOARD.KEY_DOWN, this.handleKeyDown);
 
         this.linesMetric = [];
         this.textLines = [];
 
-        this.cursorPosition = {};
+        this.cursorPosition = {
+            row: 0,
+            column: 0,
+            index: 0
+        };
 
         this.properties.cursor = 'text';
 
@@ -131,26 +136,50 @@ export default class Label extends Component {
 
     handleKeyPress(e) {
         const target = e.target;
-        target.neededToRecalculate.needed = true;
 
-        target.edit = target.editString(e.payload.key, target.cursorPosition.index);
+        if (e.payload.key === 'Delete') return;
+ 
+        target.text = target.insertGlyph(e.payload.key, target.cursorPosition.index, target.text);
         target.cursorPosition.index += 1;
 
-        // target.textLines[target.cursorPosition.row] = target.textLines[target.cursorPosition.row].slice(0, target.cursorPosition.column) + e.payload.key + target.textLines[target.cursorPosition.row].slice(target.cursorPosition.column);
+        target.neededToRecalculate.needed = true;
     }
 
-    editString(key, index) {
-        return (string, context) => {
-            if (index >= string.length) {
-                return string + key;
-            }
+    handleKeyDown(e) {
+        const target = e.target;
+        let key = e.payload.key;
+        let index = target.cursorPosition.index;
 
-            if (index === 0) {
-                return key + string;
-            }
+        if (key === 'Delete') {
+            if (index >= target.text.length) return;
 
-            return string.slice(0, index) + key + string.slice(index);
-        };
+            target.text = target.deleteGlyph(index, target.text);
+        } else if (key === 'Backspace') {
+            if (index === 0) return;
+
+            target.text = target.deleteGlyph(index - 1, target.text);
+            index -= 1;
+        }
+
+        target.cursorPosition.index = index;
+
+        target.neededToRecalculate.needed = true;
+    }
+
+    deleteGlyph(index, string) {
+        return string.slice(0, index) + string.slice(index + 1);
+    }
+
+    insertGlyph(key, index, string) {
+        if (index >= string.length) {
+            return string + key;
+        }
+
+        if (index === 0) {
+            return key + string;
+        }
+
+        return string.slice(0, index) + key + string.slice(index);
     }
 
     setText(text = '') {
@@ -175,10 +204,6 @@ export default class Label extends Component {
         const fontSize = this.animations.animatedProperties.textProperties.fontSize;
         this.textLines = [];
         this.linesMetric = [];
-
-        if (this.edit) {
-            this.text = this.edit(this.text);
-        }
 
         let glyphs = this.text.split('');
 
@@ -259,6 +284,48 @@ export default class Label extends Component {
         });
     }
 
+    convertIndexTo2DPosition(index) {
+        let row = 0;
+        let column = 0;
+        for (let i = 0; i < this.textLines.length; i++) {
+            if (this.textLines[i].startOfLine < index) {
+                row = i;
+            } else {
+                break;
+            }
+        }
+
+        if (this.textLines.length !== 0) {
+            column = index - this.textLines[row].startOfLine;
+
+            if (column >= this.glyphPosition[row].length) {
+                column = this.glyphPosition[row].length;
+                index = this.textLines[row].startOfLine + column;
+            }
+        } else {
+            column = 0;
+            index = 0;
+        }
+
+        return {
+            row,
+            column,
+            index
+        };
+    }
+
+    setCursorPositionFrom2D(row, column) {
+        if (this.glyphPosition.length !== 0) {
+            if (column >= this.glyphPosition[row].length) {
+                this.cursor.setPosition(this.glyphPosition[row][column - 1].top, this.glyphPosition[row][column - 1].left + this.glyphPosition[row][column - 1].width);  
+            } else {
+                this.cursor.setPosition(this.glyphPosition[row][column].top, this.glyphPosition[row][column].left);                    
+            }
+        } else {
+            this.cursor.setPosition(0, 0);
+        }
+    }
+
     setContextProperties(context, elapsedTime) {
         context.fillStyle = this.animations.animatedProperties.color.textColor;
         context.font = `${this.animations.animatedProperties.textProperties.fontSize}px ${this.animations.animatedProperties.textProperties.fontFamily}`;
@@ -276,30 +343,14 @@ export default class Label extends Component {
 
         if (this.neededToRecalculate.needed) {
             this.calculateLines(context, this.text, this.neededToRecalculate.row);
-            if (this.edit) {
-                this.edit = null;
 
-                let row = 0;
-                let index =  this.cursorPosition.index;
-                for (let i = 0; i < this.textLines.length; i++) {
-                    if (this.textLines[i].startOfLine < index) {
-                        row = i;
-                    } else {
-                        break;
-                    }
-                }
+            const { row, column, index } = this.convertIndexTo2DPosition(this.cursorPosition.index);
+            this.cursorPosition.row = row;
+            this.cursorPosition.column = column;
+            this.cursorPosition.index = index;
 
-                this.cursorPosition.row = row;
-                this.column = index - this.textLines[row].startOfLine;
-
-                if (this.column >= this.glyphPosition[row].length) {
-                    this.column = this.glyphPosition[row].length;
-                    this.cursor.setPosition(this.glyphPosition[row][this.column - 1].top, this.glyphPosition[row][this.column - 1].left + this.glyphPosition[row][this.column - 1].width);  
-                } else {
-                    this.cursor.setPosition(this.glyphPosition[row][this.column].top, this.glyphPosition[row][this.column].left);                    
-                }
-            }
-
+            this.setCursorPositionFrom2D(row, column);
+            
             this.neededToRecalculate.needed = false;
         }
 
