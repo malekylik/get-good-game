@@ -18,6 +18,8 @@ export default class Label extends Component {
             fontFamily: 'monospace'
         };
 
+        this.editable = false;
+
         this.handlers.addEventListener(events.MOUSE.MOUSE_DOWN, this.handleMouseDown);
         this.handlers.addEventListener(events.KEYBOARD.KEY_PRESS, this.handleKeyPress);
         this.handlers.addEventListener(events.KEYBOARD.KEY_DOWN, this.handleKeyDown);
@@ -45,139 +47,145 @@ export default class Label extends Component {
     }
 
     handleMouseDown(e) {
-        const target = e.target;
+        if (e.target.editable) {
+            const target = e.target;
 
-        if (target.text === '') {
-            target.cursor.setPosition(0, 0);
+            if (target.text === '') {
+                target.cursor.setPosition(0, 0);
 
-            target.cursorPosition = {
-                row: 0,
-                column: 0,
-                index: 0
+                target.cursorPosition = {
+                    row: 0,
+                    column: 0,
+                    index: 0
+                };
+
+                return;
+            }
+            
+            let isInside = false;
+            let line = '';
+
+            const { top, left } = target.getClippedBoundingClientRect();
+
+            let topOffset = top;
+            let leftOffset = left;
+
+            let parent = target.getParentComponent();
+
+            while (parent) {
+                const { top, left } = parent.getClippedBoundingClientRect();
+                topOffset += top;
+                leftOffset += left;
+
+                parent = parent.getParentComponent();
+            }
+
+            const mouseCoord = {
+                top: e.payload.mouseCoord.top,
+                left: e.payload.mouseCoord.left,
+                width: 1,
+                height: 1
             };
 
-            return;
-        }
-        
-        let isInside = false;
-        let line = '';
+            for (let i = 0; i < target.glyphPosition.length && !isInside; i++) {
+                const line = target.glyphPosition[i];
+                for (let j = 0; j < line.length && !isInside; j++) {
+                    const { top, left, width, height } = line[j];
 
-        const { top, left } = target.getClippedBoundingClientRect();
+                isInside = target.collision.isInside({
+                        top: top + topOffset,
+                        left: left + leftOffset,
+                        width,
+                        height
+                    },
+                    mouseCoord
+                );
 
-        let topOffset = top;
-        let leftOffset = left;
-
-        let parent = target.getParentComponent();
-
-        while (parent) {
-            const { top, left } = parent.getClippedBoundingClientRect();
-            topOffset += top;
-            leftOffset += left;
-
-            parent = parent.getParentComponent();
-        }
-
-        const mouseCoord = {
-            top: e.payload.mouseCoord.top,
-            left: e.payload.mouseCoord.left,
-            width: 1,
-            height: 1
-        };
-
-        for (let i = 0; i < target.glyphPosition.length && !isInside; i++) {
-            const line = target.glyphPosition[i];
-            for (let j = 0; j < line.length && !isInside; j++) {
-                const { top, left, width, height } = line[j];
-
-            isInside = target.collision.isInside({
-                    top: top + topOffset,
-                    left: left + leftOffset,
-                    width,
-                    height
-                },
-                mouseCoord
-            );
-
-            if (isInside) {
-                    target.cursor.setPosition(top, left);
-                    target.cursorPosition = {
-                        row: i,
-                        column: j,
-                        index: target.textLines[i].startOfLine + j
-                    };
+                if (isInside) {
+                        target.cursor.setPosition(top, left);
+                        target.cursorPosition = {
+                            row: i,
+                            column: j,
+                            index: target.textLines[i].startOfLine + j
+                        };
+                    }
                 }
             }
-        }
 
-        if (!isInside) {
-            for (let i = 0; i < target.linesMetric.length && !isInside; i++) { 
-                const { top, left, width, height } = target.linesMetric[i];
+            if (!isInside) {
+                for (let i = 0; i < target.linesMetric.length && !isInside; i++) { 
+                    const { top, left, width, height } = target.linesMetric[i];
 
-            isInside = target.collision.isInside({
-                    top: top + topOffset,
-                    left: left + leftOffset,
-                    width: target.getClippedBoundingClientRect().width,
-                    height
-                },
-                mouseCoord
-            );
+                isInside = target.collision.isInside({
+                        top: top + topOffset,
+                        left: left + leftOffset,
+                        width: target.getClippedBoundingClientRect().width,
+                        height
+                    },
+                    mouseCoord
+                );
 
-            if (isInside) {
+                if (isInside) {
+                    target.cursor.setPosition(top, width);
+
+                    target.cursorPosition = {
+                        row: i,
+                        column: target.glyphPosition[i].length,
+                        index: target.textLines[i].startOfLine + target.glyphPosition[i].length
+                    };
+                }
+                }
+            }
+
+            if (!isInside) {
+                const { top, width } = target.linesMetric[target.linesMetric.length - 1];
                 target.cursor.setPosition(top, width);
 
                 target.cursorPosition = {
-                    row: i,
-                    column: target.glyphPosition[i].length,
-                    index: target.textLines[i].startOfLine + target.glyphPosition[i].length
+                    row: target.linesMetric.length - 1,
+                    column: target.glyphPosition[target.glyphPosition.length - 1].length,
+                    index: target.textLines[target.glyphPosition.length - 1].startOfLine + target.glyphPosition[target.glyphPosition.length - 1].length
                 };
             }
-            }
-        }
-
-        if (!isInside) {
-            const { top, width } = target.linesMetric[target.linesMetric.length - 1];
-            target.cursor.setPosition(top, width);
-
-            target.cursorPosition = {
-                row: target.linesMetric.length - 1,
-                column: target.glyphPosition[target.glyphPosition.length - 1].length,
-                index: target.textLines[target.glyphPosition.length - 1].startOfLine + target.glyphPosition[target.glyphPosition.length - 1].length
-            };
         }
     }
 
     handleKeyPress(e) {
-        const target = e.target;
+        if (e.target.editable) {
+            const target = e.target;
 
-        if (e.payload.key === 'Delete') return;
-        if (e.payload.key === 'Backspace') return;
-        if (e.payload.key === 'Enter') return;
- 
-        target.text = target.insertGlyph(e.payload.key, target.cursorPosition.index, target.text);
-        target.cursorPosition.index += 1;
-
-        target.neededToRecalculate.needed = true;
+            if (e.payload.key === 'Delete') return;
+            if (e.payload.key === 'Backspace') return;
+            if (e.payload.key === 'Enter') return;
+     
+            target.text = target.insertGlyph(e.payload.key, target.cursorPosition.index, target.text);
+            target.cursorPosition.index += 1;
+    
+            target.neededToRecalculate.needed = true;
+        }
     }
 
     handleKeyDown(e) {
-        const target = e.target;
-        let key = e.payload.key;
-        let index = target.cursorPosition.index;
+        if (e.target.editable) {
+            const target = e.target;
+            let key = e.payload.key;
+            let index = target.cursorPosition.index;
 
-        if (key === 'Delete') {
-            if (index >= target.text.length) return;
+            if (key === 'Delete') {
+                if (index >= target.text.length) return;
 
-            target.text = target.deleteGlyph(index, target.text);
-        } else if (key === 'Backspace') {
-            if (index === 0) return;
+                target.text = target.deleteGlyph(index, target.text);
+            } else if (key === 'Backspace') {
+                if (index === 0) return;
 
-            target.text = target.deleteGlyph(index - 1, target.text);
-            index -= 1;
+                target.text = target.deleteGlyph(index - 1, target.text);
+                index -= 1;
+            }
+
+            target.cursorPosition.index = index;
+
+            target.neededToRecalculate.needed = true;
         }
-
-        target.cursorPosition.index = index;
-
-        target.neededToRecalculate.needed = true;
     }
 
     deleteGlyph(index, string) {
@@ -372,7 +380,7 @@ export default class Label extends Component {
             context.fillText(line, 0, this.linesMetric[i].top);
         });
 
-        if (this.isSelected) {
+        if (this.isSelected && this.editable) {
             this.cursor.draw(context, elapsedTime);
         }
     }

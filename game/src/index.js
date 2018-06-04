@@ -22,7 +22,7 @@ const textLabel = new Label(220,10,201,100,'ffffffffffffffffffffffffffffffffffff
 
 scene.setBackgroundColor('#aa0000');
 componentItem1.setBackgroundColor('#00aa00');
-componentItem2.setBackgroundColor('#0000aa');
+componentItem2.setBackgroundColor('#584300');
 componentItem3.setBackgroundColor('#aa00aa');
 textLabel.setBackgroundColor('#aaaaaa');
 
@@ -59,9 +59,14 @@ textLabel.animations.setAnimation('background', 2, (context,initialProperties, p
     );
 });
 
+textLabel.editable = true;
+
 componentItem1.animations.setAnimation('translate', 2, (context,initialProperties, properties, elapseTime) => {
     properties.clippedBoundingClientRect.left = initialProperties.clippedBoundingClientRect.left + 50 * elapseTime;
 });
+
+const modalWindow = new CompositeComponent('5%', '10%', '80%', '50%');
+modalWindow.setBackgroundColor('#3c76a7');
 
 const ui = new UI();
 ui.add(scene);
