@@ -41,6 +41,8 @@ componentItem1.addComponent(componentItem2);
 componentItem1.setOverflow('hidden');
 scene.addComponent(textLabel);
 
+const back = new Component(0, 0, '100%', '100%');
+
 componentItem1.handlers.addEventListener(events.MOUSE.MOUSE_MOVE, (e) => {
     console.log(e);
 });
@@ -57,7 +59,7 @@ textLabel.animations.setAnimation('background', 2, (context,initialProperties, p
     );
 });
 
-componentItem1.animations.setAnimation('tranlate', 2, (context,initialProperties, properties, elapseTime) => {
+componentItem1.animations.setAnimation('translate', 2, (context,initialProperties, properties, elapseTime) => {
     properties.clippedBoundingClientRect.left = initialProperties.clippedBoundingClientRect.left + 50 * elapseTime;
 });
 
@@ -65,16 +67,27 @@ const ui = new UI();
 ui.add(scene);
 
 canvas.addUI(ui);
+canvas.addScene(back);
 
 const eventQueue = new EventQueue();
 
 let image = new Image();
-image.src = '../assets/maxresdefault.jpg';
+image.src = '../assets/dungeon.jpg';
 image.onload = (e) => {
     console.log('loaded');
 
-    componentItem1.setBackgroundImage(new ImageComponent(image, 0, 0, 200, 200, 0, 0, 300, 1080));
+    const target = e.target;
+
+    const { width, height } = back.getClippedBoundingClientRect();
+
+    back.setBackgroundImage(new ImageComponent(image, 0, 0, target.naturalWidth, target.naturalHeight, width, height, 0, 0,  target.naturalWidth, target.naturalHeight))
+
+    componentItem1.setBackgroundImage(new ImageComponent(image, 0, 0, target.naturalWidth, target.naturalHeight, 300, 200, 0, 0, target.naturalWidth / 2, target.naturalHeight / 2));
 };
+
+componentItem1.animations.setAnimation('back', 5, (context, initialProperties, properties, elapseTime, e) => {
+    e.backgroundImage.setOffset(elapseTime);
+});
 
 window.onresize = (e) => {
     canvas.setSize(window.innerWidth, window.innerHeight);

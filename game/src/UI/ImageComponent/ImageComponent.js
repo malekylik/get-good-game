@@ -1,5 +1,5 @@
 export default class ImageComponent {
-    constructor(image, dx = 0, dy = 0, dWidth, dHeight, sx = 0, sy = 0, sWidth, sHeight) {
+    constructor(image, dx = 0, dy = 0, naturalWidth, naturalHeight, dWidth, dHeight, sx = 0, sy = 0, sWidth, sHeight) {
         this.htmlComponent = image;
 
         this.x = dx;
@@ -21,6 +21,12 @@ export default class ImageComponent {
             this.sHeight = sHeight;
         }
 
+        this.naturalWidth = naturalWidth;
+        this.naturalHeight = naturalHeight;
+
+        this.offsetX = 0;
+        this.offsetY = 0;
+
 
         this.sx = sx;
         this.sy = sy;
@@ -30,21 +36,29 @@ export default class ImageComponent {
         this.width = width;
         this.height = height;
         
-        this.sWidth = width;
-        this.sHidth = height;
+        // this.sWidth = width;
+        // this.sHeight = height;
 
         this.recalculateFrames();
     }
 
     recalculateFrames() {
-        if (this.sWidth !== undefined) {
-            this.xFramesCount = Math.floor((this.width - this.sx) / this.sWidth);
+        if (this.naturalWidth !== undefined) {
+            this.xFramesCount = Math.floor((this.naturalWidth - this.sx) / this.sWidth);
+
+            if (this.xFramesCount < 1) {
+                this.xFramesCount = 1;
+            }
         } else {
             this.xFramesCount = 1;
         }
     
-        if (this.Height !== undefined) {
-            this.yFramesCount = Math.floor((this.height - this.sy) / this.sHeight);
+        if (this.naturalHeight !== undefined) {
+            this.yFramesCount = Math.floor((this.naturalHeight - this.sy) / this.sHeight);
+
+            if (this.yFramesCount < 1) {
+                this.yFramesCount = 1;
+            }
         } else {
             this.yFramesCount = 1;
         }
@@ -66,7 +80,7 @@ export default class ImageComponent {
     }
 
     getFramesCount() {
-        return this.xFramesCount + this.yFramesCount;
+        return this.xFramesCount * this.yFramesCount;
     }
 
     getRemainXFramesCount() {
@@ -78,7 +92,7 @@ export default class ImageComponent {
     }
 
     getRemainFramesCount() {
-        return (this.xFramesCount - this.currentXFrame) + (this.yFramesCount - this.currentYFrame);
+        return (this.xFramesCount - this.currentXFrame) * (this.yFramesCount - this.currentYFrame);
     }
 
     setNextFrame() {
@@ -93,6 +107,43 @@ export default class ImageComponent {
         } else {
             this.currentXFrame += 1;
         }
+
+        this.offsetX = this.sx + this.sWidth * (this.currentXFrame - 1);
+        this.offsetY = this.sy + this.sHeight * (this.currentYFrame - 1);
+    }
+
+    setFrame(frame) {
+        let framesCount = this.getFramesCount();
+        let frameCount = Math.floor(framesCount * frame) + 1;
+
+        if (frameCount > framesCount) {
+            frameCount = framesCount;
+        }
+
+        let xFrameCount = this.getXFramesCount();
+
+        if (frameCount < xFrameCount) {
+            this.currentXFrame = frameCount;
+            this.currentYFrame = 1;
+        } else {
+            this.currentYFrame = Math.ceil(frameCount / xFrameCount);
+            this.currentXFrame = frameCount - ((this.currentYFrame - 1) * xFrameCount);
+        }
+
+        this.offsetX = this.sx + this.sWidth * (this.currentXFrame - 1);
+        this.offsetY = this.sy + this.sHeight * (this.currentYFrame - 1);
+    }
+
+    setOffset(frame) {
+        let widthOfOneLine = this.naturalWidth - this.sWidth;
+        let width = this.getYFramesCount() * widthOfOneLine;
+
+        let newWidth = Math.floor(width * frame);
+
+        let linesCount =  Math.floor(newWidth / this.sWidth);
+
+        this.offsetY = this.sHeight * Math.floor(newWidth / widthOfOneLine);
+        this.offsetX = newWidth - linesCount * this.sWidth;
     }
 
     draw(context, x, y) {
@@ -105,7 +156,7 @@ export default class ImageComponent {
         }
 
         if (this.width !== undefined) {
-            context.drawImage(this.htmlComponent, this.sx + this.sWidth * (this.currentXFrame - 1), this.sy + this.sHeight * (this.currentYFrame - 1), this.sWidth, this.sHeight, left, top, this.width, this.height);
+            context.drawImage(this.htmlComponent, this.offsetX, this.offsetY, this.sWidth, this.sHeight, left, top, this.width, this.height);
         } else {
             context.drawImage(this.htmlComponent, left, top);
         }
