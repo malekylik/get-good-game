@@ -34,4 +34,12 @@ export default class TextInputModalWindow extends CompositeComponent {
         this.addComponent(userInput, this.userInputKey);
         this.addComponent(enterButton, this.buttonKey);
     }
+
+    addButtonEventListener(name, event) {
+        this.getChildComponent(this.buttonKey).addEventListener(name, event);
+    }
+
+    getInputUser() {
+        return this.getChildComponent(this.userInputKey).text;
+    }
 }
