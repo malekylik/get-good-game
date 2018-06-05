@@ -1,4 +1,4 @@
-import { merge } from 'lodash';
+import { merge, uniqueId } from 'lodash';
 
 import Collision from '../../Collision/Collision';
 import Animatable from '../../Animation/Animatable';
@@ -33,7 +33,7 @@ export class Component {
         this.animations = new Animatable(this);
 
         this.handlers = new EventsHandler();
-        this.handlers.addEventListener(events.MOUSE.MOUSE_MOVE, this.handleHover.bind(this));
+        this.handlers.addEventListener(events.MOUSE.MOUSE_MOVE, this.handleHover);
         
         ({ top, left, width, height } = this.convertFromPercentageToPixel(top, left, width, height));
 
@@ -42,6 +42,10 @@ export class Component {
         merge(this.hoverProperties, this.properties);
 
         this.setBoundingClientRect(top, left, width, height);
+    }
+
+    addEventListener(name, event) {
+        this.handlers.addEventListener(name, event)
     }
 
     convertFromPercentageToPixel(top, left, width, height) {
@@ -270,7 +274,7 @@ export class Component {
 
         if (this.children) {
             for (let o of this.children) {
-                o.draw(context, elapseTime);
+                o.component.draw(context, elapseTime);
             }
         }
 
@@ -285,9 +289,20 @@ export class CompositeComponent extends Component {
         this.children = [];
     }
 
-    addComponent(component) {
+    addComponent(component, name) {
         component.setParentComponent(this);
-        this.children.push(component);
+
+        if (name !== undefined && typeof name === 'string') {
+            this.children.push({
+                component,
+                name
+            });
+        } else {
+            this.children.push({
+                component,
+                name: uniqueId('component ')
+            });
+        }
     }
 
     removeComponent(component) {
@@ -301,15 +316,28 @@ export class CompositeComponent extends Component {
         return false;
     }
 
+    getChildComponent(index) {
+        if (typeof index === 'number') {
+            if (this.children.length < index && index >= 0) {
+                return this.children[index].component;
+            }
+        }
+
+        const child = this.children.find(e => e.name === index);  
+
+        return child ? child.component : null;  
+    }
+
     traverse(callback) {
         callback(this);
 
         if (this.children) {
             for (let o of this.children) {
-                if (o.traverse) {
-                    o.traverse(callback);
+                const { component } = o;
+                if (component.traverse) {
+                    component.traverse(callback);
                 } else {
-                    callback(o);
+                    callback(component);
                 }
             } 
         } 

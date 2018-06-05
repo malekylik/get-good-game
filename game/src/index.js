@@ -3,6 +3,8 @@ import EventQueue from './event/EventQueue/EventQueue';
 
 import UI from './UI/UI';
 import Label from './UI/Component/Label';
+import ModalWindow from './UI/ModalWindows/ModalWindow';
+import TextInputModalWindow from './UI/ModalWindows/TextInputModalWindow';
 import Canvas from './Canvas/Canvas';
 import ImageComponent from './UI/ImageComponent/ImageComponent';
 
@@ -43,11 +45,11 @@ scene.addComponent(textLabel);
 
 const back = new Component(0, 0, '100%', '100%');
 
-componentItem1.handlers.addEventListener(events.MOUSE.MOUSE_MOVE, (e) => {
+componentItem1.addEventListener(events.MOUSE.MOUSE_MOVE, (e) => {
     console.log(e);
 });
 
-textLabel.handlers.addEventListener(events.MOUSE.MOUSE_MOVE, (e) => {
+textLabel.addEventListener(events.MOUSE.MOUSE_MOVE, (e) => {
   
 });
 
@@ -65,11 +67,11 @@ componentItem1.animations.setAnimation('translate', 2, (context,initialPropertie
     properties.clippedBoundingClientRect.left = initialProperties.clippedBoundingClientRect.left + 50 * elapseTime;
 });
 
-const modalWindow = new CompositeComponent('5%', '10%', '80%', '50%');
+const modalWindow = new TextInputModalWindow((((window.innerHeight / 2) - 300 < 0) ? 0 : (window.innerHeight / 2) - 300), (window.innerWidth / 2) - 300, 600, 300, 'Enter your name:');
 modalWindow.setBackgroundColor('#3c76a7');
 
 const ui = new UI();
-ui.add(scene);
+ui.add(modalWindow);
 
 canvas.addUI(ui);
 canvas.addScene(back);

@@ -17,6 +17,8 @@ export default class Label extends Component {
             fontSize: 16,
             fontFamily: 'monospace'
         };
+        
+        this.maxTextLength = 'infinite';
 
         this.editable = false;
 
@@ -153,6 +155,10 @@ export default class Label extends Component {
     handleKeyPress(e) {
         if (e.target.editable) {
             const target = e.target;
+
+            if (typeof target.maxTextLength === 'number') {
+                if (target.text.length >= target.maxTextLength) return;
+            }
 
             if (e.payload.key === 'Delete') return;
             if (e.payload.key === 'Backspace') return;
