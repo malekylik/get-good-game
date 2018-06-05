@@ -27,5 +27,4 @@ export const parseRGBHexToDecObj = (color) => {
         g: parseInt(colorArr[1], 16),
         b: parseInt(colorArr[2], 16),
     };
-
 };
