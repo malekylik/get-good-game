@@ -19,7 +19,7 @@ export default class UI {
                     let index = -1;
             
                     elements.forEach(({ depth }, i) => {
-                        if (depth > mostDepth) {
+                        if (depth >= mostDepth) {
                             mostDepth = depth;
                             index = i;
                         };
