@@ -85,4 +85,12 @@ export default class UI {
     add(component) {
         this.uiComponents.push(component);
     }
+
+    remove(component) {
+        const index = this.uiComponents.indexOf(component);
+
+        if (~index) {
+            this.uiComponents.splice(index, 1);
+        }
+    }
 }

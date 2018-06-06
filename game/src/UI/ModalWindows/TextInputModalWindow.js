@@ -17,7 +17,7 @@ export default class TextInputModalWindow extends CompositeComponent {
 
         const description = new Label(halfHeight - 10 - 20 - 3, halfWidth - halfUserInputWidth, halfDescriptionWidth * 2, 20, descriptionText);
         const userInput = new Label(halfHeight - 10, halfWidth - halfUserInputWidth, halfUserInputWidth * 2, 20, '');
-        const enterButton = new Button(halfHeight * 2 - 60 - 5, halfWidth * 2 - 100 - 5, 100, 50, 'OK');
+        const enterButton = new Button(halfHeight * 2 - 50 - 5, halfWidth * 2 - 100 - 5, 100, 50, 'OK');
 
         userInput.editable = true;
         userInput.setBackgroundColor('#bb0000');
