@@ -25,6 +25,10 @@ export default class Canvas {
         return this.htmlComponent;
     }
 
+    getContext() {
+        return this.context;
+    }
+
     setSize(width, height) {
         this.width = width;
         this.height = height;
