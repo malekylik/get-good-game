@@ -6,17 +6,9 @@ import ImageComponent from '../UI/ImageComponent/ImageComponent';
 import TextInputModalWindow from '../UI/ModalWindows/TextInputModalWindow';
 import Progressbar from '../UI/Component/Progressbar';
 import MonsterGraphicComponent from '../GraphicComponent/MonsterGraphicComponent';
+import ImageLoadManager from '../LoadManager/ImageLoadManager';
 
 import { Component, CompositeComponent } from '../UI/Component/Component';
-
-
-const createImgPromise = (img) => {
-    return new Promise((resolve) => {
-        img.onload = (i) => {
-            resolve(i.srcElement);
-        } 
-    })
-}
 
 export default class Game {
     constructor() {
@@ -49,42 +41,83 @@ export default class Game {
     }
 
     init() {
-        let image = new Image();
-        image.src = '../assets/dungeon.jpg';
-        image.onload = (e) => {
-            const target = e.target;
+        const loadManager = new ImageLoadManager();
+
+        loadManager.addUrl('/assets/dungeon.jpg', 'background');
+
+        loadManager.addUrl([
+            '/assets/monsters/heads/head_1.png',
+            '/assets/monsters/heads/head_2.png',
+            '/assets/monsters/heads/head_3.png',
+            '/assets/monsters/heads/head_4.png'
+        ],
+            'heads'
+        );
+
+        loadManager.addUrl([
+            '/assets/monsters/bodies/body_1.png',
+            '/assets/monsters/bodies/body_2.png',
+            '/assets/monsters/bodies/body_3.png',
+            '/assets/monsters/bodies/body_4.png',
+        ],
+            'bodies'
+        );
+
+        loadManager.addUrl([
+            '/assets/monsters/arms/left/arm_1.png',
+            '/assets/monsters/arms/left/arm_2.png',
+            '/assets/monsters/arms/left/arm_3.png',
+            '/assets/monsters/arms/left/arm_4.png',
+        ],
+            'leftarms'
+        );
+
+        loadManager.addUrl([
+            '/assets/monsters/arms/right/arm_1.png',
+            '/assets/monsters/arms/right/arm_2.png',
+            '/assets/monsters/arms/right/arm_3.png',
+            '/assets/monsters/arms/right/arm_4.png',
+        ],
+            'rightarms'
+        );
+
+        loadManager.addUrl([
+            '/assets/monsters/legs/leg_1.png',
+            '/assets/monsters/legs/leg_2.png',
+            '/assets/monsters/legs/leg_3.png',
+            '/assets/monsters/legs/leg_4.png',
+        ],
+            'legs'
+        );
+
+
+        loadManager.calculateTotalSize().then((total) => {
+            console.log(`total: ${total}`);
+        });
+
+        loadManager.loadImages().then((imgs) => {
+            console.log('loaded');
+
+            const background = loadManager.getImagesByName('background')[0];
+
             const { width, height } = this.background.getClippedBoundingClientRect();
 
-            this.background.setBackgroundImage(new ImageComponent(image, 0, 0, target.naturalWidth, target.naturalHeight, width, height, 0, 0,  target.naturalWidth, target.naturalHeight));
+            this.background.setBackgroundImage(new ImageComponent(background, 0, 0, background.naturalWidth, background.naturalHeight, width, height, 0, 0,  background.naturalWidth, background.naturalHeight));
 
             this.canvas.addScene(this.background);
 
-            const headImg = new Image();
-            const bodyImg = new Image();
-            const leftImg = new Image();
-            const rightImg = new Image();
-            const legImg = new Image();
+            const heads = loadManager.getImagesByName('heads');
+            const bodies = loadManager.getImagesByName('bodies');
+            const leftArms = loadManager.getImagesByName('leftarms');
+            const rightArms = loadManager.getImagesByName('rightarms');
+            const legs = loadManager.getImagesByName('legs');
+
+            const monsterGraphic = new MonsterGraphicComponent(50, 150, heads[0], leftArms[0], rightArms[0], bodies[0], legs[0]);
     
-            headImg.src = '../assets/monsters/heads/head_3.png';
-            bodyImg.src = '../assets/monsters/bodies/body_4.png';
-            leftImg.src = '../assets/monsters/arms/left/arm_2.png';
-            rightImg.src = '../assets/monsters/arms/right/arm_2.png';
-            legImg.src = '../assets/monsters/legs/leg_2.png';
-            Promise.all([
-                createImgPromise(headImg),
-                createImgPromise(bodyImg),
-                createImgPromise(leftImg),
-                createImgPromise(rightImg),
-                createImgPromise(legImg),
-            ]).then((result) => {  
-                const monsterGraphic = new MonsterGraphicComponent(50, 150, result[0], result[2], result[3], result[1], result[4]);
-
-                this.canvas.addScene(monsterGraphic);
-            }).catch((e) => {
-                console.log(e);
-            });
-        };
-
+            this.canvas.addScene(monsterGraphic);
+        }).catch((e) => {
+            console.log(e);
+        });
 
         this.canvas.getHtml().addEventListener('mousedown', (e) => {
             this.eventQueue.add({

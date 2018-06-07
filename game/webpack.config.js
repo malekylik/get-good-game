@@ -25,6 +25,7 @@ module.exports = {
     }),
     new CleanWebpackPlugin(['dist'], {
       verbose: false,
+      exclude: ['assets',]
     })
   ],
   optimization: {
