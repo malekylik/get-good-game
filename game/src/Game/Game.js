@@ -5,9 +5,9 @@ import UI from '../UI/UI';
 import ImageComponent from '../UI/ImageComponent/ImageComponent';
 import TextInputModalWindow from '../UI/ModalWindows/TextInputModalWindow';
 import ProgressBar from '../UI/Component/ProgressBar';
-import MonsterGraphicComponent from '../GraphicComponent/MonsterGraphicComponent';
 import ImageLoadManager from '../LoadManager/ImageLoadManager';
 import PATH from '../path/path';
+import MonsterFactory from '../Factories/MonsterFactory';
 
 import { Component, CompositeComponent } from '../UI/Component/Component';
 
@@ -104,6 +104,8 @@ export default class Game {
 
         console.log('loaded');
 
+        this.canvas.removeScene(loadingScreen);
+
         const background = loadManager.getImagesByName(this.backgroundImgsKey)[0];
 
         const { width, height } = this.background.getClippedBoundingClientRect();
@@ -111,32 +113,6 @@ export default class Game {
         this.background.setBackgroundImage(new ImageComponent(background, 0, 0, background.naturalWidth, background.naturalHeight, width, height, 0, 0,  background.naturalWidth, background.naturalHeight));
 
         this.canvas.addScene(this.background);
-
-        const heads = loadManager.getImagesByName(this.headImgsKey);
-        const bodies = loadManager.getImagesByName(this.bodyImgsKey);
-        const leftArms = loadManager.getImagesByName(this.leftArmImgsKey);
-        const rightArms = loadManager.getImagesByName(this.rightArmImgsKey);
-        const legs = loadManager.getImagesByName(this.legImgsKey);
-
-        const monsterGraphic = new MonsterGraphicComponent(50, 150, heads[0], leftArms[0], rightArms[0], bodies[0], legs[0]);
-    
-        this.canvas.addScene(monsterGraphic);
-
-        // const modalWindow = new TextInputModalWindow((((window.innerHeight / 2) - 300 < 0) ? 0 : (window.innerHeight / 2) - 300), (window.innerWidth / 2) - 300, 600, 300, 'Enter your name:');
-        // modalWindow.setBackgroundColor('#3c76a7');
-        // modalWindow.addButtonEventListener(events.MOUSE.MOUSE_DOWN, (e) => {
-        //     this.name = e.target.getParentComponent().getInputUser();
-        //     this.ui.remove(modalWindow);
-        //     this.canvas.getHtml().style.cursor = 'auto';
-        // });
-
-        // const progress = new ProgressBar((window.innerHeight / 2) + 200, (window.innerWidth / 2), 150, 20, 0, 100, 28);
-        // progress.setValue(88);
-
-        // this.ui.add(modalWindow);
-        // this.ui.add(progress);
-
-        // this.canvas.addUI(this.ui);
 
         this.canvas.getHtml().addEventListener('mousedown', (e) => {
             this.eventQueue.add({
@@ -183,6 +159,34 @@ export default class Game {
                 }
             });
         });
+
+        const heads = loadManager.getImagesByName(this.headImgsKey);
+        const bodies = loadManager.getImagesByName(this.bodyImgsKey);
+        const leftArms = loadManager.getImagesByName(this.leftArmImgsKey);
+        const rightArms = loadManager.getImagesByName(this.rightArmImgsKey);
+        const legs = loadManager.getImagesByName(this.legImgsKey);
+
+        this.monsterFactory = new MonsterFactory(heads, leftArms, rightArms, bodies, legs);
+
+        const monsterGraphic = this.monsterFactory.createMonster(150, 150);
+    
+        this.canvas.addScene(monsterGraphic);
+
+        // const modalWindow = new TextInputModalWindow((((window.innerHeight / 2) - 300 < 0) ? 0 : (window.innerHeight / 2) - 300), (window.innerWidth / 2) - 300, 600, 300, 'Enter your name:');
+        // modalWindow.setBackgroundColor('#3c76a7');
+        // modalWindow.addButtonEventListener(events.MOUSE.MOUSE_DOWN, (e) => {
+        //     this.name = e.target.getParentComponent().getInputUser();
+        //     this.ui.remove(modalWindow);
+        //     this.canvas.getHtml().style.cursor = 'auto';
+        // });
+
+        // const progress = new ProgressBar((window.innerHeight / 2) + 200, (window.innerWidth / 2), 150, 20, 0, 100, 28);
+        // progress.setValue(88);
+
+        // this.ui.add(modalWindow);
+        // this.ui.add(progress);
+
+        // this.canvas.addUI(this.ui);
     }
 
     main(time) {
