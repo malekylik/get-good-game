@@ -211,7 +211,7 @@ export default class Label extends Component {
     }
 
     setText(text = '') {
-        this.neededToRecalculate = true;
+        this.neededToRecalculate.needed = true;
         this.text = text;
     }
 

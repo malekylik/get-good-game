@@ -64,11 +64,12 @@ export default class ImageLoadManager {
             }
 
             this.currentLoadedSize = currentLoadedSize;
+            const percent = Math.round(this.currentLoadedSize / this.totalSize * 100);
 
-            console.log(Math.round(this.currentLoadedSize / this.totalSize * 100));
+            console.log(percent);
 
             if (onprogressCallback) {
-                onprogressCallback(value);
+                onprogressCallback(percent);
             }
         };
 

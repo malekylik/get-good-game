@@ -4,7 +4,7 @@ import events from '../event/events/events';
 import UI from '../UI/UI';
 import ImageComponent from '../UI/ImageComponent/ImageComponent';
 import TextInputModalWindow from '../UI/ModalWindows/TextInputModalWindow';
-import Progressbar from '../UI/Component/Progressbar';
+import ProgressBar from '../UI/Component/ProgressBar';
 import MonsterGraphicComponent from '../GraphicComponent/MonsterGraphicComponent';
 import ImageLoadManager from '../LoadManager/ImageLoadManager';
 import PATH from '../path/path';
@@ -13,6 +13,15 @@ import { Component, CompositeComponent } from '../UI/Component/Component';
 
 export default class Game {
     constructor() {
+        this.backgroundImgsKey = 'background';
+        this.headImgsKey = 'heads';
+        this.bodyImgsKey = 'bodies';
+        this.leftArmImgsKey = 'leftarms';
+        this.rightArmImgsKey = 'rightarms';
+        this.legImgsKey = 'legs';
+
+        this.loadManager = new ImageLoadManager();
+
         this.canvas = new Canvas();
         this.eventQueue = new EventQueue();
         this.ui = new UI();
@@ -21,30 +30,26 @@ export default class Game {
 
         this.init();
 
-        const modalWindow = new TextInputModalWindow((((window.innerHeight / 2) - 300 < 0) ? 0 : (window.innerHeight / 2) - 300), (window.innerWidth / 2) - 300, 600, 300, 'Enter your name:');
-        modalWindow.setBackgroundColor('#3c76a7');
-        modalWindow.addButtonEventListener(events.MOUSE.MOUSE_DOWN, (e) => {
-            this.name = e.target.getParentComponent().getInputUser();
-            this.ui.remove(modalWindow);
-            this.canvas.getHtml().style.cursor = 'auto';
-        });
-
-        const progress = new Progressbar((window.innerHeight / 2) + 200, (window.innerWidth / 2), 150, 20, 0, 100, 28);
-        progress.setValue(88);
-
-        this.ui.add(modalWindow);
-        this.ui.add(progress);
-
-        this.canvas.addUI(this.ui);
-
         this.main = this.main.bind(this);
         this.main(0);
     }
 
-    init() {
-        const loadManager = new ImageLoadManager();
+    async init() {
+        const loadingScreen = new CompositeComponent(0, 0, window.innerWidth, window.innerHeight);
 
-        loadManager.addUrl(`${PATH.BACKGROUND_IMAGES}/dungeon.jpg`, 'background');
+        loadingScreen.setBackgroundColor('#000000');
+
+        const loadingProgressBarWidth = 400;
+        const loadingProgressBarHeight = 100;
+
+        const loadingProgressBar = new ProgressBar(Math.floor(window.innerHeight / 2 - loadingProgressBarHeight / 2), Math.floor(window.innerWidth / 2 - loadingProgressBarWidth / 2), loadingProgressBarWidth, loadingProgressBarHeight, 0, 100, 0);
+        loadingScreen.addComponent(loadingProgressBar);
+
+        this.canvas.addScene(loadingScreen);
+
+        const loadManager = this.loadManager;
+
+        loadManager.addUrl(`${PATH.BACKGROUND_IMAGES}/dungeon.jpg`,  this.backgroundImgsKey);
 
         loadManager.addUrl([
             `${PATH.HEAD_IMAGES}/head_1.png`,
@@ -52,7 +57,7 @@ export default class Game {
             `${PATH.HEAD_IMAGES}/head_3.png`,
             `${PATH.HEAD_IMAGES}/head_4.png`,
         ],
-            'heads'
+            this.headImgsKey
         );
 
         loadManager.addUrl([
@@ -61,7 +66,7 @@ export default class Game {
             `${PATH.BODY_IMAGES}/body_3.png`,
             `${PATH.BODY_IMAGES}/body_4.png`,
         ],
-            'bodies'
+            this.bodyImgsKey
         );
 
         loadManager.addUrl([
@@ -70,7 +75,7 @@ export default class Game {
             `${PATH.LEFT_ARM_IMAGES}/arm_3.png`,
             `${PATH.LEFT_ARM_IMAGES}/arm_4.png`,
         ],
-            'leftarms'
+            this.leftArmImgsKey
         );
 
         loadManager.addUrl([
@@ -79,7 +84,7 @@ export default class Game {
             `${PATH.RIGHT_ARM_IMAGES}/arm_3.png`,
             `${PATH.RIGHT_ARM_IMAGES}/arm_4.png`,
         ],
-            'rightarms'
+            this.rightArmImgsKey
         );
 
         loadManager.addUrl([
@@ -88,37 +93,50 @@ export default class Game {
             `${PATH.LEG_IMAGES}/leg_3.png`,
             `${PATH.LEG_IMAGES}/leg_4.png`,
         ],
-            'legs'
+            this.legImgsKey
         );
 
+        const totalSize = await loadManager.calculateTotalSize();
 
-        loadManager.calculateTotalSize().then((total) => {
-            console.log(`total: ${total}`);
-        });
+        console.log(`total: ${totalSize}`);
 
-        loadManager.loadImages().then(() => {
-            console.log('loaded');
+        await loadManager.loadImages((loadedPercentage) => loadingProgressBar.setValue(loadedPercentage));
 
-            const background = loadManager.getImagesByName('background')[0];
+        console.log('loaded');
 
-            const { width, height } = this.background.getClippedBoundingClientRect();
+        const background = loadManager.getImagesByName(this.backgroundImgsKey)[0];
 
-            this.background.setBackgroundImage(new ImageComponent(background, 0, 0, background.naturalWidth, background.naturalHeight, width, height, 0, 0,  background.naturalWidth, background.naturalHeight));
+        const { width, height } = this.background.getClippedBoundingClientRect();
 
-            this.canvas.addScene(this.background);
+        this.background.setBackgroundImage(new ImageComponent(background, 0, 0, background.naturalWidth, background.naturalHeight, width, height, 0, 0,  background.naturalWidth, background.naturalHeight));
 
-            const heads = loadManager.getImagesByName('heads');
-            const bodies = loadManager.getImagesByName('bodies');
-            const leftArms = loadManager.getImagesByName('leftarms');
-            const rightArms = loadManager.getImagesByName('rightarms');
-            const legs = loadManager.getImagesByName('legs');
+        this.canvas.addScene(this.background);
 
-            const monsterGraphic = new MonsterGraphicComponent(50, 150, heads[0], leftArms[0], rightArms[0], bodies[0], legs[0]);
+        const heads = loadManager.getImagesByName(this.headImgsKey);
+        const bodies = loadManager.getImagesByName(this.bodyImgsKey);
+        const leftArms = loadManager.getImagesByName(this.leftArmImgsKey);
+        const rightArms = loadManager.getImagesByName(this.rightArmImgsKey);
+        const legs = loadManager.getImagesByName(this.legImgsKey);
+
+        const monsterGraphic = new MonsterGraphicComponent(50, 150, heads[0], leftArms[0], rightArms[0], bodies[0], legs[0]);
     
-            this.canvas.addScene(monsterGraphic);
-        }).catch((e) => {
-            console.log(e);
-        });
+        this.canvas.addScene(monsterGraphic);
+
+        // const modalWindow = new TextInputModalWindow((((window.innerHeight / 2) - 300 < 0) ? 0 : (window.innerHeight / 2) - 300), (window.innerWidth / 2) - 300, 600, 300, 'Enter your name:');
+        // modalWindow.setBackgroundColor('#3c76a7');
+        // modalWindow.addButtonEventListener(events.MOUSE.MOUSE_DOWN, (e) => {
+        //     this.name = e.target.getParentComponent().getInputUser();
+        //     this.ui.remove(modalWindow);
+        //     this.canvas.getHtml().style.cursor = 'auto';
+        // });
+
+        // const progress = new ProgressBar((window.innerHeight / 2) + 200, (window.innerWidth / 2), 150, 20, 0, 100, 28);
+        // progress.setValue(88);
+
+        // this.ui.add(modalWindow);
+        // this.ui.add(progress);
+
+        // this.canvas.addUI(this.ui);
 
         this.canvas.getHtml().addEventListener('mousedown', (e) => {
             this.eventQueue.add({

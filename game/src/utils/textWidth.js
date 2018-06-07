@@ -19,6 +19,6 @@ export const getTextWidthWithDom = (text, fontFamily, fontSize) => {
 };
 
 export const getTextWidthWithCanvas = (text, fontFamily, fontSize) => {
-    context.font = `${fontSize} ${fontFamily}`;
+    context.font = `${fontSize}px ${fontFamily}`;
     return context.measureText(text).width;
 };
