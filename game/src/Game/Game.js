@@ -7,6 +7,7 @@ import TextInputModalWindow from '../UI/ModalWindows/TextInputModalWindow';
 import Progressbar from '../UI/Component/Progressbar';
 import MonsterGraphicComponent from '../GraphicComponent/MonsterGraphicComponent';
 import ImageLoadManager from '../LoadManager/ImageLoadManager';
+import PATH from '../path/path';
 
 import { Component, CompositeComponent } from '../UI/Component/Component';
 
@@ -43,49 +44,49 @@ export default class Game {
     init() {
         const loadManager = new ImageLoadManager();
 
-        loadManager.addUrl('/assets/dungeon.jpg', 'background');
+        loadManager.addUrl(`${PATH.BACKGROUND_IMAGES}/dungeon.jpg`, 'background');
 
         loadManager.addUrl([
-            '/assets/monsters/heads/head_1.png',
-            '/assets/monsters/heads/head_2.png',
-            '/assets/monsters/heads/head_3.png',
-            '/assets/monsters/heads/head_4.png'
+            `${PATH.HEAD_IMAGES}/head_1.png`,
+            `${PATH.HEAD_IMAGES}/head_2.png`,
+            `${PATH.HEAD_IMAGES}/head_3.png`,
+            `${PATH.HEAD_IMAGES}/head_4.png`,
         ],
             'heads'
         );
 
         loadManager.addUrl([
-            '/assets/monsters/bodies/body_1.png',
-            '/assets/monsters/bodies/body_2.png',
-            '/assets/monsters/bodies/body_3.png',
-            '/assets/monsters/bodies/body_4.png',
+            `${PATH.BODY_IMAGES}/body_1.png`,
+            `${PATH.BODY_IMAGES}/body_2.png`,
+            `${PATH.BODY_IMAGES}/body_3.png`,
+            `${PATH.BODY_IMAGES}/body_4.png`,
         ],
             'bodies'
         );
 
         loadManager.addUrl([
-            '/assets/monsters/arms/left/arm_1.png',
-            '/assets/monsters/arms/left/arm_2.png',
-            '/assets/monsters/arms/left/arm_3.png',
-            '/assets/monsters/arms/left/arm_4.png',
+            `${PATH.LEFT_ARM_IMAGES}/arm_1.png`,
+            `${PATH.LEFT_ARM_IMAGES}/arm_2.png`,
+            `${PATH.LEFT_ARM_IMAGES}/arm_3.png`,
+            `${PATH.LEFT_ARM_IMAGES}/arm_4.png`,
         ],
             'leftarms'
         );
 
         loadManager.addUrl([
-            '/assets/monsters/arms/right/arm_1.png',
-            '/assets/monsters/arms/right/arm_2.png',
-            '/assets/monsters/arms/right/arm_3.png',
-            '/assets/monsters/arms/right/arm_4.png',
+            `${PATH.RIGHT_ARM_IMAGES}/arm_1.png`,
+            `${PATH.RIGHT_ARM_IMAGES}/arm_2.png`,
+            `${PATH.RIGHT_ARM_IMAGES}/arm_3.png`,
+            `${PATH.RIGHT_ARM_IMAGES}/arm_4.png`,
         ],
             'rightarms'
         );
 
         loadManager.addUrl([
-            '/assets/monsters/legs/leg_1.png',
-            '/assets/monsters/legs/leg_2.png',
-            '/assets/monsters/legs/leg_3.png',
-            '/assets/monsters/legs/leg_4.png',
+            `${PATH.LEG_IMAGES}/leg_1.png`,
+            `${PATH.LEG_IMAGES}/leg_2.png`,
+            `${PATH.LEG_IMAGES}/leg_3.png`,
+            `${PATH.LEG_IMAGES}/leg_4.png`,
         ],
             'legs'
         );
@@ -95,7 +96,7 @@ export default class Game {
             console.log(`total: ${total}`);
         });
 
-        loadManager.loadImages().then((imgs) => {
+        loadManager.loadImages().then(() => {
             console.log('loaded');
 
             const background = loadManager.getImagesByName('background')[0];
