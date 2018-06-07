@@ -215,7 +215,5 @@ export default class Game {
 
     render(timeStamp) {
         this.canvas.draw(timeStamp);
-
-        // this.canvas.getContext().drawImage(this.image, 10, 10);
     }
 }

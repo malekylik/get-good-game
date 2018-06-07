@@ -13,7 +13,7 @@ export default class Progressbar extends CompositeComponent {
 
         this.oneInPixel = (width - 2) / (maxValue - minValue);
 
-        const barComponent = new Component(1, 1, this.oneInPixel * (initialValue - minValue), height - 1);
+        const barComponent = new Component(1, 1, this.oneInPixel * (initialValue - minValue), height - 2);
         barComponent.setBackgroundColor('#aa0000');
         this.setBackgroundColor('#ffffff');
 
