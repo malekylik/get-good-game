@@ -3,7 +3,7 @@ import Label from './Label';
 import { Component, CompositeComponent } from './Component';
 import { getTextWidthWithCanvas } from '../../utils/textWidth';
 
-export default class Progressbar extends CompositeComponent {
+export default class ProgressBar extends CompositeComponent {
     constructor(top = 0, left = 0, width = 0, height = 0, minValue, maxValue, initialValue, parentComponent = null) {
         super(top, left, width, height, parentComponent);
 
