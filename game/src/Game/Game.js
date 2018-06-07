@@ -5,15 +5,19 @@ import UI from '../UI/UI';
 import ImageComponent from '../UI/ImageComponent/ImageComponent';
 import TextInputModalWindow from '../UI/ModalWindows/TextInputModalWindow';
 import ProgressBar from '../UI/Component/ProgressBar';
+import StatusBar from '../UI/Component/StatusBar';
+import CharacterInfoWindow from '../UI/Component/CharacterInfoWindow';
 import ImageLoadManager from '../LoadManager/ImageLoadManager';
 import PATH from '../path/path';
 import MonsterFactory from '../Factories/MonsterFactory';
+import PlayerGraphicComponent from '../GraphicComponent/PlayerGrapchicComponent';
 
 import { Component, CompositeComponent } from '../UI/Component/Component';
 
 export default class Game {
     constructor() {
         this.backgroundImgsKey = 'background';
+        this.mainCharImgsKey = 'mainchar';
         this.headImgsKey = 'heads';
         this.bodyImgsKey = 'bodies';
         this.leftArmImgsKey = 'leftarms';
@@ -25,6 +29,7 @@ export default class Game {
         this.canvas = new Canvas();
         this.eventQueue = new EventQueue();
         this.ui = new UI();
+        this.uiComponents = new CompositeComponent(0, 0, window.innerWidth, window.innerWidth);
 
         this.background = new Component(0, 0, '100%', '100%');
 
@@ -50,6 +55,7 @@ export default class Game {
         const loadManager = this.loadManager;
 
         loadManager.addUrl(`${PATH.BACKGROUND_IMAGES}/dungeon.jpg`,  this.backgroundImgsKey);
+        loadManager.addUrl(`${PATH.MAIN_CHAR}/mainChar.png`,  this.mainCharImgsKey);
 
         loadManager.addUrl([
             `${PATH.HEAD_IMAGES}/head_1.png`,
@@ -166,11 +172,27 @@ export default class Game {
         const rightArms = loadManager.getImagesByName(this.rightArmImgsKey);
         const legs = loadManager.getImagesByName(this.legImgsKey);
 
+        const mainChar = loadManager.getImagesByName(this.mainCharImgsKey)[0];
+
         this.monsterFactory = new MonsterFactory(heads, leftArms, rightArms, bodies, legs);
 
-        const monsterGraphic = this.monsterFactory.createMonster(150, 150);
-    
+        const monsterGraphic = this.monsterFactory.createMonster('1%', '11%');
+        const mainCharGraphic = new PlayerGraphicComponent('1%', '11%', mainChar);
+        const { width: monsterWidth,  height: monsterHeight } = monsterGraphic.getBoundingClientRect();
+        monsterGraphic.setBoundingClientRect(Math.floor((window.innerHeight - 150) / 2 - monsterHeight / 2), Math.floor(window.innerWidth / 2 + 100), monsterWidth, monsterHeight);
+
+        const statusBar = new StatusBar(window.innerHeight - 150, 0, window.innerWidth, 150);
+        statusBar.setBackgroundColor('#00ff00');
         this.canvas.addScene(monsterGraphic);
+        this.canvas.addScene(mainCharGraphic);
+
+        const playerInfoWindow = new CharacterInfoWindow(10, Math.ceil(window.innerWidth / 2) - 200 - 150, 200, 130, 'Player', 0, 100, 33);
+        const monsterInfoWindow = new CharacterInfoWindow(10, Math.ceil(window.innerWidth / 2) + 150, 200, 130, 'Monster', 0, 100, 66);
+        statusBar.setPlayerInfoWindow(playerInfoWindow);
+        statusBar.setEnemyInfoWindow(monsterInfoWindow);
+        playerInfoWindow.setBackgroundColor('#f4f142');
+        monsterInfoWindow.setBackgroundColor('#f4f142');
+
 
         // const modalWindow = new TextInputModalWindow((((window.innerHeight / 2) - 300 < 0) ? 0 : (window.innerHeight / 2) - 300), (window.innerWidth / 2) - 300, 600, 300, 'Enter your name:');
         // modalWindow.setBackgroundColor('#3c76a7');
@@ -180,13 +202,11 @@ export default class Game {
         //     this.canvas.getHtml().style.cursor = 'auto';
         // });
 
-        // const progress = new ProgressBar((window.innerHeight / 2) + 200, (window.innerWidth / 2), 150, 20, 0, 100, 28);
-        // progress.setValue(88);
+        this.uiComponents.addComponent(statusBar, 'statusBar');
 
-        // this.ui.add(modalWindow);
-        // this.ui.add(progress);
+        this.ui.add(this.uiComponents);
 
-        // this.canvas.addUI(this.ui);
+        this.canvas.addUI(this.ui);
     }
 
     main(time) {

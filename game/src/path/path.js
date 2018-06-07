@@ -5,6 +5,7 @@ const PATH = {
     RIGHT_ARM_IMAGES: '/assets/monsters/arms/right',
     LEG_IMAGES: '/assets/monsters/legs',
     BACKGROUND_IMAGES: '/assets',
+    MAIN_CHAR: '/assets'
 }; 
 
 export default PATH;
