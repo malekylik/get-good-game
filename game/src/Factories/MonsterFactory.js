@@ -1,6 +1,24 @@
 import MonsterGraphicComponent from '../GraphicComponent/MonsterGraphicComponent';
 import Character from '../Character/Character';
 
+const adjective = [
+    'Ужасный', 
+    'Злобный',
+    'Сопливый',
+];
+
+const race = [
+    'Огр',
+    'Гном',
+    'Гоблин',
+];
+
+const name = [
+    'Том',
+    'Макс',
+    'Дима',
+];
+
 export default class MonsterFactory {
     constructor(headImgs, leftArmImgs, rightArmImgs, bodyImgs, legImgs) {
         this.headImgs = [...headImgs];
@@ -24,7 +42,11 @@ export default class MonsterFactory {
         const { width: monsterWidth,  height: monsterHeight } = monsterGraphic.getBoundingClientRect();
         monsterGraphic.setBoundingClientRect(Math.floor((window.innerHeight - 150) / 2 - monsterHeight / 2), Math.floor(window.innerWidth / 2 + 100), monsterWidth, monsterHeight);
 
-        const monster = new Character('Monster', 100, 100, monsterGraphic);
+        const firstName = adjective[round(rand() * (adjective.length - 1))];
+        const secondName = race[round(rand() * (race.length - 1))];
+        const thirdName = name[round(rand() * (name.length - 1))];
+
+        const monster = new Character(`${firstName} ${secondName} ${thirdName}`, 100, 100, monsterGraphic);
 
         return monster;
     }

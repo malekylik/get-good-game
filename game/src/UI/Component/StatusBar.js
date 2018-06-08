@@ -9,6 +9,14 @@ export default class StatusBar extends CompositeComponent {
         this.playerInfoWindowKey = 'player';
     }
 
+    getPlayerInfoWindow() {
+        return this.getChildComponent(this.playerInfoWindowKey);
+    }
+
+    getEnemyInfoWindow() {
+        return this.getChildComponent(this.enemyInfoWindowKey);
+    }
+
     setEnemyInfoWindow(enemyInfoWindow) {
         const enemy = this.getChildComponent(this.enemyInfoWindowKey);
 

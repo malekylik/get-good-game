@@ -26,4 +26,14 @@ export default class MagicSelectingModalWindow extends CompositeComponent {
             magic.getGraphicComponent().addEventListener(name, event);
         });
     }
+
+    findMagicByGraphicComponent(graphicComponent) {
+        const magic = this.magics.find((magic) => {
+            const magicGraphicComponent = magic.getGraphicComponent();
+            
+            return graphicComponent === magicGraphicComponent;
+        });
+
+        return magic ? magic : null;
+    }
 }

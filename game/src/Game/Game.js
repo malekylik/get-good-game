@@ -4,6 +4,7 @@ import events from '../event/events/events';
 import UI from '../UI/UI';
 import ImageComponent from '../UI/ImageComponent/ImageComponent';
 import TextInputModalWindow from '../UI/ModalWindows/TextInputModalWindow';
+import SolveExpressionTaskWindow from '../UI/ModalWindows/SolveExpressionTaskWindow';
 import MagicSelectingModalWindow from '../UI/ModalWindows/MagicSelectingModalWindow';
 import ProgressBar from '../UI/Component/ProgressBar';
 import StatusBar from '../UI/Component/StatusBar';
@@ -30,6 +31,8 @@ export default class Game {
         this.legImgsKey = 'legs';
 
         this.statusBarKey = 'statusbar';
+
+        this.monsterKillCount = 0;
 
         this.loadManager = new ImageLoadManager();
 
@@ -174,6 +177,7 @@ export default class Game {
 
     async mainLogic(name) {
         let selectedMagicPromise = null;
+        let answerOutcomePromise = null;
         const loadManager = this.loadManager;
         const monsterFactory = this.monsterFactory;
 
@@ -195,9 +199,16 @@ export default class Game {
 
         this.setPlayer(player);
 
+        let monster = this.monsterFactory.createMonster('1%', '11%');
+        this.setEnemy(monster);
+
         while(player.isAlive()) {
-            const monster = this.monsterFactory.createMonster('1%', '11%');
-            this.setEnemy(monster);
+            if (!monster.isAlive()) {
+                monster = this.monsterFactory.createMonster('1%', '11%');
+                this.setEnemy(monster);
+
+                this.monsterKillCount += 1;
+            }
 
             const magicSelecting = new MagicSelectingModalWindow(Math.ceil(window.innerHeight / 2 - (10 + 100) / 2 - 150 / 2), Math.floor(window.innerWidth / 2 - (20 + 136 * 3) / 2), 20 + 136 * 3, 10 + 100, player.getMagic());
             magicSelecting.setBackgroundColor('#a0256b');
@@ -206,15 +217,42 @@ export default class Game {
 
             selectedMagicPromise = new Promise((resolve) => {
                 magicSelecting.addMagicSelectingEventListener(events.MOUSE.MOUSE_DOWN, (e) => {
-                    resolve(e.target);
+                    resolve(e.target.getParentComponent().findMagicByGraphicComponent(e.target));
                 });
             });
 
-
             const magic = await selectedMagicPromise;
 
-            console.log(magic);
+            if (magic === null) {
+                console.log('magic selecting error');
+                break;
+            }
+
+            this.uiComponents.removeComponent(magicSelecting);
+
+            const taskWindow = new SolveExpressionTaskWindow(20, Math.ceil((window.innerWidth - 700) / 2), 700, window.innerHeight - 150 - 40);
+            taskWindow.setBackgroundColor('#ffff00');
+
+            answerOutcomePromise = new Promise((resolve) => {
+                taskWindow.addButtonEventListener(events.MOUSE.MOUSE_DOWN, (e) => {
+                        resolve(e.target.getParentComponent().answerIsRight());
+                });
+            });
+
+            this.uiComponents.addComponent(taskWindow);
+
+            const answerOutcome = await answerOutcomePromise;
+
+            this.uiComponents.removeComponent(taskWindow);
+
+            if (answerOutcome) {
+                player.attack(monster, magic);
+            }
+
+            monster.attack(player);
         }
+
+        console.log('you kill: ' + this.monsterKillCount);
     }
 
     setPlayer(player) {
@@ -232,6 +270,10 @@ export default class Game {
         if (playerGraphicComponent !== null) {
             this.canvas.addScene(playerGraphicComponent);
         }
+
+        const healthBar = this.uiComponents.getChildComponent(this.statusBarKey).getPlayerInfoWindow().getHealthBar();
+        
+        player.addHPChangeListener(healthBar.setValue.bind(healthBar));
     }
 
     setEnemy(enemy) {
@@ -249,6 +291,10 @@ export default class Game {
         if (enemyGraphicComponent !== null) {
             this.canvas.addScene(enemyGraphicComponent);
         }
+
+        const healthBar = this.uiComponents.getChildComponent(this.statusBarKey).getEnemyInfoWindow().getHealthBar();
+        
+        enemy.addHPChangeListener(healthBar.setValue.bind(healthBar));
     }
 
     setEventListenersToCanvas() {

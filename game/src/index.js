@@ -1,11 +1,3 @@
-import Label from './UI/Component/Label';
-import ModalWindow from './UI/ModalWindows/ModalWindow';
-import TextInputModalWindow from './UI/ModalWindows/TextInputModalWindow';
-import ImageComponent from './UI/ImageComponent/ImageComponent';
-
-import { Component, CompositeComponent } from './UI/Component/Component';
-
-import { parseRGBHexToDecObj, rgbColorInterpolation } from './utils/colorInterpolation';
 import Game from './Game/Game';
 
 // const canvas = new Canvas();

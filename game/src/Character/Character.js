@@ -5,14 +5,20 @@ export default class Character {
         this.maxHP = maxHP;
         this.graphicComponent = graphicComponent;
         this.magics = [];
+
+        this.hpChangeListeners = [];
     }
 
     getGraphicComponent() {
         return this.graphicComponent;
     }
 
-    attack(character, magicIndex) {
-        character.takeAttack(this.magics[i].damage);
+    attack(character, magic) {
+        if (magic) {
+            character.takeAttack(magic.damage);
+        } else {
+            character.takeAttack(5);
+        }
     }
 
     takeAttack(damage) {
@@ -23,6 +29,10 @@ export default class Character {
 
             return true;
         }
+
+        this.hpChangeListeners.forEach((listener) => {
+            listener(this.currentHP);
+        });
 
         return false;
     }
@@ -49,5 +59,9 @@ export default class Character {
 
     isAlive() {
         return this.currentHP > 0;
+    }
+
+    addHPChangeListener(listener) {
+        this.hpChangeListeners.push(listener);
     }
 }

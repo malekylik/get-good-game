@@ -19,4 +19,8 @@ export default class CharacterInfoWindow extends CompositeComponent {
         this.addComponent(nameLabel, this.nameLabelKey);
         this.addComponent(healthBar, this.healthBarKey);
     }
+
+    getHealthBar() {
+        return this.getChildComponent(this.healthBarKey);
+    }
 }
