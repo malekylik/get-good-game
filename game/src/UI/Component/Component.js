@@ -118,6 +118,11 @@ export class Component {
     }
 
     setBoundingClientRect(top = 0, left = 0, width = 0, height = 0) {
+        this.properties.top = top;
+        this.properties.left = left;
+        this.properties.width = width;
+        this.properties.height = height;
+
         this.properties.boundingClientRect = {
             top,
             left,
@@ -306,7 +311,7 @@ export class CompositeComponent extends Component {
     }
 
     removeComponent(component) {
-        const index = this.children.indexOf(component);
+        const index = this.children.findIndex(({ component: childComponent }) => childComponent === component);
 
         if ((~index) !== 0) {
             this.children.splice(index, 1);

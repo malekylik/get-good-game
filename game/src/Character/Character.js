@@ -1,18 +1,18 @@
 export default class Character {
-    constructor(name, maxHP, initialHP, damageValue, graphicComponent = null) {
+    constructor(name, maxHP, initialHP, graphicComponent = null) {
         this.name = name;
         this.currentHP = initialHP;
         this.maxHP = maxHP;
         this.graphicComponent = graphicComponent;
-        this.damageValue = damageValue;
+        this.magics = [];
     }
 
     getGraphicComponent() {
         return this.graphicComponent;
     }
 
-    attack(character) {
-        character.takeAttack(this.damageValue);
+    attack(character, magicIndex) {
+        character.takeAttack(this.magics[i].damage);
     }
 
     takeAttack(damage) {
@@ -27,6 +27,14 @@ export default class Character {
         return false;
     }
 
+    addMagic(magic) {
+        this.magics.push(magic);
+    }
+
+    getMagic() {
+        return this.magics;
+    }
+
     getName() {
         return this.name;
     }
@@ -39,7 +47,7 @@ export default class Character {
         return this.maxHP;
     }
 
-    isDead() {
+    isAlive() {
         return this.currentHP > 0;
     }
 }

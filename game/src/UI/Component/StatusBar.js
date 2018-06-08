@@ -1,4 +1,5 @@
 import { CompositeComponent } from "./Component";
+import { getTextWidthWithCanvas } from "../../utils/textWidth";
 
 export default class StatusBar extends CompositeComponent {
     constructor(top = 0, left = 0, width = 0, height = 0, parentComponent = null) {
@@ -31,12 +32,26 @@ export default class StatusBar extends CompositeComponent {
     setEnemyInfo(name, value) {
         const enemy = this.getChildComponent(this.enemyInfoWindowKey);
         enemy.getChildComponent(enemy.healthBarKey).setValue(value);
-        enemy.getChildComponent(enemy.nameLabelKey).setText(name);
+
+        const label = enemy.getChildComponent(enemy.nameLabelKey);
+        label.setText(name);
+
+        const { top, left, height } = label.getClippedBoundingClientRect();
+        const nameWidth = Math.ceil(getTextWidthWithCanvas(name, label.properties.textProperties.fontFamily, label.properties.textProperties.fontSize));
+
+        label.setBoundingClientRect(top, left, nameWidth, height);
     }
 
     setPlayerInfo(name, value) {
         const player = this.getChildComponent(this.playerInfoWindowKey);
         player.getChildComponent(player.healthBarKey).setValue(value);
-        player.getChildComponent(player.nameLabelKey).setText(name);
+
+        const label = player.getChildComponent(player.nameLabelKey);
+        label.setText(name);
+
+        const { top, left, height } = label.getClippedBoundingClientRect();
+        const nameWidth = Math.ceil(getTextWidthWithCanvas(name, label.properties.textProperties.fontFamily, label.properties.textProperties.fontSize));
+
+        label.setBoundingClientRect(top, left, nameWidth, height);
     }
 }

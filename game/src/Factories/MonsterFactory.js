@@ -24,7 +24,7 @@ export default class MonsterFactory {
         const { width: monsterWidth,  height: monsterHeight } = monsterGraphic.getBoundingClientRect();
         monsterGraphic.setBoundingClientRect(Math.floor((window.innerHeight - 150) / 2 - monsterHeight / 2), Math.floor(window.innerWidth / 2 + 100), monsterWidth, monsterHeight);
 
-        const monster = new Character('Monster', 100, 99, 15, monsterGraphic);
+        const monster = new Character('Monster', 100, 100, monsterGraphic);
 
         return monster;
     }

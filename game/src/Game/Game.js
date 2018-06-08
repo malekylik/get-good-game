@@ -4,14 +4,17 @@ import events from '../event/events/events';
 import UI from '../UI/UI';
 import ImageComponent from '../UI/ImageComponent/ImageComponent';
 import TextInputModalWindow from '../UI/ModalWindows/TextInputModalWindow';
+import MagicSelectingModalWindow from '../UI/ModalWindows/MagicSelectingModalWindow';
 import ProgressBar from '../UI/Component/ProgressBar';
 import StatusBar from '../UI/Component/StatusBar';
 import CharacterInfoWindow from '../UI/Component/CharacterInfoWindow';
 import ImageLoadManager from '../LoadManager/ImageLoadManager';
 import PATH from '../path/path';
 import MonsterFactory from '../Factories/MonsterFactory';
+import MagicGraphicComponent from '../GraphicComponent/MagicGraphicComponent';
 import PlayerGraphicComponent from '../GraphicComponent/PlayerGrapchicComponent';
 import Character from '../Character/Character';
+import Magic from '../Magic/Magic';
 
 import { Component, CompositeComponent } from '../UI/Component/Component';
 
@@ -19,11 +22,13 @@ export default class Game {
     constructor() {
         this.backgroundImgsKey = 'background';
         this.mainCharImgsKey = 'mainchar';
+        this.magicImgsKey = 'magics';
         this.headImgsKey = 'heads';
         this.bodyImgsKey = 'bodies';
         this.leftArmImgsKey = 'leftarms';
         this.rightArmImgsKey = 'rightarms';
         this.legImgsKey = 'legs';
+
         this.statusBarKey = 'statusbar';
 
         this.loadManager = new ImageLoadManager();
@@ -104,6 +109,12 @@ export default class Game {
             this.legImgsKey
         );
 
+        loadManager.addUrl([
+            `${PATH.MAGIC}/magicArrow.png`,
+        ],
+            this.magicImgsKey
+        );
+
         const totalSize = await loadManager.calculateTotalSize();
 
         console.log(`total: ${totalSize}`);
@@ -130,47 +141,80 @@ export default class Game {
         const rightArms = loadManager.getImagesByName(this.rightArmImgsKey);
         const legs = loadManager.getImagesByName(this.legImgsKey);
 
-        const mainChar = loadManager.getImagesByName(this.mainCharImgsKey)[0];
-
         this.monsterFactory = new MonsterFactory(heads, leftArms, rightArms, bodies, legs);
 
-        const monster = this.monsterFactory.createMonster('1%', '11%');
+        const statusBar = new StatusBar(window.innerHeight - 150, 0, window.innerWidth, 150);
+        statusBar.setBackgroundColor('#00ff00');
+
+        const playerInfoWindow = new CharacterInfoWindow(10, Math.ceil(window.innerWidth / 2) - 200 - 150, 200, 130, '', 0, 100, 0);
+        const monsterInfoWindow = new CharacterInfoWindow(10, Math.ceil(window.innerWidth / 2) + 150, 200, 130, '', 0, 100, 0);
+        statusBar.setPlayerInfoWindow(playerInfoWindow);
+        statusBar.setEnemyInfoWindow(monsterInfoWindow);
+        playerInfoWindow.setBackgroundColor('#f4f142');
+        monsterInfoWindow.setBackgroundColor('#f4f142');
+
+        this.ui.add(this.uiComponents);
+
+        const modalWindow = new TextInputModalWindow((((window.innerHeight / 2) - 300 < 0) ? 0 : (window.innerHeight / 2) - 300), (window.innerWidth / 2) - 300, 600, 300, 'Enter your name:');
+        modalWindow.setBackgroundColor('#3c76a7');
+        modalWindow.addButtonEventListener(events.MOUSE.MOUSE_DOWN, (e) => {
+            const name = e.target.getParentComponent().getInputUser();
+            this.uiComponents.removeComponent(modalWindow);
+            this.canvas.getHtml().style.cursor = 'auto';
+
+            this.uiComponents.addComponent(statusBar, this.statusBarKey);
+
+            this.mainLogic(name);
+        });
+
+        this.uiComponents.addComponent(modalWindow);
+
+        this.canvas.addUI(this.ui);
+    }   
+
+    async mainLogic(name) {
+        let selectedMagicPromise = null;
+        const loadManager = this.loadManager;
+        const monsterFactory = this.monsterFactory;
+
+        const magicArrowImg = loadManager.getImagesByName(this.magicImgsKey)[0];
+
+        const magicArrowGraphicComponent = new MagicGraphicComponent(10, 10, 2, magicArrowImg);
+        const magicArrow = new Magic('Magic arrow', 40, magicArrowGraphicComponent);
+
+        const mainChar = loadManager.getImagesByName(this.mainCharImgsKey)[0];
+
         const mainCharGraphic = new PlayerGraphicComponent('1%', '11%', mainChar);
 
         const { width: playerWidth, height: playerHeight } = mainCharGraphic.getClippedBoundingClientRect();
 
         mainCharGraphic.setBoundingClientRect(Math.floor((window.innerHeight - 150) / 2 - playerHeight / 2), Math.floor(window.innerWidth / 2 - playerWidth - 100), playerWidth, playerHeight);
 
-        const player = new Character('Man', 100, 65, 40, mainCharGraphic);
+        const player = new Character(name, 100, 100, mainCharGraphic);
+        player.addMagic(magicArrow);
 
-        const statusBar = new StatusBar(window.innerHeight - 150, 0, window.innerWidth, 150);
-        statusBar.setBackgroundColor('#00ff00');
-
-        const playerInfoWindow = new CharacterInfoWindow(10, Math.ceil(window.innerWidth / 2) - 200 - 150, 200, 130, 'Player', 0, 100, 33);
-        const monsterInfoWindow = new CharacterInfoWindow(10, Math.ceil(window.innerWidth / 2) + 150, 200, 130, 'Monster', 0, 100, 66);
-        statusBar.setPlayerInfoWindow(playerInfoWindow);
-        statusBar.setEnemyInfoWindow(monsterInfoWindow);
-        playerInfoWindow.setBackgroundColor('#f4f142');
-        monsterInfoWindow.setBackgroundColor('#f4f142');
-
-        this.uiComponents.addComponent(statusBar, this.statusBarKey);
-
-        this.ui.add(this.uiComponents);
-
-        this.setEnemy(monster);
         this.setPlayer(player);
 
-        // const modalWindow = new TextInputModalWindow((((window.innerHeight / 2) - 300 < 0) ? 0 : (window.innerHeight / 2) - 300), (window.innerWidth / 2) - 300, 600, 300, 'Enter your name:');
-        // modalWindow.setBackgroundColor('#3c76a7');
-        // modalWindow.addButtonEventListener(events.MOUSE.MOUSE_DOWN, (e) => {
-        //     this.name = e.target.getParentComponent().getInputUser();
-        //     this.ui.remove(modalWindow);
-        //     this.canvas.getHtml().style.cursor = 'auto';
-        // });
+        while(player.isAlive()) {
+            const monster = this.monsterFactory.createMonster('1%', '11%');
+            this.setEnemy(monster);
+
+            const magicSelecting = new MagicSelectingModalWindow(Math.ceil(window.innerHeight / 2 - (10 + 100) / 2 - 150 / 2), Math.floor(window.innerWidth / 2 - (20 + 136 * 3) / 2), 20 + 136 * 3, 10 + 100, player.getMagic());
+            magicSelecting.setBackgroundColor('#a0256b');
+    
+            this.uiComponents.addComponent(magicSelecting);
+
+            selectedMagicPromise = new Promise((resolve) => {
+                magicSelecting.addMagicSelectingEventListener(events.MOUSE.MOUSE_DOWN, (e) => {
+                    resolve(e.target);
+                });
+            });
 
 
+            const magic = await selectedMagicPromise;
 
-        this.canvas.addUI(this.ui);
+            console.log(magic);
+        }
     }
 
     setPlayer(player) {
