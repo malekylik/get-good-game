@@ -89,6 +89,23 @@ export class Component {
         callback(this);
     }
 
+    alignCenter() {
+        const parent = this.getParentComponent();
+        let parentWidth = window.innerWidth;
+        let parentHeight = window.innerHeight;
+
+        if (parent !== null) {
+            ({ width: parentWidth, height: parentHeight } = parent.getClippedBoundingClientRect());
+        }
+
+        const { width, height } = this.getClippedBoundingClientRect();
+
+        let centredTop = Math.round((parentHeight - height) / 2);
+        let centredLeft = Math.round((parentWidth - width) / 2);
+
+        this.setBoundingClientRect(centredTop, centredLeft, width, height);
+    }
+
     setBackgroundImage(image = null) {
         this.backgroundImage = image;
 

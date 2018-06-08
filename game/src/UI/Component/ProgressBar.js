@@ -23,12 +23,15 @@ export default class ProgressBar extends CompositeComponent {
 
         const textWidth = Math.ceil(getTextWidthWithCanvas(labelText,'monospace', 16)) + 1;
 
-        const label = new Label(Math.floor(height / 2 - 8) , Math.ceil(width / 2 - textWidth / 2), textWidth, 16, labelText);
+        // const label = new Label(Math.floor(height / 2 - 8) , Math.ceil(width / 2 - textWidth / 2), textWidth, 16, labelText);
+        const label = new Label(0 , 0, textWidth, 16, labelText);
 
         this.labelComponentKey = 'label';
 
         this.addComponent(barComponent, this.barComponentKey);
         this.addComponent(label, this.labelComponentKey);
+
+        label.alignCenter();
     }
 
     setBarColor(color = '#aa0000') {
@@ -50,9 +53,8 @@ export default class ProgressBar extends CompositeComponent {
 
         const textWidth = Math.ceil(getTextWidthWithCanvas(labelText,'monospace', 16)) + 1;
 
-        const { width: componentWidth } = this.getClippedBoundingClientRect();
-
-        label.setBoundingClientRect(topLabel, Math.ceil(componentWidth / 2 - textWidth / 2), textWidth, heightLabel);
+        label.setBoundingClientRect(0, 0, textWidth, heightLabel);
+        label.alignCenter();
     }
  }
 

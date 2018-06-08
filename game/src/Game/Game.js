@@ -9,7 +9,8 @@ import MagicSelectingModalWindow from '../UI/ModalWindows/MagicSelectingModalWin
 import ProgressBar from '../UI/Component/ProgressBar';
 import StatusBar from '../UI/Component/StatusBar';
 import CharacterInfoWindow from '../UI/Component/CharacterInfoWindow';
-import ImageLoadManager from '../LoadManager/ImageLoadManager';
+import ImageLoadManager from '../Managers/ImageLoadManager';
+import StorageManager from '../Managers/StorageManager';
 import PATH from '../path/path';
 import MonsterFactory from '../Factories/MonsterFactory';
 import MagicGraphicComponent from '../GraphicComponent/MagicGraphicComponent';
@@ -35,6 +36,7 @@ export default class Game {
         this.monsterKillCount = 0;
 
         this.loadManager = new ImageLoadManager();
+        this.storageManager = new StorageManager();
 
         this.canvas = new Canvas();
         this.eventQueue = new EventQueue();
@@ -57,8 +59,9 @@ export default class Game {
         const loadingProgressBarWidth = 400;
         const loadingProgressBarHeight = 100;
 
-        const loadingProgressBar = new ProgressBar(Math.floor(window.innerHeight / 2 - loadingProgressBarHeight / 2), Math.floor(window.innerWidth / 2 - loadingProgressBarWidth / 2), loadingProgressBarWidth, loadingProgressBarHeight, 0, 100, 0);
+        const loadingProgressBar = new ProgressBar(0, 0, loadingProgressBarWidth, loadingProgressBarHeight, 0, 100, 0);
         loadingScreen.addComponent(loadingProgressBar);
+        loadingProgressBar.alignCenter();
 
         this.canvas.addScene(loadingScreen);
 
@@ -158,8 +161,10 @@ export default class Game {
 
         this.ui.add(this.uiComponents);
 
-        const modalWindow = new TextInputModalWindow((((window.innerHeight / 2) - 300 < 0) ? 0 : (window.innerHeight / 2) - 300), (window.innerWidth / 2) - 300, 600, 300, 'Enter your name:');
+        // const modalWindow = new TextInputModalWindow((((window.innerHeight / 2) - 300 < 0) ? 0 : (window.innerHeight / 2) - 300), (window.innerWidth / 2) - 300, 600, 300, 'Enter your name:');
+        const modalWindow = new TextInputModalWindow(0, 0, 600, 300, 'Enter your name:');
         modalWindow.setBackgroundColor('#3c76a7');
+        modalWindow.alignCenter();
         modalWindow.addButtonEventListener(events.MOUSE.MOUSE_DOWN, (e) => {
             const name = e.target.getParentComponent().getInputUser();
             this.uiComponents.removeComponent(modalWindow);
@@ -202,12 +207,14 @@ export default class Game {
         let monster = this.monsterFactory.createMonster('1%', '11%');
         this.setEnemy(monster);
 
+        let monsterKillCount = 0;
+
         while(player.isAlive()) {
             if (!monster.isAlive()) {
                 monster = this.monsterFactory.createMonster('1%', '11%');
                 this.setEnemy(monster);
 
-                this.monsterKillCount += 1;
+                monsterKillCount += 1;
             }
 
             const magicSelecting = new MagicSelectingModalWindow(Math.ceil(window.innerHeight / 2 - (10 + 100) / 2 - 150 / 2), Math.floor(window.innerWidth / 2 - (20 + 136 * 3) / 2), 20 + 136 * 3, 10 + 100, player.getMagic());
@@ -252,7 +259,11 @@ export default class Game {
             monster.attack(player);
         }
 
-        console.log('you kill: ' + this.monsterKillCount);
+        this.storageManager.saveResult(player.getName(), monsterKillCount);
+
+        console.log(this.storageManager.getSortedRecords());
+
+        console.log('you kill: ' + monsterKillCount);
     }
 
     setPlayer(player) {
