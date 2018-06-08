@@ -9,6 +9,5 @@ export default class MonsterGraphicComponent extends Component {
         super(top, left, naturalWidth, naturalHeight, parentComponent);
 
         this.setBackgroundImage(new ImageComponent(characterImg, 0, 0, naturalWidth, naturalHeight, naturalWidth, naturalHeight, 0, 0, naturalWidth, naturalHeight));
-        this.setBackgroundColor('#ffffff');
     }
 }

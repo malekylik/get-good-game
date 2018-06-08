@@ -1,4 +1,5 @@
 import MonsterGraphicComponent from '../GraphicComponent/MonsterGraphicComponent';
+import Character from '../Character/Character';
 
 export default class MonsterFactory {
     constructor(headImgs, leftArmImgs, rightArmImgs, bodyImgs, legImgs) {
@@ -19,6 +20,12 @@ export default class MonsterFactory {
         const bodyIndex = round(rand() * (this.bodyImgs.length - 1));
         const legIndex = round(rand() * (this.legImgs.length - 1));
 
-        return new MonsterGraphicComponent(top, left, this.headImgs[headIndex], this.leftArmImgs[leftArmIndex], this.rightArmImgs[rightArmIndex], this.bodyImgs[bodyIndex], this.legImgs[legIndex]);
+        const monsterGraphic = new MonsterGraphicComponent(top, left, this.headImgs[headIndex], this.leftArmImgs[leftArmIndex], this.rightArmImgs[rightArmIndex], this.bodyImgs[bodyIndex], this.legImgs[legIndex]);
+        const { width: monsterWidth,  height: monsterHeight } = monsterGraphic.getBoundingClientRect();
+        monsterGraphic.setBoundingClientRect(Math.floor((window.innerHeight - 150) / 2 - monsterHeight / 2), Math.floor(window.innerWidth / 2 + 100), monsterWidth, monsterHeight);
+
+        const monster = new Character('Monster', 100, 99, 15, monsterGraphic);
+
+        return monster;
     }
 }

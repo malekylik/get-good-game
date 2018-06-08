@@ -15,8 +15,6 @@ export default class MonsterGraphicComponent extends CompositeComponent {
 
         super(top, left, width, height, parentComponent);
 
-        this.setBackgroundColor('#ffffff');
-
         const bodyComponent = new Component(height - legNaturalHeight - bodyNaturalHeight, width / 2 - bodyNaturalWidth / 2, bodyNaturalWidth, bodyNaturalHeight);
         bodyComponent.setBackgroundImage(new ImageComponent(bodyImage, 0, 0, bodyNaturalWidth, bodyNaturalHeight, bodyNaturalWidth, bodyNaturalHeight, 0, 0, bodyNaturalWidth, bodyNaturalHeight))  
 
