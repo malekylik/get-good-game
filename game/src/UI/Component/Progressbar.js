@@ -23,7 +23,6 @@ export default class ProgressBar extends CompositeComponent {
 
         const textWidth = Math.ceil(getTextWidthWithCanvas(labelText,'monospace', 16)) + 1;
 
-        // const label = new Label(Math.floor(height / 2 - 8) , Math.ceil(width / 2 - textWidth / 2), textWidth, 16, labelText);
         const label = new Label(0 , 0, textWidth, 16, labelText);
 
         this.labelComponentKey = 'label';
@@ -49,7 +48,7 @@ export default class ProgressBar extends CompositeComponent {
         const label = this.getChildComponent(this.labelComponentKey);
         label.setText(labelText);
 
-        const { top: topLabel, width: widthLabel, height: heightLabel } = label.getClippedBoundingClientRect();
+        const { height: heightLabel } = label.getClippedBoundingClientRect();
 
         const textWidth = Math.ceil(getTextWidthWithCanvas(labelText,'monospace', 16)) + 1;
 

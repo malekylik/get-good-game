@@ -134,7 +134,29 @@ export class Component {
         return this.animations.animatedProperties.clippedBoundingClientRect;
     }
 
-    setBoundingClientRect(top = 0, left = 0, width = 0, height = 0) {
+    setBoundingClientRect(top, left, width, height) {
+        const prevBoundingBox = this.getBoundingClientRect();
+
+        if (prevBoundingBox) {
+            const { top: prevTop, left: prevLeft, width: prevWidth, height: prevHeight } = this.getBoundingClientRect();
+        }
+
+        if (prevBoundingBox && typeof top !== "number") {
+            top = prevTop;
+        }
+
+        if (prevBoundingBox && typeof left !== "number") {
+            left = prevLeft;
+        }
+
+        if (prevBoundingBox && typeof width !== "number") {
+            width = prevWidth;
+        }
+
+        if (prevBoundingBox && typeof height !== "number") {
+            height = prevHeight;
+        }
+
         this.properties.top = top;
         this.properties.left = left;
         this.properties.width = width;

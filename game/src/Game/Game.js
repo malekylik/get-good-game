@@ -2,6 +2,7 @@ import Canvas from '../Canvas/Canvas';
 import EventQueue from '../event/EventQueue/EventQueue';
 import events from '../event/events/events';
 import UI from '../UI/UI';
+import Label from '../UI/Component/Label';
 import ImageComponent from '../UI/ImageComponent/ImageComponent';
 import TextInputModalWindow from '../UI/ModalWindows/TextInputModalWindow';
 import SolveExpressionTaskWindow from '../UI/ModalWindows/SolveExpressionTaskWindow';
@@ -9,6 +10,7 @@ import MagicSelectingModalWindow from '../UI/ModalWindows/MagicSelectingModalWin
 import ProgressBar from '../UI/Component/ProgressBar';
 import StatusBar from '../UI/Component/StatusBar';
 import CharacterInfoWindow from '../UI/Component/CharacterInfoWindow';
+import Table from '../UI/Component/Table';
 import ImageLoadManager from '../Managers/ImageLoadManager';
 import StorageManager from '../Managers/StorageManager';
 import PATH from '../path/path';
@@ -19,6 +21,7 @@ import Character from '../Character/Character';
 import Magic from '../Magic/Magic';
 
 import { Component, CompositeComponent } from '../UI/Component/Component';
+import { getTextWidthWithCanvas } from '../utils/textWidth';
 
 export default class Game {
     constructor() {
@@ -41,7 +44,7 @@ export default class Game {
         this.canvas = new Canvas();
         this.eventQueue = new EventQueue();
         this.ui = new UI();
-        this.uiComponents = new CompositeComponent(0, 0, window.innerWidth, window.innerWidth);
+        this.uiComponents = new CompositeComponent(0, 0, window.innerWidth, window.innerHeight);
 
         this.background = new Component(0, 0, '100%', '100%');
 
@@ -161,7 +164,14 @@ export default class Game {
 
         this.ui.add(this.uiComponents);
 
-        // const modalWindow = new TextInputModalWindow((((window.innerHeight / 2) - 300 < 0) ? 0 : (window.innerHeight / 2) - 300), (window.innerWidth / 2) - 300, 600, 300, 'Enter your name:');
+        // const table = new Table(10, 10, 600, 500, 3, 2, 100, 100);
+        // table.setBackgroundColor('#ffffff');
+        // const tableLabel = new Label(0, 0, 30, 16, 'abc');
+        // table.getTableComponent(1, 1).addComponent(tableLabel);
+        // tableLabel.alignCenter();
+
+        // this.uiComponents.addComponent(table);
+
         const modalWindow = new TextInputModalWindow(0, 0, 600, 300, 'Enter your name:');
         modalWindow.setBackgroundColor('#3c76a7');
         modalWindow.alignCenter();
@@ -204,7 +214,7 @@ export default class Game {
 
         this.setPlayer(player);
 
-        let monster = this.monsterFactory.createMonster('1%', '11%');
+        let monster = monsterFactory.createMonster('1%', '11%');
         this.setEnemy(monster);
 
         let monsterKillCount = 0;
@@ -261,9 +271,37 @@ export default class Game {
 
         this.storageManager.saveResult(player.getName(), monsterKillCount);
 
-        console.log(this.storageManager.getSortedRecords());
+        const records = this.storageManager.getSortedRecords();
 
-        console.log('you kill: ' + monsterKillCount);
+        const recordTable = new Table(0, 0, 600, 300, records.length + 1, 2, 300, 100);
+        this.uiComponents.addComponent(recordTable);
+        recordTable.alignCenter();
+
+        const firstColumnName = new Label(0, 0, Math.ceil(getTextWidthWithCanvas('Имя:', 'monospace', 16)), 16, 'Имя:');
+        const secondColumnName = new Label(0, 0, Math.ceil(getTextWidthWithCanvas('Убито монстров:', 'monospace', 16)), 16, 'Убито монстров:');
+        
+        recordTable.getTableComponent(0, 0).addComponent(firstColumnName);
+        firstColumnName.alignCenter();
+
+        recordTable.getTableComponent(0, 1).addComponent(secondColumnName);
+        secondColumnName.alignCenter();
+
+        records.forEach((record, i) => {
+            const { name, monsterKilled } = record;
+
+            if (name === undefined) {
+                name = '';
+            }
+
+            const nameLabel = new Label(0, 0, Math.ceil(getTextWidthWithCanvas(name, 'monospace', 16)), 16, name);
+            const monsterKilledLabel = new Label(0, 0, Math.ceil(getTextWidthWithCanvas(monsterKilled, 'monospace', 16)), 16, String(monsterKilled));
+
+            recordTable.getTableComponent(1 + i, 0).addComponent(nameLabel);
+            nameLabel.alignCenter();
+
+            recordTable.getTableComponent(1 + i, 1).addComponent(monsterKilledLabel);
+            monsterKilledLabel.alignCenter();
+        });
     }
 
     setPlayer(player) {
