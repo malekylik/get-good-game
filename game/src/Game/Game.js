@@ -5,13 +5,13 @@ import UI from '../UI/UI';
 import Label from '../UI/Component/Label';
 import ImageComponent from '../UI/ImageComponent/ImageComponent';
 import TextInputModalWindow from '../UI/ModalWindows/TextInputModalWindow';
+import TranslateTaskWindow from '../UI/ModalWindows/TranslateTaskModalWindow';
 import SolveExpressionTaskWindow from '../UI/ModalWindows/SolveExpressionTaskWindow';
 import MagicSelectingModalWindow from '../UI/ModalWindows/MagicSelectingModalWindow';
 import ProgressBar from '../UI/Component/ProgressBar';
 import StatusBar from '../UI/Component/StatusBar';
 import CharacterInfoWindow from '../UI/Component/CharacterInfoWindow';
 import Table from '../UI/Component/Table';
-import ScrollBar from '../UI/Component/ScrollBar';
 import ImageLoadManager from '../Managers/ImageLoadManager';
 import StorageManager from '../Managers/StorageManager';
 import PATH from '../path/path';
@@ -164,13 +164,6 @@ export default class Game {
         monsterInfoWindow.setBackgroundColor('#f4f142');
 
         this.ui.add(this.uiComponents);
-        // const table = new Table(10, 10, 600, 500, 3, 2, 100, 100);
-        // table.setBackgroundColor('#ffffff');
-        // const tableLabel = new Label(0, 0, 30, 16, 'abc');
-        // table.getTableComponent(1, 1).addComponent(tableLabel);
-        // tableLabel.alignCenter();
-
-        // this.uiComponents.addComponent(table);
 
         const modalWindow = new TextInputModalWindow(0, 0, 600, 300, 'Enter your name:');
         modalWindow.setBackgroundColor('#3c76a7');
@@ -247,7 +240,7 @@ export default class Game {
 
             this.uiComponents.removeComponent(magicSelecting);
 
-            const taskWindow = new SolveExpressionTaskWindow(20, Math.ceil((window.innerWidth - 700) / 2), 700, window.innerHeight - 150 - 40);
+            const taskWindow = new TranslateTaskWindow(20, Math.ceil((window.innerWidth - 700) / 2), 700, window.innerHeight - 150 - 40);
             taskWindow.setBackgroundColor('#ffff00');
 
             answerOutcomePromise = new Promise((resolve) => {
@@ -287,9 +280,6 @@ export default class Game {
         recordTable.getTableComponent(0, 1).addComponent(secondColumnName);
         secondColumnName.alignCenter();
 
-        recordTable.getTableComponent(0, 2).addComponent(thirdColumnName);
-        thirdColumnName.alignCenter();
-
         recordTable.setBackgroundColor('#ffffff');
 
         records.forEach((record, i) => {
@@ -308,9 +298,6 @@ export default class Game {
 
             recordTable.getTableComponent(1 + i, 1).addComponent(monsterKilledLabel);
             monsterKilledLabel.alignCenter();
-
-            recordTable.getTableComponent(1 + i, 2).addComponent(indexLabel);
-            indexLabel.alignCenter();
         });
 
         recordTable.setOverflow('scroll');
