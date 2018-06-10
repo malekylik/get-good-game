@@ -51,12 +51,12 @@ export default class SolveExpressionTaskWindow extends CompositeComponent {
 
         const halfWidth = Math.ceil(width / 2);
         const halfHeight = Math.ceil(height / 2);
-        const halfDescriptionWidth = Math.ceil((getTextWidthWithCanvas('Solve the expression:', 'monospace', '16px') + 1) / 2);
+        const halfDescriptionWidth = Math.ceil((getTextWidthWithCanvas('Решите данное выражение:', 'monospace', '16px') + 1) / 2);
         const halfExpressionWidth = Math.ceil((getTextWidthWithCanvas(labelText, 'monospace', '16px') + 1) / 2);
         const halfAnswerWidth = Math.ceil((getTextWidthWithCanvas('9999', 'monospace', '16px') + 1) / 2);
         const halfExpressionWithAnswer = halfAnswerWidth + halfExpressionWidth + 3;
 
-        const taskDescription = new Label(10, halfWidth - halfDescriptionWidth, halfDescriptionWidth * 2, 30, 'Solve the expression:');
+        const taskDescription = new Label(10, halfWidth - halfDescriptionWidth, halfDescriptionWidth * 2, 30, 'Решите данное выражение:');
         const expression = new Label(halfHeight - 15, halfWidth - halfExpressionWithAnswer, halfExpressionWidth * 2, 30, labelText);
         const answer = new Label(halfHeight - 15, halfWidth - halfExpressionWithAnswer + halfExpressionWidth * 2 + 3, halfAnswerWidth * 2, 30, '');
         const enterButton = new Button(halfHeight * 2 - 50 - 5, halfWidth * 2 - 100 - 5, 100, 50, 'OK');

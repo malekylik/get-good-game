@@ -16,6 +16,7 @@ import ImageLoadManager from '../Managers/ImageLoadManager';
 import StorageManager from '../Managers/StorageManager';
 import PATH from '../path/path';
 import MonsterFactory from '../Factories/MonsterFactory';
+import TaskFactory from '../Factories/TaskFactory';
 import MagicGraphicComponent from '../GraphicComponent/MagicGraphicComponent';
 import PlayerGraphicComponent from '../GraphicComponent/PlayerGrapchicComponent';
 import Character from '../Character/Character';
@@ -151,6 +152,7 @@ export default class Game {
         const rightArms = loadManager.getImagesByName(this.rightArmImgsKey);
         const legs = loadManager.getImagesByName(this.legImgsKey);
 
+        this.taskFactory = new TaskFactory();
         this.monsterFactory = new MonsterFactory(heads, leftArms, rightArms, bodies, legs);
 
         const statusBar = new StatusBar(window.innerHeight - 150, 0, window.innerWidth, 150);
@@ -186,8 +188,11 @@ export default class Game {
     async mainLogic(name) {
         let selectedMagicPromise = null;
         let answerOutcomePromise = null;
+
         const loadManager = this.loadManager;
         const monsterFactory = this.monsterFactory;
+        const taskFactory = this.taskFactory;
+        const uiComponents = this.uiComponents;
 
         const magicArrowImg = loadManager.getImagesByName(this.magicImgsKey)[0];
 
@@ -214,7 +219,7 @@ export default class Game {
 
         while(player.isAlive()) {
             if (!monster.isAlive()) {
-                monster = this.monsterFactory.createMonster('1%', '11%');
+                monster = monsterFactory.createMonster('1%', '11%');
                 this.setEnemy(monster);
 
                 monsterKillCount += 1;
@@ -223,7 +228,7 @@ export default class Game {
             const magicSelecting = new MagicSelectingModalWindow(Math.ceil(window.innerHeight / 2 - (10 + 100) / 2 - 150 / 2), Math.floor(window.innerWidth / 2 - (20 + 136 * 3) / 2), 20 + 136 * 3, 10 + 100, player.getMagic());
             magicSelecting.setBackgroundColor('#a0256b');
     
-            this.uiComponents.addComponent(magicSelecting);
+            uiComponents.addComponent(magicSelecting);
 
             selectedMagicPromise = new Promise((resolve) => {
                 magicSelecting.addMagicSelectingEventListener(events.MOUSE.MOUSE_DOWN, (e) => {
@@ -238,9 +243,9 @@ export default class Game {
                 break;
             }
 
-            this.uiComponents.removeComponent(magicSelecting);
+            uiComponents.removeComponent(magicSelecting);
 
-            const taskWindow = new TranslateTaskWindow(20, Math.ceil((window.innerWidth - 700) / 2), 700, window.innerHeight - 150 - 40);
+            const taskWindow = taskFactory.createTask(20, Math.ceil((window.innerWidth - 700) / 2), 700, window.innerHeight - 150 - 40);
             taskWindow.setBackgroundColor('#ffff00');
 
             answerOutcomePromise = new Promise((resolve) => {
@@ -249,11 +254,11 @@ export default class Game {
                 });
             });
 
-            this.uiComponents.addComponent(taskWindow);
+            uiComponents.addComponent(taskWindow);
 
             const answerOutcome = await answerOutcomePromise;
 
-            this.uiComponents.removeComponent(taskWindow);
+            uiComponents.removeComponent(taskWindow);
 
             if (answerOutcome) {
                 player.attack(monster, magic);
@@ -272,8 +277,7 @@ export default class Game {
 
         const firstColumnName = new Label(0, 0, Math.ceil(getTextWidthWithCanvas('Имя:', 'monospace', 16)), 16, 'Имя:');
         const secondColumnName = new Label(0, 0, Math.ceil(getTextWidthWithCanvas('Убито монстров:', 'monospace', 16)), 16, 'Убито монстров:');
-        const thirdColumnName = new Label(0, 0, Math.ceil(getTextWidthWithCanvas('Номер:', 'monospace', 16)), 16, 'Номер:');
-        
+               
         recordTable.getTableComponent(0, 0).addComponent(firstColumnName);
         firstColumnName.alignCenter();
 
