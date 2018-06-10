@@ -256,9 +256,18 @@ export class Component {
         }
 
         if (overflow === 'scroll') {
-            let totalHeight = this.calculateTotalWidthComponent();
+            const totalHeight = this.calculateTotalHeightComponent();
+            const totalWidth = this.calculateTotalWidthComponent();
 
-            this.scrollY = new ScrollBar('vertical', totalHeight, this);
+            const { width, height } = this.getBoundingClientRect();
+
+            if (totalHeight > height) {
+                this.scrollY = new ScrollBar('vertical', totalHeight, this);
+            }
+
+            if (totalWidth > width) {
+                this.scrollX = new ScrollBar('horizontal', totalWidth, this);
+            }
         }
     }
 
@@ -328,8 +337,7 @@ export class Component {
         context.fillStyle = color.backgroundColor;
         context.fillRect(left, top, width, height);
 
-        if (this.properties.overflow === 'scroll') {
-            let { top, left, width, height } = this.getClippedBoundingClientRect();
+        if (this.properties.overflow === 'scroll' || this.properties.overflow === 'overflow') {
             const path = new Path2D();
             path.rect(left, top, width, height);
             context.clip(path, "nonzero");
@@ -448,7 +456,44 @@ export class CompositeComponent extends Component {
         this.calculateClippedSize();
     }
 
+    setScrollXOffer(scrollXOffer) {
+        this.scrollXOffset = scrollXOffer;
+
+        this.children.forEach(({ component }) => {
+            if (component instanceof ScrollBar) {
+                return;
+            }
+
+            const { left } = component.initialBoundingClientRect; 
+            component.setBoundingClientRect(undefined, left + scrollXOffer);
+        })
+
+        this.calculateClippedSize();
+    }
+
     calculateTotalWidthComponent() {
+        if (this.children.length === 0) {
+            return null;
+        }
+
+        let maxComponent = this.children[0].component;
+        const { left, width } = maxComponent.getBoundingClientRect();
+
+        let max = left + width;
+
+        for (let i = 1; i < this.children.length; i++) {
+            const component = this.children[i].component;
+            let { left, width } = component.getBoundingClientRect();
+            
+            if (left + width > max) {
+               max = left + width;
+            }
+        }
+
+        return max;
+    } 
+
+    calculateTotalHeightComponent() {
         if (this.children.length === 0) {
             return null;
         }
@@ -468,10 +513,6 @@ export class CompositeComponent extends Component {
         }
 
         return max;
-    } 
-
-    calculateTotalHeightComponent() {
-        
     } 
 
     checkForCollision(objectMetric) {
@@ -674,7 +715,8 @@ class ScrollBar extends CompositeComponent {
                 scroll.setBoundingClientRect(-this.scrollPos);
                 parentComponent.setScrollYOffer(currentChildPos);
             } else {
-                scroll.setBoundingClientRect(undefined, this.scrollPos);
+                scroll.setBoundingClientRect(undefined, -this.scrollPos);
+                parentComponent.setScrollXOffer(currentChildPos);
             }
         });
 
@@ -691,7 +733,8 @@ class ScrollBar extends CompositeComponent {
                 scroll.setBoundingClientRect(-this.scrollPos);
                 parentComponent.setScrollYOffer(currentChildPos);
             } else {
-                scroll.setBoundingClientRect(undefined, this.scrollPos);
+                scroll.setBoundingClientRect(undefined, -this.scrollPos);
+                parentComponent.setScrollXOffer(currentChildPos);
             }
         });
     }    

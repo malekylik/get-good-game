@@ -273,18 +273,23 @@ export default class Game {
 
         const records = this.storageManager.getSortedRecords();
 
-        const recordTable = new Table(0, 0, 600, 300, records.length + 1, 2, 300, 100);
+        const recordTable = new Table(0, 0, 600, 300, records.length + 1, 3, 300, 100);
         this.uiComponents.addComponent(recordTable);
         recordTable.alignCenter();
 
         const firstColumnName = new Label(0, 0, Math.ceil(getTextWidthWithCanvas('Имя:', 'monospace', 16)), 16, 'Имя:');
         const secondColumnName = new Label(0, 0, Math.ceil(getTextWidthWithCanvas('Убито монстров:', 'monospace', 16)), 16, 'Убито монстров:');
+        const thirdColumnName = new Label(0, 0, Math.ceil(getTextWidthWithCanvas('Номер:', 'monospace', 16)), 16, 'Номер:');
         
         recordTable.getTableComponent(0, 0).addComponent(firstColumnName);
         firstColumnName.alignCenter();
 
         recordTable.getTableComponent(0, 1).addComponent(secondColumnName);
         secondColumnName.alignCenter();
+
+        recordTable.getTableComponent(0, 2).addComponent(thirdColumnName);
+        thirdColumnName.alignCenter();
+
         recordTable.setBackgroundColor('#ffffff');
 
         records.forEach((record, i) => {
@@ -296,12 +301,16 @@ export default class Game {
 
             const nameLabel = new Label(0, 0, Math.ceil(getTextWidthWithCanvas(name, 'monospace', 16)), 16, name);
             const monsterKilledLabel = new Label(0, 0, Math.ceil(getTextWidthWithCanvas(monsterKilled, 'monospace', 16)), 16, String(monsterKilled));
+            const indexLabel = new Label(0, 0, Math.ceil(getTextWidthWithCanvas(String(i + 1), 'monospace', 16)), 16, String(i + 1));
 
             recordTable.getTableComponent(1 + i, 0).addComponent(nameLabel);
             nameLabel.alignCenter();
 
             recordTable.getTableComponent(1 + i, 1).addComponent(monsterKilledLabel);
             monsterKilledLabel.alignCenter();
+
+            recordTable.getTableComponent(1 + i, 2).addComponent(indexLabel);
+            indexLabel.alignCenter();
         });
 
         recordTable.setOverflow('scroll');

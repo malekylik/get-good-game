@@ -109,7 +109,8 @@ export default class ScrollBar extends CompositeComponent {
                 scroll.setBoundingClientRect(-this.scrollPos);
                 parentComponent.setScrollYOffer(currentChildPos);
             } else {
-                scroll.setBoundingClientRect(undefined, this.scrollPos);
+                scroll.setBoundingClientRect(undefined, -this.scrollPos);
+                parentComponent.setScrollXOffer(currentChildPos);
             }
         });
 
@@ -126,7 +127,8 @@ export default class ScrollBar extends CompositeComponent {
                 scroll.setBoundingClientRect(-this.scrollPos);
                 parentComponent.setScrollYOffer(currentChildPos);
             } else {
-                scroll.setBoundingClientRect(undefined, this.scrollPos);
+                scroll.setBoundingClientRect(undefined, -this.scrollPos);
+                parentComponent.setScrollXOffer(currentChildPos);
             }
         });
     }    
