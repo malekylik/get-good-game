@@ -248,7 +248,7 @@ export default class Label extends Component {
         super.setContextProperties(context, elapsedTime)
     }
 
-    calculateLines(context, text, row) {
+    calculateLines(context) {
         const width = this.getBoundingClientRect().width;
         const fontSize = this.animations.animatedProperties.textProperties.fontSize;
         this.textLines = [];
@@ -365,10 +365,11 @@ export default class Label extends Component {
 
     paintComponent(context, elapsedTime) { 
         super.paintComponent(context, elapsedTime);
-        let { width, height, top, left } = this.getBoundingClientRect();
+        let { top, left } = this.getBoundingClientRect();
+
+        context.save();
 
         context.translate(left, top);
-
         if (this.neededToRecalculate.needed) {
             this.calculateLines(context, this.text, this.neededToRecalculate.row);
 
@@ -382,6 +383,9 @@ export default class Label extends Component {
             this.neededToRecalculate.needed = false;
         }
 
+        context.fillStyle = this.properties.color.textColor = '#000000';
+        context.font = `${this.properties.textProperties.fontSize}px ${this.properties.textProperties.fontFamily}`;
+
         this.textLines.forEach(({ line }, i) => {        
             context.fillText(line, 0, this.linesMetric[i].top);
         });
@@ -389,5 +393,7 @@ export default class Label extends Component {
         if (this.isSelected && this.editable) {
             this.cursor.draw(context, elapsedTime);
         }
+
+        context.restore();
     }
 }

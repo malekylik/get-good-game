@@ -11,6 +11,7 @@ import ProgressBar from '../UI/Component/ProgressBar';
 import StatusBar from '../UI/Component/StatusBar';
 import CharacterInfoWindow from '../UI/Component/CharacterInfoWindow';
 import Table from '../UI/Component/Table';
+import ScrollBar from '../UI/Component/ScrollBar';
 import ImageLoadManager from '../Managers/ImageLoadManager';
 import StorageManager from '../Managers/StorageManager';
 import PATH from '../path/path';
@@ -163,7 +164,6 @@ export default class Game {
         monsterInfoWindow.setBackgroundColor('#f4f142');
 
         this.ui.add(this.uiComponents);
-
         // const table = new Table(10, 10, 600, 500, 3, 2, 100, 100);
         // table.setBackgroundColor('#ffffff');
         // const tableLabel = new Label(0, 0, 30, 16, 'abc');
@@ -285,6 +285,7 @@ export default class Game {
 
         recordTable.getTableComponent(0, 1).addComponent(secondColumnName);
         secondColumnName.alignCenter();
+        recordTable.setBackgroundColor('#ffffff');
 
         records.forEach((record, i) => {
             const { name, monsterKilled } = record;
@@ -302,6 +303,8 @@ export default class Game {
             recordTable.getTableComponent(1 + i, 1).addComponent(monsterKilledLabel);
             monsterKilledLabel.alignCenter();
         });
+
+        recordTable.setOverflow('scroll');
     }
 
     setPlayer(player) {
