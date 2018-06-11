@@ -17,7 +17,7 @@ export default class Character {
         if (magic) {
             character.takeAttack(magic.damage);
         } else {
-            character.takeAttack(50);
+            character.takeAttack(5);
         }
     }
 
