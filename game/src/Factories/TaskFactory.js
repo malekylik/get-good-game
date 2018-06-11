@@ -1,6 +1,6 @@
-import SolveExpressionTaskWindow from '../UI/ModalWindows/SolveExpressionTaskWindow';
-import TranslateTaskWindow from '../UI/ModalWindows/TranslateTaskModalWindow';
-import ListeningTaskModalWindow from '../UI/ModalWindows/ListeningTaskModalWindow';
+import SolveExpressionTaskWindow from '../UI/ModalWindows/TaskModalWindow/SolveExpressionTaskWindow';
+import TranslateTaskWindow from '../UI/ModalWindows/TaskModalWindow/TranslateTaskModalWindow';
+import ListeningTaskModalWindow from '../UI/ModalWindows/TaskModalWindow/ListeningTaskModalWindow';
 
 const tasks = [
     SolveExpressionTaskWindow,

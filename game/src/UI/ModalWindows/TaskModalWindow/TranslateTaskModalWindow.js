@@ -1,10 +1,10 @@
-import Label from '../Component/Label';
-import Button from '../Component/Button';
-import dictionary from '../../dictionary/dictionary';
-import events from '../../event/events/events';
+import Label from '../../Component/Label';
+import Button from '../../Component/Button';
+import dictionary from '../../../dictionary/dictionary';
+import events from '../../../event/events/events';
 
-import { CompositeComponent } from '../Component/Component';
-import { getTextWidthWithCanvas } from '../../utils/textWidth';
+import { CompositeComponent } from '../../Component/Component';
+import { getTextWidthWithCanvas } from '../../../utils/textWidth';
 
 export default class TranslateTaskWindow extends CompositeComponent {
     constructor(top = 0, left = 0, width = 0, height = 0, parentComponent = null) {

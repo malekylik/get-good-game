@@ -143,6 +143,7 @@ export class Component {
 
         if (c.hovered !== true) {
             c.hovered = true;
+            merge(c.animations.animatedProperties, c.hoverProperties);
         }
     }
 
@@ -158,7 +159,11 @@ export class Component {
         if (this.hovered !== hovered) {
             this.hovered = hovered;
 
-            merge(this.animatedProperties, this.properties);
+            if (hovered) {
+                merge(this.animations.animatedProperties, this.hoverProperties);
+            } else {
+                merge(this.animations.animatedProperties, this.properties);
+            }
         }
     }
 
@@ -208,12 +213,6 @@ export class Component {
         this.hoverProperties.boundingClientRect = {};
         merge(this.animations.animatedProperties.boundingClientRect, this.properties.boundingClientRect);
         merge(this.hoverProperties.boundingClientRect, this.properties.boundingClientRect);
-
-        // if (this.overflow === 'hidden' && this.overflow === 'scroll') {
-        //     this.calculateClippedSize(this.properties.overflow);
-        // } else {
-        //     this.setBoundingClippedClientRect(top, left, width, height);
-        // }
     }
 
     setBoundingClippedClientRect(top = 0, left = 0, width = 0, height = 0) {
@@ -663,14 +662,6 @@ class ScrollBar extends CompositeComponent {
 
         prevButton.setBackgroundColor('#F1F1F1');
         nextButton.setBackgroundColor('#F1F1F1');
-
-        prevButton.animations.setAnimation('hovered', 0, (context, initialProperties, properties, elapseTime, e) => {
-            properties.color.backgroundColor = initialProperties.color.backgroundColor;
-        });
-
-        nextButton.animations.setAnimation('hovered', 0, (context, initialProperties, properties, elapseTime, e) => {
-            properties.color.backgroundColor = initialProperties.color.backgroundColor;
-        });
 
         prevButton.hoverProperties.color.backgroundColor = '#D2D2D2';
         nextButton.hoverProperties.color.backgroundColor = '#D2D2D2';

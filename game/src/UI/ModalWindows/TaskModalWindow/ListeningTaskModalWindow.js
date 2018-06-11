@@ -1,10 +1,10 @@
-import Label from '../Component/Label';
-import Button from '../Component/Button';
-import dictionary from '../../dictionary/dictionary';
-import events from '../../event/events/events';
+import Label from '../../Component/Label';
+import Button from '../../Component/Button';
+import dictionary from '../../../dictionary/dictionary';
+import events from '../../../event/events/events';
 
-import { CompositeComponent } from '../Component/Component';
-import { getTextWidthWithCanvas } from '../../utils/textWidth';
+import { CompositeComponent } from '../../Component/Component';
+import { getTextWidthWithCanvas } from '../../../utils/textWidth';
 
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 

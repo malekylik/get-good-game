@@ -3,7 +3,7 @@ import events from '../../event/events/events';
 
 import { Component, CompositeComponent } from './Component';
 
-class ScrollBar extends CompositeComponent {
+export default class ScrollBar extends CompositeComponent {
     constructor(orientation, childWidth, parentComponent) {
         const height = 17;
 
@@ -49,14 +49,6 @@ class ScrollBar extends CompositeComponent {
 
         prevButton.setBackgroundColor('#F1F1F1');
         nextButton.setBackgroundColor('#F1F1F1');
-
-        prevButton.animations.setAnimation('hovered', 0, (context, initialProperties, properties, elapseTime, e) => {
-            properties.color.backgroundColor = initialProperties.color.backgroundColor;
-        });
-
-        nextButton.animations.setAnimation('hovered', 0, (context, initialProperties, properties, elapseTime, e) => {
-            properties.color.backgroundColor = initialProperties.color.backgroundColor;
-        });
 
         prevButton.hoverProperties.color.backgroundColor = '#D2D2D2';
         nextButton.hoverProperties.color.backgroundColor = '#D2D2D2';
