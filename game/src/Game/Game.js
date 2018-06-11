@@ -226,6 +226,10 @@ export default class Game {
             e.backgroundImage.setFrame(elapseTime);
         });
 
+        animation.addEventListener(events.ANIMATION.ANIMATION_END, (e) => {
+            this.canvas.removeScene(animation);
+        });
+
         this.canvas.addScene(animation);
 
         while(player.isAlive()) {

@@ -8,6 +8,9 @@ const events = {
     KEYBOARD: {
         KEY_PRESS: 'keypress',
         KEY_DOWN: 'keydown'
+    },
+    ANIMATION: {
+        ANIMATION_END: 'animationend',
     }
 };
 

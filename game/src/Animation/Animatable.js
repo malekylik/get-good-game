@@ -1,3 +1,5 @@
+import events from '../event/events/events';
+
 import { merge } from 'lodash';
 
 export default class Animatable {
@@ -18,6 +20,10 @@ export default class Animatable {
             elapseTime: 0,
             animationTimePast: 0
         };
+    }
+
+    deleteAnimation(name) {
+        delete this.animations[name];
     }
 
     animate(context, component, elapseTime) {
@@ -43,6 +49,15 @@ export default class Animatable {
 
                 if (a.animationTimePast >= a.timeCount) {
                     delete this.animations[keys[i]];
+
+                    component.handlers.handle({
+                        target: component,
+                        type: events.ANIMATION.ANIMATION_END,
+                        subtype: 'ANIMATION',
+                        payload: {
+                            animationName: keys[i]
+                        }
+                    });
                 }
             } 
         }

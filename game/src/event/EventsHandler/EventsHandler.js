@@ -6,6 +6,7 @@ export default class EventsHandler {
         this[events.MOUSE.MOUSE_DOWN] = [];
         this[events.KEYBOARD.KEY_PRESS] = [];
         this[events.KEYBOARD.KEY_DOWN] = [];
+        this[events.ANIMATION.ANIMATION_END] = [];
     }
 
     handle(event) {
