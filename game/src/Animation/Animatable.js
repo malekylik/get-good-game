@@ -10,11 +10,13 @@ export default class Animatable {
         };
     }
 
-    setAnimation(name, time, animationFunc) {
+    setAnimation(name, time, timeCount, animationFunc) {
         this.animations[name] = {
             animationFunc,
+            timeCount,
             time: time * 1000,
             elapseTime: 0,
+            animationTimePast: 0
         };
     }
 
@@ -30,12 +32,17 @@ export default class Animatable {
 
             if (a.elapseTime > a.time) {
                 a.elapseTime = 0;
+                a.animationTimePast += 1;
 
                 this.animatedProperties = {};
                 if (component.hovered) {
                     merge(this.animatedProperties, component.hoverProperties);                    
                 } else {
                     merge(this.animatedProperties, component.properties);
+                }
+
+                if (a.animationTimePast >= a.timeCount) {
+                    delete this.animations[keys[i]];
                 }
             } 
         }

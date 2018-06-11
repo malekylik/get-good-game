@@ -5,8 +5,6 @@ import UI from '../UI/UI';
 import Label from '../UI/Component/Label';
 import ImageComponent from '../UI/ImageComponent/ImageComponent';
 import TextInputModalWindow from '../UI/ModalWindows/TextInputModalWindow';
-import TranslateTaskWindow from '../UI/ModalWindows/TaskModalWindow/TranslateTaskModalWindow';
-import SolveExpressionTaskWindow from '../UI/ModalWindows/TaskModalWindow/SolveExpressionTaskWindow';
 import MagicSelectingModalWindow from '../UI/ModalWindows/MagicSelectingModalWindow';
 import ProgressBar from '../UI/Component/ProgressBar';
 import StatusBar from '../UI/Component/StatusBar';
@@ -122,6 +120,7 @@ export default class Game {
 
         loadManager.addUrl([
             `${PATH.MAGIC}/magicArrow.png`,
+            `${PATH.MAGIC}/magicArrowBlowAnimation.png`,
         ],
             this.magicImgsKey
         );
@@ -192,6 +191,7 @@ export default class Game {
         const uiComponents = this.uiComponents;
 
         const magicArrowImg = loadManager.getImagesByName(this.magicImgsKey)[0];
+        const magicArrowAnimationImg = loadManager.getImagesByName(this.magicImgsKey)[1];
 
         const magicArrowGraphicComponent = new MagicGraphicComponent(10, 10, 2, magicArrowImg);
         const magicArrow = new Magic('Magic arrow', 40, magicArrowGraphicComponent);
@@ -213,6 +213,20 @@ export default class Game {
         this.setEnemy(monster);
 
         let monsterKillCount = 0;
+
+
+        const { naturalWidth, naturalHeight } = magicArrowAnimationImg;
+
+        const magicAnimation = new ImageComponent(magicArrowAnimationImg, 0, 0, naturalWidth , naturalHeight, naturalWidth / 14, naturalHeight, 0, 0, naturalWidth / 14, naturalHeight);
+
+        const animation = new Component(100, 100, naturalWidth / 14, naturalHeight);
+        animation.setBackgroundImage(magicAnimation);
+
+        animation.animations.setAnimation('asd', 0.924, 2, (context, initialProperties, properties, elapseTime, e) => {
+            e.backgroundImage.setFrame(elapseTime);
+        });
+
+        this.canvas.addScene(animation);
 
         while(player.isAlive()) {
             if (!monster.isAlive()) {
@@ -249,7 +263,9 @@ export default class Game {
                 player.attack(monster, magic);
             }
 
-            monster.attack(player);
+            if (monster.isAlive()) {
+                monster.attack(player);
+            }
         }
 
         this.storageManager.saveResult(player.getName(), monsterKillCount);
@@ -280,7 +296,6 @@ export default class Game {
 
             const nameLabel = new Label(0, 0, Math.ceil(getTextWidthWithCanvas(name, 'monospace', 16)), 16, name);
             const monsterKilledLabel = new Label(0, 0, Math.ceil(getTextWidthWithCanvas(monsterKilled, 'monospace', 16)), 16, String(monsterKilled));
-            const indexLabel = new Label(0, 0, Math.ceil(getTextWidthWithCanvas(String(i + 1), 'monospace', 16)), 16, String(i + 1));
 
             recordTable.getTableComponent(1 + i, 0).addComponent(nameLabel);
             nameLabel.alignCenter();
