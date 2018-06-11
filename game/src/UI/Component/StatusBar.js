@@ -44,7 +44,7 @@ export default class StatusBar extends CompositeComponent {
         const label = enemy.getChildComponent(enemy.nameLabelKey);
         label.setText(name);
 
-        const { top, left, height } = label.getClippedBoundingClientRect();
+        const { top, left, height } = label.getBoundingClientRect();
         const nameWidth = Math.ceil(getTextWidthWithCanvas(name, label.properties.textProperties.fontFamily, label.properties.textProperties.fontSize));
 
         label.setBoundingClientRect(top, left, nameWidth, height);
@@ -57,7 +57,7 @@ export default class StatusBar extends CompositeComponent {
         const label = player.getChildComponent(player.nameLabelKey);
         label.setText(name);
 
-        const { top, left, height } = label.getClippedBoundingClientRect();
+        const { top, left, height } = label.getBoundingClientRect();
         const nameWidth = Math.ceil(getTextWidthWithCanvas(name, label.properties.textProperties.fontFamily, label.properties.textProperties.fontSize));
 
         label.setBoundingClientRect(top, left, nameWidth, height);

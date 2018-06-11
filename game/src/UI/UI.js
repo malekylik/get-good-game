@@ -42,6 +42,8 @@ export default class UI {
                             target: this.hovered,
                             relatedTarget: element
                         });
+
+                        this.hovered.setHovered(false);
                     }
     
                     if (element !== null) {

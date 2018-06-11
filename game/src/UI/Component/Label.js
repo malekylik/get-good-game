@@ -67,7 +67,7 @@ export default class Label extends Component {
             let isInside = false;
             let line = '';
 
-            const { top, left } = target.getClippedBoundingClientRect();
+            const { top, left } = target.getBoundingClientRect();
 
             let topOffset = top;
             let leftOffset = left;
@@ -75,7 +75,7 @@ export default class Label extends Component {
             let parent = target.getParentComponent();
 
             while (parent) {
-                const { top, left } = parent.getClippedBoundingClientRect();
+                const { top, left } = parent.getBoundingClientRect();
                 topOffset += top;
                 leftOffset += left;
 
@@ -121,7 +121,7 @@ export default class Label extends Component {
                 isInside = target.collision.isInside({
                         top: top + topOffset,
                         left: left + leftOffset,
-                        width: target.getClippedBoundingClientRect().width,
+                        width: target.getBoundingClientRect().width,
                         height
                     },
                     mouseCoord

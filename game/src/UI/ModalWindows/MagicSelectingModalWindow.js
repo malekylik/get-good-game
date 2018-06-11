@@ -11,7 +11,7 @@ export default class MagicSelectingModalWindow extends CompositeComponent {
 
         this.magics.forEach((magic) => {
             const graphicComponent = magic.getGraphicComponent();
-            const { width, height } = graphicComponent.getClippedBoundingClientRect();
+            const { width, height } = graphicComponent.getBoundingClientRect();
 
             graphicComponent.setBoundingClientRect(5, this.totalWidth + 5, width, height);
 

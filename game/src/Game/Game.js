@@ -138,7 +138,7 @@ export default class Game {
 
         const background = loadManager.getImagesByName(this.backgroundImgsKey)[0];
 
-        const { width, height } = this.background.getClippedBoundingClientRect();
+        const { width, height } = this.background.getBoundingClientRect();
 
         this.background.setBackgroundImage(new ImageComponent(background, 0, 0, background.naturalWidth, background.naturalHeight, width, height, 0, 0,  background.naturalWidth, background.naturalHeight));
 
@@ -200,7 +200,7 @@ export default class Game {
 
         const mainCharGraphic = new PlayerGraphicComponent('1%', '11%', mainChar);
 
-        const { width: playerWidth, height: playerHeight } = mainCharGraphic.getClippedBoundingClientRect();
+        const { width: playerWidth, height: playerHeight } = mainCharGraphic.getBoundingClientRect();
 
         mainCharGraphic.setBoundingClientRect(Math.floor((window.innerHeight - 150) / 2 - playerHeight / 2), Math.floor(window.innerWidth / 2 - playerWidth - 100), playerWidth, playerHeight);
 
@@ -256,7 +256,7 @@ export default class Game {
 
         const records = this.storageManager.getSortedRecords();
 
-        const recordTable = new Table(0, 0, 600, 300, records.length + 1, 3, 300, 100);
+        const recordTable = new Table(0, 0, 600, 300, records.length + 1, 2, 300, 100);
         this.uiComponents.addComponent(recordTable);
         recordTable.alignCenter();
 

@@ -110,10 +110,10 @@ export class Component {
         let parentHeight = window.innerHeight;
 
         if (parent !== null) {
-            ({ width: parentWidth, height: parentHeight } = parent.getClippedBoundingClientRect());
+            ({ width: parentWidth, height: parentHeight } = parent.getBoundingClientRect());
         }
 
-        const { width, height } = this.getClippedBoundingClientRect();
+        const { width, height } = this.getBoundingClientRect();
 
         let centredTop = Math.round((parentHeight - height) / 2);
         let centredLeft = Math.round((parentWidth - width) / 2);
@@ -124,7 +124,7 @@ export class Component {
     setBackgroundImage(image = null) {
         this.backgroundImage = image;
 
-        const { width, height } = this.getClippedBoundingClientRect();
+        const { width, height } = this.getBoundingClientRect();
 
         this.backgroundImage.setSize(width, height);
     }
@@ -152,6 +152,14 @@ export class Component {
 
     getClippedBoundingClientRect() {
         return this.animations.animatedProperties.clippedBoundingClientRect;
+    }
+
+    setHovered(hovered) {
+        if (this.hovered !== hovered) {
+            this.hovered = hovered;
+
+            merge(this.animatedProperties, this.properties);
+        }
     }
 
     setBoundingClientRect(top, left, width, height) {
@@ -201,11 +209,11 @@ export class Component {
         merge(this.animations.animatedProperties.boundingClientRect, this.properties.boundingClientRect);
         merge(this.hoverProperties.boundingClientRect, this.properties.boundingClientRect);
 
-        if (this.overflow === 'hidden' && this.overflow === 'scroll') {
-            this.calculateClippedSize(this.properties.overflow);
-        } else {
-            this.setBoundingClippedClientRect(top, left, width, height);
-        }
+        // if (this.overflow === 'hidden' && this.overflow === 'scroll') {
+        //     this.calculateClippedSize(this.properties.overflow);
+        // } else {
+        //     this.setBoundingClippedClientRect(top, left, width, height);
+        // }
     }
 
     setBoundingClippedClientRect(top = 0, left = 0, width = 0, height = 0) {
@@ -277,7 +285,7 @@ export class Component {
 
             let { top, right, bottom, left } = o.getBoundingClientRect();
                 if (parent !== null) {
-                    const parentBox = parent.getClippedBoundingClientRect();
+                    const parentBox = parent.getBoundingClientRect();
     
                     if (left < 0) {
                         left = 0;
@@ -617,7 +625,7 @@ class ScrollBar extends CompositeComponent {
         let parentHeight = window.innerHeight;
 
         if (parentComponent) {
-            ({ width: parentWidth, height: parentHeight } = parentComponent.getClippedBoundingClientRect());
+            ({ width: parentWidth, height: parentHeight } = parentComponent.getBoundingClientRect());
         }
 
         let width;
@@ -653,8 +661,19 @@ class ScrollBar extends CompositeComponent {
             nextButton = new Button(0, width - 2 * height, height, height, nextButtonText, this);
         }
 
-        prevButton.setBackgroundColor('#D2D2D2');
-        nextButton.setBackgroundColor('#D2D2D2');
+        prevButton.setBackgroundColor('#F1F1F1');
+        nextButton.setBackgroundColor('#F1F1F1');
+
+        prevButton.animations.setAnimation('hovered', 0, (context, initialProperties, properties, elapseTime, e) => {
+            properties.color.backgroundColor = initialProperties.color.backgroundColor;
+        });
+
+        nextButton.animations.setAnimation('hovered', 0, (context, initialProperties, properties, elapseTime, e) => {
+            properties.color.backgroundColor = initialProperties.color.backgroundColor;
+        });
+
+        prevButton.hoverProperties.color.backgroundColor = '#D2D2D2';
+        nextButton.hoverProperties.color.backgroundColor = '#D2D2D2';
 
         let scrollBackground;
 
@@ -665,8 +684,6 @@ class ScrollBar extends CompositeComponent {
         } else {
             scrollBackground = new CompositeComponent(0, height, scrollBackgroundWidth, height, this);
         }
-
-        scrollBackground.setBackgroundColor('#ff0000');
 
         let scroll;
 

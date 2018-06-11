@@ -40,7 +40,7 @@ export default class ProgressBar extends CompositeComponent {
     setValue(value) {
         this.currentValue = value;
         const bar = this.getChildComponent(this.barComponentKey);
-        const { top, left, height } = bar.getClippedBoundingClientRect();
+        const { top, left, height } = bar.getBoundingClientRect();
 
         bar.setBoundingClientRect(top, left, Math.floor(value * this.oneInPixel), height);
 
@@ -48,7 +48,7 @@ export default class ProgressBar extends CompositeComponent {
         const label = this.getChildComponent(this.labelComponentKey);
         label.setText(labelText);
 
-        const { height: heightLabel } = label.getClippedBoundingClientRect();
+        const { height: heightLabel } = label.getBoundingClientRect();
 
         const textWidth = Math.ceil(getTextWidthWithCanvas(labelText,'monospace', 16)) + 1;
 

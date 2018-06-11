@@ -3,7 +3,7 @@ import events from '../../event/events/events';
 
 import { Component, CompositeComponent } from './Component';
 
-export default class ScrollBar extends CompositeComponent {
+class ScrollBar extends CompositeComponent {
     constructor(orientation, childWidth, parentComponent) {
         const height = 17;
 
@@ -11,7 +11,7 @@ export default class ScrollBar extends CompositeComponent {
         let parentHeight = window.innerHeight;
 
         if (parentComponent) {
-            ({ width: parentWidth, height: parentHeight } = parentComponent.getClippedBoundingClientRect());
+            ({ width: parentWidth, height: parentHeight } = parentComponent.getBoundingClientRect());
         }
 
         let width;
@@ -47,8 +47,19 @@ export default class ScrollBar extends CompositeComponent {
             nextButton = new Button(0, width - 2 * height, height, height, nextButtonText, this);
         }
 
-        prevButton.setBackgroundColor('#D2D2D2');
-        nextButton.setBackgroundColor('#D2D2D2');
+        prevButton.setBackgroundColor('#F1F1F1');
+        nextButton.setBackgroundColor('#F1F1F1');
+
+        prevButton.animations.setAnimation('hovered', 0, (context, initialProperties, properties, elapseTime, e) => {
+            properties.color.backgroundColor = initialProperties.color.backgroundColor;
+        });
+
+        nextButton.animations.setAnimation('hovered', 0, (context, initialProperties, properties, elapseTime, e) => {
+            properties.color.backgroundColor = initialProperties.color.backgroundColor;
+        });
+
+        prevButton.hoverProperties.color.backgroundColor = '#D2D2D2';
+        nextButton.hoverProperties.color.backgroundColor = '#D2D2D2';
 
         let scrollBackground;
 
@@ -59,8 +70,6 @@ export default class ScrollBar extends CompositeComponent {
         } else {
             scrollBackground = new CompositeComponent(0, height, scrollBackgroundWidth, height, this);
         }
-
-        scrollBackground.setBackgroundColor('#ff0000');
 
         let scroll;
 

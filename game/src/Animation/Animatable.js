@@ -24,7 +24,7 @@ export default class Animatable {
         for (let i = 0; i < keys.length; i++) {
             const a = this.animations[keys[i]];
 
-            a.animationFunc(context,component.properties, this.animatedProperties, a.elapseTime / a.time, component);
+            a.animationFunc(context, component.properties, this.animatedProperties, a.elapseTime / a.time, component);
 
             a.elapseTime += elapseTime;
 
