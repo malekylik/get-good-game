@@ -216,7 +216,7 @@ export default class Label extends Component {
     }
 
     getText() {
-        return this.getText();
+        return this.text;
     }
 
     setTextColor(color = '#000000') {

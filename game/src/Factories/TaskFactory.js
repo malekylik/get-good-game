@@ -1,9 +1,11 @@
 import SolveExpressionTaskWindow from '../UI/ModalWindows/SolveExpressionTaskWindow';
 import TranslateTaskWindow from '../UI/ModalWindows/TranslateTaskModalWindow';
+import ListeningTaskModalWindow from '../UI/ModalWindows/ListeningTaskModalWindow';
 
 const tasks = [
     SolveExpressionTaskWindow,
     TranslateTaskWindow,
+    ListeningTaskModalWindow
 ];
 
 export default class TaskFactory {

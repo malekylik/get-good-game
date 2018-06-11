@@ -1,3 +1,5 @@
+import events from '../../event/events/events';
+
 import { CompositeComponent } from '../Component/Component';
 
 export default class MagicSelectingModalWindow extends CompositeComponent {
@@ -36,4 +38,12 @@ export default class MagicSelectingModalWindow extends CompositeComponent {
 
         return magic ? magic : null;
     }
+
+    selectMagic() {
+        return new Promise((resolve) => {
+            this.addMagicSelectingEventListener(events.MOUSE.MOUSE_DOWN, (e) => {
+                resolve(e.target.getParentComponent().findMagicByGraphicComponent(e.target));
+            });
+        });
+    }  
 }

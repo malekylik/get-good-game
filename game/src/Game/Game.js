@@ -186,9 +186,6 @@ export default class Game {
     }   
 
     async mainLogic(name) {
-        let selectedMagicPromise = null;
-        let answerOutcomePromise = null;
-
         const loadManager = this.loadManager;
         const monsterFactory = this.monsterFactory;
         const taskFactory = this.taskFactory;
@@ -230,13 +227,7 @@ export default class Game {
     
             uiComponents.addComponent(magicSelecting);
 
-            selectedMagicPromise = new Promise((resolve) => {
-                magicSelecting.addMagicSelectingEventListener(events.MOUSE.MOUSE_DOWN, (e) => {
-                    resolve(e.target.getParentComponent().findMagicByGraphicComponent(e.target));
-                });
-            });
-
-            const magic = await selectedMagicPromise;
+            const magic = await magicSelecting.selectMagic();
 
             if (magic === null) {
                 console.log('magic selecting error');
@@ -248,15 +239,9 @@ export default class Game {
             const taskWindow = taskFactory.createTask(20, Math.ceil((window.innerWidth - 700) / 2), 700, window.innerHeight - 150 - 40);
             taskWindow.setBackgroundColor('#ffff00');
 
-            answerOutcomePromise = new Promise((resolve) => {
-                taskWindow.addButtonEventListener(events.MOUSE.MOUSE_DOWN, (e) => {
-                        resolve(e.target.getParentComponent().answerIsRight());
-                });
-            });
-
             uiComponents.addComponent(taskWindow);
 
-            const answerOutcome = await answerOutcomePromise;
+            const answerOutcome = await taskWindow.getResult();
 
             uiComponents.removeComponent(taskWindow);
 

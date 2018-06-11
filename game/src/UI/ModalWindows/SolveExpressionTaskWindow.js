@@ -1,5 +1,6 @@
 import Label from '../Component/Label';
 import Button from '../Component/Button';
+import events from '../../event/events/events';
 
 import { CompositeComponent } from '../Component/Component';
 import { getTextWidthWithCanvas } from '../../utils/textWidth';
@@ -85,7 +86,15 @@ export default class SolveExpressionTaskWindow extends CompositeComponent {
     }
 
     answerIsRight() {
-        const answer = parseFloat(this.getChildComponent(this.answerKey).text);
+        const answer = parseFloat(this.getChildComponent(this.answerKey).getText());
         return  answer === this.operation.perform(this.first, this.second);
+    }
+
+    getResult() {
+        return new Promise((resolve) => {
+            this.addButtonEventListener(events.MOUSE.MOUSE_DOWN, () => {
+                    resolve(this.answerIsRight());
+            });
+        });
     }
 }
