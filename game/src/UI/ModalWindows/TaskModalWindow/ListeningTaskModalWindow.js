@@ -67,6 +67,7 @@ export default class ListeningTaskModalWindow  extends TaskModalWindow {
     
         recognition.onspeechend = () => {
             recognition.stop();
+            isWorking = false;
         };
 
         recognition.onerror = (event) => {

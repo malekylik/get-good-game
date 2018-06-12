@@ -2,11 +2,11 @@ import Magic from './Magic';
 import events from '../event/events/events';
 
 export default class MagicArrow extends Magic {
-    constructor(name, damage, magicGraphicComponent, attackAnimations) {
+    constructor(name, damage, magicGraphicComponent, attackAnimations, sound) {
         super(name, damage, magicGraphicComponent);
         this.attackAnimations = attackAnimations;
 
-        this.sound = new Audio('/assets/sound/magic/magicArrow/MAGICARW.mp3');
+        this.sound = sound;
     }
 
     getGraphicComponent() {

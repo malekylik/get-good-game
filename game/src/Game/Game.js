@@ -15,6 +15,7 @@ import StorageManager from '../Managers/StorageManager';
 import PATH from '../path/path';
 import MonsterFactory from '../Factories/MonsterFactory';
 import TaskFactory from '../Factories/TaskFactory';
+import MagicFactory from '../Factories/MagicFactory';
 import MagicGraphicComponent from '../GraphicComponent/MagicGraphicComponent';
 import PlayerGraphicComponent from '../GraphicComponent/PlayerGrapchicComponent';
 import Character from '../Character/Character';
@@ -159,12 +160,8 @@ export default class Game {
 
         console.log(`total: ${totalSize}`);
 
-        try {
-            await loadManager.load((loadedPercentage) => loadingProgressBar.setValue(loadedPercentage));
-        } catch (e) {
-            console.log(e);
-        }
-    
+        await loadManager.load((loadedPercentage) => loadingProgressBar.setValue(loadedPercentage));
+
         console.log('loaded');
 
         this.canvas.removeScene(loadingScreen);
@@ -186,7 +183,11 @@ export default class Game {
         const legs = loadManager.getImagesByName(this.legImgsKey);
 
         this.taskFactory = new TaskFactory();
+        this.magicFactory = new MagicFactory();
         this.monsterFactory = new MonsterFactory(heads, leftArms, rightArms, bodies, legs);
+
+        this.magicFactory.addMagicAssets(loadManager.getImagesByName(this.magicImgsKey).slice(0, 3), loadManager.getSoundByName(this.magicSoundKey)[0], 'magicArrow');
+        this.magicFactory.addMagicAssets(loadManager.getImagesByName(this.magicImgsKey).slice(3, 3 + 2), loadManager.getSoundByName(this.magicSoundKey)[1], 'implosion');
 
         const statusBar = new StatusBar(window.innerHeight - 150, 0, window.innerWidth, 150);
         statusBar.setBackgroundColor('#00ff00');
@@ -222,14 +223,10 @@ export default class Game {
         const loadManager = this.loadManager;
         const monsterFactory = this.monsterFactory;
         const taskFactory = this.taskFactory;
+        const magicFactory = this.magicFactory;
         const uiComponents = this.uiComponents;
 
-        const magicArrowImg = loadManager.getImagesByName(this.magicImgsKey)[0];
-        const magicArrowMovingAnimationImg = loadManager.getImagesByName(this.magicImgsKey)[1];
-        const magicArrowAnimationImg = loadManager.getImagesByName(this.magicImgsKey)[2];
-
         const mainChar = loadManager.getImagesByName(this.mainCharImgsKey)[0];
-        loadManager.getSoundByName(this.magicSoundKey)[1].play();
 
         const mainCharGraphic = new PlayerGraphicComponent('1%', '11%', mainChar);
 
@@ -242,26 +239,10 @@ export default class Game {
 
         let monsterKillCount = 0;
 
-        let { naturalWidth, naturalHeight } = magicArrowAnimationImg;
-
-        const magicAnimation = new ImageComponent(magicArrowAnimationImg, 0, 0, naturalWidth , naturalHeight, naturalWidth / 14, naturalHeight, 0, 0, naturalWidth / 14, naturalHeight);
-
-        const animation = new Component(0, 0, naturalWidth / 14, naturalHeight);
-        animation.setBackgroundImage(magicAnimation);
-
-        ({ naturalWidth, naturalHeight } = magicArrowMovingAnimationImg);
-
-        const magicMovingAnimation = new ImageComponent(magicArrowMovingAnimationImg, 0, 0, naturalWidth , naturalHeight, naturalWidth / 14, naturalHeight, 0, 0, naturalWidth / 14, naturalHeight);
-
-        const movingAnimation = new Component(0, 0, naturalWidth / 14, naturalHeight);
-        movingAnimation.setBackgroundImage(magicMovingAnimation);
-
-        const magicArrowGraphicComponent = new MagicGraphicComponent(10, 10, 2, magicArrowImg);
-        const magicArrow = new MagicArrow('Magic arrow', 40, magicArrowGraphicComponent, [movingAnimation, animation]);
-
         const player = new Character(name, 100, 100, mainCharGraphic);
 
-        player.addMagic(magicArrow);
+        player.addMagic(magicFactory.createMagicArrow(40));
+        player.addMagic(magicFactory.createImplosionArrow(40));
 
         this.setPlayer(player);
 
