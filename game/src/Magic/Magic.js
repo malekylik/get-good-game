@@ -3,7 +3,7 @@ export default class Magic {
         this.name = name;
         this.damage = damage;
         
-        this.graphicComponent = magicGraphicComponent;
+        this.graphicComponent = magicGraphicComponent
     }
 
     getGraphicComponent() {

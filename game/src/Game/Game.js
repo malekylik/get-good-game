@@ -10,7 +10,7 @@ import ProgressBar from '../UI/Component/ProgressBar';
 import StatusBar from '../UI/Component/StatusBar';
 import CharacterInfoWindow from '../UI/Component/CharacterInfoWindow';
 import Table from '../UI/Component/Table';
-import ImageLoadManager from '../Managers/ImageLoadManager';
+import LoadManager from '../Managers/LoadManager';
 import StorageManager from '../Managers/StorageManager';
 import PATH from '../path/path';
 import MonsterFactory from '../Factories/MonsterFactory';
@@ -18,7 +18,7 @@ import TaskFactory from '../Factories/TaskFactory';
 import MagicGraphicComponent from '../GraphicComponent/MagicGraphicComponent';
 import PlayerGraphicComponent from '../GraphicComponent/PlayerGrapchicComponent';
 import Character from '../Character/Character';
-import Magic from '../Magic/Magic';
+import MagicArrow from '../Magic/MagicArrow';
 
 import { Component, CompositeComponent } from '../UI/Component/Component';
 import { getTextWidthWithCanvas } from '../utils/textWidth';
@@ -27,18 +27,20 @@ export default class Game {
     constructor() {
         this.backgroundImgsKey = 'background';
         this.mainCharImgsKey = 'mainchar';
-        this.magicImgsKey = 'magics';
         this.headImgsKey = 'heads';
         this.bodyImgsKey = 'bodies';
         this.leftArmImgsKey = 'leftarms';
         this.rightArmImgsKey = 'rightarms';
         this.legImgsKey = 'legs';
+        this.magicImgsKey = 'magics';
+
+        this.magicSoundKey = 'magics';
 
         this.statusBarKey = 'statusbar';
 
         this.monsterKillCount = 0;
 
-        this.loadManager = new ImageLoadManager();
+        this.loadManager = new LoadManager();
         this.storageManager = new StorageManager();
 
         this.canvas = new Canvas();
@@ -70,67 +72,99 @@ export default class Game {
 
         const loadManager = this.loadManager;
 
-        loadManager.addUrl(`${PATH.BACKGROUND_IMAGES}/dungeon.jpg`,  this.backgroundImgsKey);
-        loadManager.addUrl(`${PATH.MAIN_CHAR}/mainChar.png`,  this.mainCharImgsKey);
+        loadManager.addUrl({
+            image: [`${PATH.IMAGE.BACKGROUND_IMAGES}/dungeon.jpg`]
+        }, {
+            image: this.backgroundImgsKey
+        });
+        loadManager.addUrl({
+            image: [`${PATH.IMAGE.MAIN_CHAR}/mainChar.png`]
+        }, {
+            image: this.mainCharImgsKey
+        });
 
-        loadManager.addUrl([
-            `${PATH.HEAD_IMAGES}/head_1.png`,
-            `${PATH.HEAD_IMAGES}/head_2.png`,
-            `${PATH.HEAD_IMAGES}/head_3.png`,
-            `${PATH.HEAD_IMAGES}/head_4.png`,
-        ],
-            this.headImgsKey
-        );
+        loadManager.addUrl({
+            image: [
+                `${PATH.IMAGE.HEAD_IMAGES}/head_1.png`,
+                `${PATH.IMAGE.HEAD_IMAGES}/head_2.png`,
+                `${PATH.IMAGE.HEAD_IMAGES}/head_3.png`,
+                `${PATH.IMAGE.HEAD_IMAGES}/head_4.png`,
+            ]
+        }, {
+            image: this.headImgsKey
+        });
 
-        loadManager.addUrl([
-            `${PATH.BODY_IMAGES}/body_1.png`,
-            `${PATH.BODY_IMAGES}/body_2.png`,
-            `${PATH.BODY_IMAGES}/body_3.png`,
-            `${PATH.BODY_IMAGES}/body_4.png`,
-        ],
-            this.bodyImgsKey
-        );
+        loadManager.addUrl({
+            image: [
+                `${PATH.IMAGE.BODY_IMAGES}/body_1.png`,
+                `${PATH.IMAGE.BODY_IMAGES}/body_2.png`,
+                `${PATH.IMAGE.BODY_IMAGES}/body_3.png`,
+                `${PATH.IMAGE.BODY_IMAGES}/body_4.png`,
+            ]
+        }, {
+            image: this.bodyImgsKey
+        });
 
-        loadManager.addUrl([
-            `${PATH.LEFT_ARM_IMAGES}/arm_1.png`,
-            `${PATH.LEFT_ARM_IMAGES}/arm_2.png`,
-            `${PATH.LEFT_ARM_IMAGES}/arm_3.png`,
-            `${PATH.LEFT_ARM_IMAGES}/arm_4.png`,
-        ],
-            this.leftArmImgsKey
-        );
+        loadManager.addUrl({
+            image: [
+                `${PATH.IMAGE.LEFT_ARM_IMAGES}/arm_1.png`,
+                `${PATH.IMAGE.LEFT_ARM_IMAGES}/arm_2.png`,
+                `${PATH.IMAGE.LEFT_ARM_IMAGES}/arm_3.png`,
+                `${PATH.IMAGE.LEFT_ARM_IMAGES}/arm_4.png`,
+            ]
+        }, {
+            image: this.leftArmImgsKey
+        });
 
-        loadManager.addUrl([
-            `${PATH.RIGHT_ARM_IMAGES}/arm_1.png`,
-            `${PATH.RIGHT_ARM_IMAGES}/arm_2.png`,
-            `${PATH.RIGHT_ARM_IMAGES}/arm_3.png`,
-            `${PATH.RIGHT_ARM_IMAGES}/arm_4.png`,
-        ],
-            this.rightArmImgsKey
-        );
+        loadManager.addUrl({
+            image: [
+                `${PATH.IMAGE.RIGHT_ARM_IMAGES}/arm_1.png`,
+                `${PATH.IMAGE.RIGHT_ARM_IMAGES}/arm_2.png`,
+                `${PATH.IMAGE.RIGHT_ARM_IMAGES}/arm_3.png`,
+                `${PATH.IMAGE.RIGHT_ARM_IMAGES}/arm_4.png`,
+            ]
+        }, {
+            image: this.rightArmImgsKey
+        });
 
-        loadManager.addUrl([
-            `${PATH.LEG_IMAGES}/leg_1.png`,
-            `${PATH.LEG_IMAGES}/leg_2.png`,
-            `${PATH.LEG_IMAGES}/leg_3.png`,
-            `${PATH.LEG_IMAGES}/leg_4.png`,
-        ],
-            this.legImgsKey
-        );
+        loadManager.addUrl({
+            image: [
+                `${PATH.IMAGE.LEG_IMAGES}/leg_1.png`,
+                `${PATH.IMAGE.LEG_IMAGES}/leg_2.png`,
+                `${PATH.IMAGE.LEG_IMAGES}/leg_3.png`,
+                `${PATH.IMAGE.LEG_IMAGES}/leg_4.png`,
+            ]
+        }, {
+            image: this.legImgsKey
+        });
 
-        loadManager.addUrl([
-            `${PATH.MAGIC}/magicArrow.png`,
-            `${PATH.MAGIC}/magicArrowBlowAnimation.png`,
-        ],
-            this.magicImgsKey
-        );
+        loadManager.addUrl({
+            image: [
+                `${PATH.IMAGE.MAGIC}/magicArrow/magicArrow.png`,
+                `${PATH.IMAGE.MAGIC}/magicArrow/magicArrowMotionAnimation.png`,
+                `${PATH.IMAGE.MAGIC}/magicArrow/magicArrowBlowAnimation.png`,
+                `${PATH.IMAGE.MAGIC}/decay/decay.png`,
+                `${PATH.IMAGE.MAGIC}/decay/decayBlow.png`,
+            ],
+            sound: [
+                `${PATH.SOUND.MAGIC}/magicArrow/MAGICARW.mp3`,
+                `${PATH.SOUND.MAGIC}/decay/DECAY.mp3`
+            ],
+        }, {
+            image: this.magicImgsKey,
+            sound: this.magicSoundKey
+        });
 
         const totalSize = await loadManager.calculateTotalSize();
 
         console.log(`total: ${totalSize}`);
 
-        await loadManager.loadImages((loadedPercentage) => loadingProgressBar.setValue(loadedPercentage));
-
+        try {
+            await loadManager.load((loadedPercentage) => loadingProgressBar.setValue(loadedPercentage));
+        } catch (e) {
+            console.log(e);
+        }
+    
         console.log('loaded');
 
         this.canvas.removeScene(loadingScreen);
@@ -191,12 +225,11 @@ export default class Game {
         const uiComponents = this.uiComponents;
 
         const magicArrowImg = loadManager.getImagesByName(this.magicImgsKey)[0];
-        const magicArrowAnimationImg = loadManager.getImagesByName(this.magicImgsKey)[1];
-
-        const magicArrowGraphicComponent = new MagicGraphicComponent(10, 10, 2, magicArrowImg);
-        const magicArrow = new Magic('Magic arrow', 40, magicArrowGraphicComponent);
+        const magicArrowMovingAnimationImg = loadManager.getImagesByName(this.magicImgsKey)[1];
+        const magicArrowAnimationImg = loadManager.getImagesByName(this.magicImgsKey)[2];
 
         const mainChar = loadManager.getImagesByName(this.mainCharImgsKey)[0];
+        loadManager.getSoundByName(this.magicSoundKey)[1].play();
 
         const mainCharGraphic = new PlayerGraphicComponent('1%', '11%', mainChar);
 
@@ -204,33 +237,33 @@ export default class Game {
 
         mainCharGraphic.setBoundingClientRect(Math.floor((window.innerHeight - 150) / 2 - playerHeight / 2), Math.floor(window.innerWidth / 2 - playerWidth - 100), playerWidth, playerHeight);
 
-        const player = new Character(name, 100, 100, mainCharGraphic);
-        player.addMagic(magicArrow);
-
-        this.setPlayer(player);
-
         let monster = monsterFactory.createMonster('1%', '11%');
         this.setEnemy(monster);
 
         let monsterKillCount = 0;
 
-
-        const { naturalWidth, naturalHeight } = magicArrowAnimationImg;
+        let { naturalWidth, naturalHeight } = magicArrowAnimationImg;
 
         const magicAnimation = new ImageComponent(magicArrowAnimationImg, 0, 0, naturalWidth , naturalHeight, naturalWidth / 14, naturalHeight, 0, 0, naturalWidth / 14, naturalHeight);
 
-        const animation = new Component(100, 100, naturalWidth / 14, naturalHeight);
+        const animation = new Component(0, 0, naturalWidth / 14, naturalHeight);
         animation.setBackgroundImage(magicAnimation);
 
-        animation.animations.setAnimation('asd', 0.924, 2, (context, initialProperties, properties, elapseTime, e) => {
-            e.backgroundImage.setFrame(elapseTime);
-        });
+        ({ naturalWidth, naturalHeight } = magicArrowMovingAnimationImg);
 
-        animation.addEventListener(events.ANIMATION.ANIMATION_END, (e) => {
-            this.canvas.removeScene(animation);
-        });
+        const magicMovingAnimation = new ImageComponent(magicArrowMovingAnimationImg, 0, 0, naturalWidth , naturalHeight, naturalWidth / 14, naturalHeight, 0, 0, naturalWidth / 14, naturalHeight);
 
-        this.canvas.addScene(animation);
+        const movingAnimation = new Component(0, 0, naturalWidth / 14, naturalHeight);
+        movingAnimation.setBackgroundImage(magicMovingAnimation);
+
+        const magicArrowGraphicComponent = new MagicGraphicComponent(10, 10, 2, magicArrowImg);
+        const magicArrow = new MagicArrow('Magic arrow', 40, magicArrowGraphicComponent, [movingAnimation, animation]);
+
+        const player = new Character(name, 100, 100, mainCharGraphic);
+
+        player.addMagic(magicArrow);
+
+        this.setPlayer(player);
 
         while(player.isAlive()) {
             if (!monster.isAlive()) {
@@ -264,7 +297,7 @@ export default class Game {
             uiComponents.removeComponent(taskWindow);
 
             if (answerOutcome) {
-                player.attack(monster, magic);
+                await player.attack(monster, magic, this.canvas);
             }
 
             if (monster.isAlive()) {

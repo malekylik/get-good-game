@@ -1,4 +1,4 @@
-export const getImageSize = (url) => {
+export const getFileSize = (url) => {
     return new Promise((resolve) => {
         const xhr = new XMLHttpRequest();
         xhr.open("HEAD", url, true); 
@@ -12,13 +12,13 @@ export const getImageSize = (url) => {
     });
 };
 
-export const getImageBlob = (url, onprogress, identifier) => {
+export const getFileBlob = (url, onprogress, identifier) => {
     return new Promise((resolve) => {
         const xmlHTTP = new XMLHttpRequest();
         xmlHTTP.open('GET', url, true);
         xmlHTTP.responseType = 'arraybuffer';
 
-        let prevValue = 0;
+        let prevValue = -1;
 
         xmlHTTP.onload = (e) => {
             const blob = new Blob([xmlHTTP.response]);
@@ -37,9 +37,9 @@ export const getImageBlob = (url, onprogress, identifier) => {
     });
 };
 
-export const createImgPromise = (img) => {
+export const createFilePromise = (file) => {
     return new Promise((resolve) => {
-        img.onload = (i) => {
+        file.onload = (i) => {
             resolve(i.srcElement);
         } 
     })

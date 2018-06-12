@@ -13,8 +13,9 @@ export default class Character {
         return this.graphicComponent;
     }
 
-    attack(character, magic) {
+    async attack(character, magic, canvas) {
         if (magic) {
+            await magic.attack(this, character, canvas);
             character.takeAttack(magic.damage);
         } else {
             character.takeAttack(5);
