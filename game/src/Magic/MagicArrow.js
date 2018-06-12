@@ -25,11 +25,11 @@ export default class MagicArrow extends Magic {
         const { left: characterLeft, width: characterWidth } = character.getGraphicComponent().getBoundingClientRect();
         const { top, left, height } = enemy.getGraphicComponent().getBoundingClientRect();
 
-        let dif = left - characterLeft - characterWidth;
+        let dif = left - characterLeft + Math.floor(characterWidth / 4);
 
         this.attackAnimations[0].animations.setAnimation('asd', 0.924, 1, (context, initialProperties, properties, elapseTime, e) => {
             e.backgroundImage.setFrame(elapseTime);
-            e.setBoundingClientRect(undefined, characterLeft + characterWidth + dif * elapseTime);
+            e.setBoundingClientRect(undefined, characterLeft + dif * elapseTime);
         });
 
         const movingPromise = new Promise((resolve) => {
@@ -58,7 +58,7 @@ export default class MagicArrow extends Magic {
             });
         });
 
-        this.attackAnimations[1].setBoundingClientRect(top + Math.floor(height / 2), left);
+        this.attackAnimations[1].setBoundingClientRect(top + Math.floor(height / 2), left + Math.floor(characterWidth / 4));
 
         canvas.addScene(this.attackAnimations[1]);
 

@@ -143,6 +143,7 @@ export default class Game {
             image: [
                 `${PATH.IMAGE.MAGIC}/magicArrow/magicArrow.png`,
                 `${PATH.IMAGE.MAGIC}/magicArrow/magicArrowMotionAnimation.png`,
+                `${PATH.IMAGE.MAGIC}/magicArrow/magicArrowMotionAnimationReverse.png`,
                 `${PATH.IMAGE.MAGIC}/magicArrow/magicArrowBlowAnimation.png`,
                 `${PATH.IMAGE.MAGIC}/decay/decay.png`,
                 `${PATH.IMAGE.MAGIC}/decay/decayBlow.png`,
@@ -186,8 +187,8 @@ export default class Game {
         this.magicFactory = new MagicFactory();
         this.monsterFactory = new MonsterFactory(heads, leftArms, rightArms, bodies, legs);
 
-        this.magicFactory.addMagicAssets(loadManager.getImagesByName(this.magicImgsKey).slice(0, 3), loadManager.getSoundByName(this.magicSoundKey)[0], 'magicArrow');
-        this.magicFactory.addMagicAssets(loadManager.getImagesByName(this.magicImgsKey).slice(3, 3 + 2), loadManager.getSoundByName(this.magicSoundKey)[1], 'implosion');
+        this.magicFactory.addMagicAssets(loadManager.getImagesByName(this.magicImgsKey).slice(0, 4), loadManager.getSoundByName(this.magicSoundKey)[0], 'magicArrow');
+        this.magicFactory.addMagicAssets(loadManager.getImagesByName(this.magicImgsKey).slice(4, 4 + 2), loadManager.getSoundByName(this.magicSoundKey)[1], 'implosion');
 
         const statusBar = new StatusBar(window.innerHeight - 150, 0, window.innerWidth, 150);
         statusBar.setBackgroundColor('#00ff00');
@@ -236,6 +237,8 @@ export default class Game {
 
         let monster = monsterFactory.createMonster('1%', '11%');
         this.setEnemy(monster);
+        monster.addMagic(magicFactory.createMagicArrow(5, true));
+        monster.addMagic(magicFactory.createImplosionArrow(5));
 
         let monsterKillCount = 0;
 
@@ -250,6 +253,9 @@ export default class Game {
             if (!monster.isAlive()) {
                 monster = monsterFactory.createMonster('1%', '11%');
                 this.setEnemy(monster);
+
+                monster.addMagic(magicFactory.createMagicArrow(5, true));
+                monster.addMagic(magicFactory.createImplosionArrow(5));
 
                 monsterKillCount += 1;
             }
@@ -282,7 +288,10 @@ export default class Game {
             }
 
             if (monster.isAlive()) {
-                monster.attack(player);
+                const magics = monster.getMagic();
+                const index = Math.round(Math.random() * (magics.length - 1));
+
+                await monster.attack(player, magics[index], this.canvas);
             }
         }
 

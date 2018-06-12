@@ -17,7 +17,7 @@ export default class MagicFactory {
         };
     }
 
-    createMagicArrow(damage) {
+    createMagicArrow(damage, forEnemy = false) {
         if (!this.assets.magicArrow) {
             return null;
         }
@@ -26,8 +26,12 @@ export default class MagicFactory {
         const sound = this.assets.magicArrow.sound;
 
         const img = images[0];
-        const movingAnimationImg = images[1];
-        const blowAnimationImg = images[2];
+        let movingAnimationImg = images[1];
+        const blowAnimationImg = images[3];
+
+        if (forEnemy) {
+            movingAnimationImg = images[2];
+        }
 
         let { naturalWidth, naturalHeight } = movingAnimationImg;
 
@@ -44,6 +48,7 @@ export default class MagicFactory {
         animation.setBackgroundImage(magicBlowAnimation);
 
         const graphicComponent = new MagicGraphicComponent(10, 10, 2, img);
+        
         return new MagicArrow('Magic arrow', damage, graphicComponent, [movingAnimation, animation], sound);
     }
 

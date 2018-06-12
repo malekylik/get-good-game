@@ -155,6 +155,7 @@ export default class ImageComponent {
             top = y;
         }
 
+
         if (this.width !== undefined) {
             context.drawImage(this.htmlComponent, this.offsetX, this.offsetY, this.sWidth, this.sHeight, left, top, this.width, this.height);
         } else {
