@@ -16,10 +16,8 @@ import PATH from '../path/path';
 import MonsterFactory from '../Factories/MonsterFactory';
 import TaskFactory from '../Factories/TaskFactory';
 import MagicFactory from '../Factories/MagicFactory';
-import MagicGraphicComponent from '../GraphicComponent/MagicGraphicComponent';
 import PlayerGraphicComponent from '../GraphicComponent/PlayerGrapchicComponent';
 import Character from '../Character/Character';
-import MagicArrow from '../Magic/MagicArrow';
 
 import { Component, CompositeComponent } from '../UI/Component/Component';
 import { getTextWidthWithCanvas } from '../utils/textWidth';
@@ -63,10 +61,83 @@ export default class Game {
         const loadingScreen = await this.showLoadingScreen();
         const loadingProgressBar = loadingScreen.getLoadingProgressBar();
 
+        this.initLoadingPath();
+
+        const loadManager = this.loadManager;
+
+        const totalSize = await loadManager.calculateTotalSize();
+
+        console.log(`total: ${totalSize}`);
+
+        await loadManager.load((loadedPercentage) => loadingProgressBar.setValue(loadedPercentage));
+
+        console.log('loaded');
+
+        this.canvas.removeScene(loadingScreen);
+
+        const background = loadManager.getImagesByName(this.backgroundImgsKey)[0];
+
+        const { width, height } = this.background.getBoundingClientRect();
+
+        this.background.setBackgroundImage(new ImageComponent(background, 0, 0, background.naturalWidth, background.naturalHeight, width, height, 0, 0,  background.naturalWidth, background.naturalHeight));
+
+        this.canvas.addScene(this.background);
+
+        this.setEventListenersToCanvas();
+
+        const heads = loadManager.getImagesByName(this.headImgsKey);
+        const bodies = loadManager.getImagesByName(this.bodyImgsKey);
+        const leftArms = loadManager.getImagesByName(this.leftArmImgsKey);
+        const rightArms = loadManager.getImagesByName(this.rightArmImgsKey);
+        const legs = loadManager.getImagesByName(this.legImgsKey);
+
+        this.taskFactory = new TaskFactory(this.loadManager.getImagesByName(this.uiImgsKey));
+        this.magicFactory = new MagicFactory();
+        this.monsterFactory = new MonsterFactory(heads, leftArms, rightArms, bodies, legs);
+
+        this.magicFactory.addMagicAssets(loadManager.getImagesByName(this.magicImgsKey).slice(0, 4), loadManager.getSoundByName(this.magicSoundKey)[0], 'magicArrow');
+        this.magicFactory.addMagicAssets(loadManager.getImagesByName(this.magicImgsKey).slice(4, 4 + 2), loadManager.getSoundByName(this.magicSoundKey)[1], 'implosion');
+
+        const statusBar = new StatusBar(window.innerHeight - 150, 0, window.innerWidth, 150);
+        statusBar.setBackgroundColor('#00ff00');
+
+        const playerInfoWindow = new CharacterInfoWindow(10, Math.ceil(window.innerWidth / 2) - 200 - 150, 200, 130, '', 0, 100, 0);
+        const monsterInfoWindow = new CharacterInfoWindow(10, Math.ceil(window.innerWidth / 2) + 150, 200, 130, '', 0, 100, 0);
+        statusBar.setPlayerInfoWindow(playerInfoWindow);
+        statusBar.setEnemyInfoWindow(monsterInfoWindow);
+        playerInfoWindow.setBackgroundColor('#f4f142');
+        monsterInfoWindow.setBackgroundColor('#f4f142');
+
+        this.ui.add(this.uiComponents);
+
+        const modalWindow = this.showNameEnter();
+
+        modalWindow.addButtonEventListener(events.MOUSE.MOUSE_DOWN, (e) => {
+            const name = e.target.getParentComponent().getInputUser();
+            this.uiComponents.removeComponent(modalWindow);
+            this.canvas.getHtml().style.cursor = 'auto';
+    
+            this.uiComponents.addComponent(statusBar, this.statusBarKey);
+    
+            this.mainLogic(name);
+        });
+
+        this.uiComponents.addComponent(modalWindow);
+
+        this.canvas.addUI(this.ui);
+    }   
+
+    initLoadingPath() {
         const loadManager = this.loadManager;
 
         loadManager.addUrl({
-            image: [`${PATH.IMAGE.UI}/bardata.jpg`]
+            image: [
+                `${PATH.IMAGE.UI}/bardata.jpg`,
+                `${PATH.IMAGE.UI}/textfield.jpg`,
+                `${PATH.IMAGE.UI}/leather.jpg`,
+                `${PATH.IMAGE.UI}/okbutton.jpg`,
+                `${PATH.IMAGE.UI}/microbutton.jpg`,
+            ]
         }, {
             image: this.uiImgsKey
         });
@@ -156,68 +227,8 @@ export default class Game {
             sound: this.magicSoundKey
         });
 
-        const totalSize = await loadManager.calculateTotalSize();
-
-        console.log(`total: ${totalSize}`);
-
-        await loadManager.load((loadedPercentage) => loadingProgressBar.setValue(loadedPercentage));
-
-        console.log('loaded');
-
-        this.canvas.removeScene(loadingScreen);
-
-        const background = loadManager.getImagesByName(this.backgroundImgsKey)[0];
-
-        const { width, height } = this.background.getBoundingClientRect();
-
-        this.background.setBackgroundImage(new ImageComponent(background, 0, 0, background.naturalWidth, background.naturalHeight, width, height, 0, 0,  background.naturalWidth, background.naturalHeight));
-
-        this.canvas.addScene(this.background);
-
-        this.setEventListenersToCanvas();
-
-        const heads = loadManager.getImagesByName(this.headImgsKey);
-        const bodies = loadManager.getImagesByName(this.bodyImgsKey);
-        const leftArms = loadManager.getImagesByName(this.leftArmImgsKey);
-        const rightArms = loadManager.getImagesByName(this.rightArmImgsKey);
-        const legs = loadManager.getImagesByName(this.legImgsKey);
-
-        this.taskFactory = new TaskFactory();
-        this.magicFactory = new MagicFactory();
-        this.monsterFactory = new MonsterFactory(heads, leftArms, rightArms, bodies, legs);
-
-        this.magicFactory.addMagicAssets(loadManager.getImagesByName(this.magicImgsKey).slice(0, 4), loadManager.getSoundByName(this.magicSoundKey)[0], 'magicArrow');
-        this.magicFactory.addMagicAssets(loadManager.getImagesByName(this.magicImgsKey).slice(4, 4 + 2), loadManager.getSoundByName(this.magicSoundKey)[1], 'implosion');
-
-        const statusBar = new StatusBar(window.innerHeight - 150, 0, window.innerWidth, 150);
-        statusBar.setBackgroundColor('#00ff00');
-
-        const playerInfoWindow = new CharacterInfoWindow(10, Math.ceil(window.innerWidth / 2) - 200 - 150, 200, 130, '', 0, 100, 0);
-        const monsterInfoWindow = new CharacterInfoWindow(10, Math.ceil(window.innerWidth / 2) + 150, 200, 130, '', 0, 100, 0);
-        statusBar.setPlayerInfoWindow(playerInfoWindow);
-        statusBar.setEnemyInfoWindow(monsterInfoWindow);
-        playerInfoWindow.setBackgroundColor('#f4f142');
-        monsterInfoWindow.setBackgroundColor('#f4f142');
-
-        this.ui.add(this.uiComponents);
-
-        const modalWindow = new TextInputModalWindow(0, 0, 600, 300, 'Введите свое имя:');
-        modalWindow.setBackgroundColor('#3c76a7');
-        modalWindow.alignCenter();
-        modalWindow.addButtonEventListener(events.MOUSE.MOUSE_DOWN, (e) => {
-            const name = e.target.getParentComponent().getInputUser();
-            this.uiComponents.removeComponent(modalWindow);
-            this.canvas.getHtml().style.cursor = 'auto';
-
-            this.uiComponents.addComponent(statusBar, this.statusBarKey);
-
-            this.mainLogic(name);
-        });
-
-        this.uiComponents.addComponent(modalWindow);
-
-        this.canvas.addUI(this.ui);
-    }   
+        return loadManager;
+    }
 
     async mainLogic(name) {
         const loadManager = this.loadManager;
@@ -273,7 +284,7 @@ export default class Game {
 
             uiComponents.removeComponent(magicSelecting);
 
-            const taskWindow = taskFactory.createTask(20, Math.ceil((window.innerWidth - 700) / 2), 700, window.innerHeight - 150 - 40);
+            const taskWindow = taskFactory.createTask(Math.ceil(window.innerHeight / 2) - 344 / 2 - 50, Math.ceil((window.innerWidth - 460) / 2), 460, 344);
             taskWindow.setBackgroundColor('#ffff00');
 
             uiComponents.addComponent(taskWindow);
@@ -333,7 +344,6 @@ export default class Game {
         recordTable.setOverflow('scroll');
     }
 
-
     async showLoadingScreen() {
         const progressBarBackground = new Image();
         progressBarBackground.src = `${PATH.IMAGE.UI}/bardata.jpg`;
@@ -363,6 +373,36 @@ export default class Game {
         };
 
         return loadingScreen;
+    }
+
+    showNameEnter() {
+        const textFieldImage = this.loadManager.getImagesByName(this.uiImgsKey)[1];
+        const { naturalWidth: textFieldWidth, naturalHeight: textFieldHeight } = textFieldImage;
+
+        const modalWindowImage = this.loadManager.getImagesByName(this.uiImgsKey)[2];
+        const { naturalWidth: modalWidth, naturalHeight: modalHeight } = modalWindowImage;
+
+        const okButtonImage = this.loadManager.getImagesByName(this.uiImgsKey)[3];
+        const { naturalWidth: okButtonWidth, naturalHeight: okButtonHeight } = okButtonImage;
+
+        const modalWindow = new TextInputModalWindow(0, 0, modalWidth, modalHeight, 'Введите свое имя:');
+        modalWindow.setBackgroundColor('#3c76a7');
+        modalWindow.alignCenter();
+        modalWindow.setBackgroundImage(new ImageComponent(modalWindowImage, 0, 0, modalWidth, modalHeight, modalWidth, modalHeight, 0, 0, modalWidth, modalHeight));
+
+        modalWindow.getInputUserComponent().setBoundingClientRect(undefined, undefined, textFieldWidth, textFieldHeight);
+        modalWindow.getInputUserComponent().setBackgroundImage(new ImageComponent(textFieldImage, 0, 0, textFieldWidth, textFieldHeight, textFieldWidth, textFieldHeight, 0, 0, textFieldWidth, textFieldHeight));
+
+        const oneGlyphWidth = Math.ceil(getTextWidthWithCanvas('x', 'monospace', '16px'));
+
+        modalWindow.getInputUserComponent().maxTextLength = Math.floor(textFieldWidth / oneGlyphWidth) + 1;
+        modalWindow.getDescriptionComponent().setBackgroundColor('rgba(0, 0, 0, 0)');
+        modalWindow.getDescriptionComponent().setTextColor('#ffffff');
+
+        modalWindow.getOkButtonComponent().setBoundingClientRect(modalHeight - 19 - okButtonHeight, modalWidth - 19 - okButtonWidth / 2, okButtonWidth / 2, okButtonHeight);
+        modalWindow.getOkButtonComponent().setBackgroundImage(new ImageComponent(okButtonImage, 0, 0, okButtonWidth, okButtonHeight, okButtonWidth, okButtonHeight, 0, 0, okButtonWidth / 2, okButtonHeight));
+
+        return modalWindow;
     }
 
     setPlayer(player) {

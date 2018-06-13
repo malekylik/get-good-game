@@ -3,14 +3,22 @@ import Button from '../../Component/Button';
 import dictionary from '../../../dictionary/dictionary';
 import events from '../../../event/events/events';
 import TaskModalWindow from './TaskModalWindow';
+import ImageComponent from '../../ImageComponent/ImageComponent';
 
 import { getTextWidthWithCanvas } from '../../../utils/textWidth';
 
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
 export default class ListeningTaskModalWindow  extends TaskModalWindow {
-    constructor(top = 0, left = 0, width = 0, height = 0, parentComponent = null) {
-        super(top, left, width, height, 'Произнесите слово:', parentComponent);
+    constructor(top = 0, left = 0, width = 0, height = 0, images = {}, parentComponent = null) {
+        super(top, left, width, height, 'Произнесите слово:', images, parentComponent);
+
+        const textFieldImage = images.textFieldImage;
+        const { naturalWidth: textFieldWidth, naturalHeight: textFieldHeight } = textFieldImage;
+
+
+        const microButtonImage = images.microButtonImage;
+        const { naturalWidth: microButtonWidth, naturalHeight: microButtonHeight } = microButtonImage;
 
         this.word = dictionary[Math.round(Math.random() * (dictionary.length - 1))].word;
 
@@ -26,16 +34,19 @@ export default class ListeningTaskModalWindow  extends TaskModalWindow {
         const halfHeight = Math.ceil(height / 2);
         const halfExpressionWidth = Math.ceil((getTextWidthWithCanvas(labelText, 'monospace', '16px') + 1) / 2);
 
-        const expression = new Label(halfHeight - 15 - 30 - 5, 5, halfExpressionWidth * 2, 30, labelText);
-        const answer = new Label(halfHeight - 15, 5, width - 10 - 30 - 10, 30, '');
-        const microButton = new Button(halfHeight - 15, width - 10 - 30, 30, 30, 'mic');
+        const expression = new Label(halfHeight - textFieldHeight - 8, 5, halfExpressionWidth * 2, textFieldHeight, labelText);
+        const answer = new Label(halfHeight - 15, 5,textFieldWidth, textFieldHeight, '');
+        const microButton = new Button(halfHeight - 15, width - 10 - 30, microButtonWidth / 2, microButtonHeight, '');
+        microButton.setBackgroundImage(new ImageComponent(microButtonImage, 0, 0, microButtonWidth, microButtonHeight, microButtonWidth, microButtonHeight, 0, 0, microButtonWidth / 2, microButtonHeight));
 
-        answer.setBackgroundColor('#bb0000');
+        answer.setBackgroundImage(new ImageComponent(textFieldImage, 0, 0, textFieldWidth, textFieldHeight, textFieldWidth, textFieldHeight, 0, 0, textFieldWidth, textFieldHeight));
+        answer.setTextColor('#FFFF00');
+        expression.setBackgroundColor('rgba(0, 0, 0, 0)');
+        expression.setTextColor('#ffffff');
 
         const oneGlyphWidth = Math.ceil(getTextWidthWithCanvas('x', 'monospace', '16px'));
 
         answer.maxTextLength = Math.floor((width - 10) / oneGlyphWidth);
-        expression.setBackgroundColor('#00bb00');
 
         microButton.setBackgroundColor('#aaaaaa');
 
@@ -46,6 +57,11 @@ export default class ListeningTaskModalWindow  extends TaskModalWindow {
         this.addComponent(expression, this.expressionKey);
         this.addComponent(answer, this.answerKey);
         this.addComponent(microButton, this.microButtonKey);
+        answer.alignCenter();
+        microButton.alignCenter();
+
+        expression.setBoundingClientRect(undefined, answer.getBoundingClientRect().left);
+        microButton.setBoundingClientRect(undefined, answer.getBoundingClientRect().right + 5);
 
         let isWorking = false;
 
@@ -53,9 +69,11 @@ export default class ListeningTaskModalWindow  extends TaskModalWindow {
             if (!isWorking) {
                 recognition.start();
                 isWorking = true;
+                microButton.getBackgroundImage().setFrame(0.6);
             } else {
                 recognition.stop();
                 isWorking = false;
+                microButton.getBackgroundImage().setFrame(0);
             }
         });
 
@@ -68,10 +86,12 @@ export default class ListeningTaskModalWindow  extends TaskModalWindow {
         recognition.onspeechend = () => {
             recognition.stop();
             isWorking = false;
+            microButton.getBackgroundImage().setFrame(0);
         };
 
         recognition.onerror = (event) => {
             console.log('Error occurred in recognition: ' + event.error);
+            microButton.getBackgroundImage().setFrame(0);
         };
     }
 

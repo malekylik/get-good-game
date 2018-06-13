@@ -179,19 +179,19 @@ export class Component {
             ({ top: prevTop, left: prevLeft, width: prevWidth, height: prevHeight } = prevBoundingBox);
         }
 
-        if (prevBoundingBox && typeof top !== "number") {
+        if (top === undefined && prevBoundingBox && typeof top !== "number") {
             top = prevTop;
         }
 
-        if (prevBoundingBox && typeof left !== "number") {
+        if (left === undefined && prevBoundingBox && typeof left !== "number") {
             left = prevLeft;
         }
 
-        if (prevBoundingBox && typeof width !== "number") {
+        if (width === undefined && prevBoundingBox && typeof width !== "number") {
             width = prevWidth;
         }
 
-        if (prevBoundingBox && typeof height !== "number") {
+        if (height === undefined && prevBoundingBox && typeof height !== "number") {
             height = prevHeight;
         }
 
@@ -314,6 +314,10 @@ export class Component {
 
     getParentComponent() {
         return this.parentComponent;
+    }
+
+    getBackgroundImage() {
+        return this.backgroundImage;
     }
 
     getOverflow() {

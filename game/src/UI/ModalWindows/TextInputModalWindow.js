@@ -17,7 +17,7 @@ export default class TextInputModalWindow extends CompositeComponent {
 
         const description = new Label(halfHeight - 10 - 20 - 3, halfWidth - halfUserInputWidth, halfDescriptionWidth * 2, 20, descriptionText);
         const userInput = new Label(halfHeight - 10, halfWidth - halfUserInputWidth, halfUserInputWidth * 2, 20, '');
-        const enterButton = new Button(halfHeight * 2 - 50 - 5, halfWidth * 2 - 100 - 5, 100, 50, 'OK');
+        const enterButton = new Button(halfHeight * 2 - 50 - 5, halfWidth * 2 - 100 - 5, 100, 50, '');
 
         userInput.editable = true;
         userInput.setBackgroundColor('#bb0000');
@@ -25,6 +25,9 @@ export default class TextInputModalWindow extends CompositeComponent {
         description.setBackgroundColor('#00bbbb');
 
         enterButton.setBackgroundColor('#aaaaaa');
+
+        userInput.setTextColor('#FFFF00');
+        userInput.cursor.setColor('#08B600');
 
         this.descriptionKey = 'description';
         this.userInputKey = 'userinput';
@@ -37,6 +40,18 @@ export default class TextInputModalWindow extends CompositeComponent {
 
     addButtonEventListener(name, event) {
         this.getChildComponent(this.buttonKey).addEventListener(name, event);
+    }
+
+    getOkButtonComponent() {
+        return this.getChildComponent(this.buttonKey);
+    }
+
+    getDescriptionComponent() {
+        return this.getChildComponent(this.descriptionKey);
+    }
+
+    getInputUserComponent() {
+        return this.getChildComponent(this.userInputKey);
     }
 
     getInputUser() {

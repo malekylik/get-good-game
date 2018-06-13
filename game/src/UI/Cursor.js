@@ -9,6 +9,8 @@ export default class Cursor {
 
         this.blinkTime = 500;
         this.elapsedTime = 0;
+
+        this.color = '#000000';
     }
 
     setPosition(top, left) {
@@ -16,10 +18,18 @@ export default class Cursor {
         this.metric.left = left;
     }
 
+    setColor(color = '#000000') {
+        this.color = color;
+    }
+
     draw(context, elapsedTime) {
         context.save();
 
         if (this.elapsedTime < this.blinkTime) {
+            if (context.strokeStyle !== this.color) {
+                context.strokeStyle = this.color;
+            }
+
             context.beginPath();
             context.moveTo(this.metric.left, this.metric.top);
             context.lineTo(this.metric.left, this.metric.top + this.metric.height);

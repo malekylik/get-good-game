@@ -1,5 +1,6 @@
 import Label from '../../Component/Label';
 import TaskModalWindow from './TaskModalWindow';
+import ImageComponent from '../../ImageComponent/ImageComponent';
 
 import { getTextWidthWithCanvas } from '../../../utils/textWidth';
 
@@ -25,11 +26,14 @@ const operations = [
 ];
 
 export default class SolveExpressionTaskWindow extends TaskModalWindow {
-    constructor(top = 0, left = 0, width = 0, height = 0, parentComponent = null) {
-        super(top, left, width, height, 'Решите данное выражение:', parentComponent);
+    constructor(top = 0, left = 0, width = 0, height = 0, images = {}, parentComponent = null) {
+        super(top, left, width, height, 'Решите данное выражение:', images, parentComponent);
 
         const operation = operations[Math.round(Math.random() * (operations.length - 1))];
         this.operation = operation;
+
+        const textFieldImage = images.textFieldImage;
+        const { naturalWidth: textFieldWidth, naturalHeight: textFieldHeight } = textFieldImage;
 
         let first = 1;
         let second = 1;
@@ -55,12 +59,17 @@ export default class SolveExpressionTaskWindow extends TaskModalWindow {
         const halfExpressionWithAnswer = halfAnswerWidth + halfExpressionWidth + 3;
 
         const expression = new Label(halfHeight - 15, halfWidth - halfExpressionWithAnswer, halfExpressionWidth * 2, 30, labelText);
-        const answer = new Label(halfHeight - 15, halfWidth - halfExpressionWithAnswer + halfExpressionWidth * 2 + 3, halfAnswerWidth * 2, 30, '');
+        const answer = new Label(halfHeight - 15, halfWidth - halfExpressionWithAnswer + halfExpressionWidth * 2 + 3, halfAnswerWidth * 2, textFieldHeight, '');
+
+        expression.setBackgroundColor('rgba(0, 0, 0, 0)');
+        expression.setTextColor('#ffffff');
 
         answer.editable = true;
-        answer.setBackgroundColor('#bb0000');
+        answer.setBackgroundColor('rgba(0, 0, 0, 0)');
+        answer.setBackgroundImage(new ImageComponent(textFieldImage, 0, 0, textFieldWidth, textFieldHeight, textFieldWidth, textFieldHeight, 0, 0, textFieldWidth, textFieldHeight));
         answer.maxTextLength = 4;
-        expression.setBackgroundColor('#00bb00');
+        answer.setTextColor('#FFFF00');
+        answer.cursor.setColor('#08B600');
 
         this.expressionKey = 'expression';
         this.answerKey = 'answer';

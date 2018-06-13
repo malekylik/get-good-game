@@ -9,8 +9,21 @@ const tasks = [
 ];
 
 export default class TaskFactory {
+    constructor(uiImages) {
+        this.uiImages = uiImages;
+    }
+
     createTask(top, left, width, height) {
+        const imageObj = {
+            textFieldImage: this.uiImages[1],
+            modalWindowImage: this.uiImages[2],
+            okButtonImage: this.uiImages[3],
+            microButtonImage: this.uiImages[4],
+        };
+
         const taskConstructor = tasks[Math.round(Math.random() * (tasks.length - 1))];
-        return new taskConstructor(top, left, width, height);
+        const task = new taskConstructor(top, left, width, height, imageObj);
+
+        return task;
     }
 }
