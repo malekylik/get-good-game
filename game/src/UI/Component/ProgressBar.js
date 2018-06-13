@@ -33,6 +33,14 @@ export default class ProgressBar extends CompositeComponent {
         label.alignCenter();
     }
 
+    getTextComponent() {
+        return this.getChildComponent(this.labelComponentKey);
+    }
+
+    getBarComponent() {
+        return this.getChildComponent(this.barComponentKey);
+    }
+
     setBarColor(color = '#aa0000') {
         this.getChildComponent(this.barComponentKey).setBackgroundColor(color);
     }

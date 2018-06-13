@@ -8,6 +8,7 @@ const PATH = {
         BACKGROUND_IMAGES: '/assets/images',
         MAIN_CHAR: '/assets/images',
         MAGIC: '/assets/images/magic',
+        UI: '/assets/images/ui'
     },
     SOUND: {
         MAGIC: '/assets/sound/magic'

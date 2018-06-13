@@ -23,6 +23,7 @@ import MagicArrow from '../Magic/MagicArrow';
 
 import { Component, CompositeComponent } from '../UI/Component/Component';
 import { getTextWidthWithCanvas } from '../utils/textWidth';
+import { createFilePromise } from '../utils/file';
 
 export default class Game {
     constructor() {
@@ -34,6 +35,7 @@ export default class Game {
         this.rightArmImgsKey = 'rightarms';
         this.legImgsKey = 'legs';
         this.magicImgsKey = 'magics';
+        this.uiImgsKey = 'ui';
 
         this.magicSoundKey = 'magics';
 
@@ -58,26 +60,23 @@ export default class Game {
     }
 
     async init() {
-        const loadingScreen = new CompositeComponent(0, 0, window.innerWidth, window.innerHeight);
-
-        loadingScreen.setBackgroundColor('#000000');
-
-        const loadingProgressBarWidth = 400;
-        const loadingProgressBarHeight = 100;
-
-        const loadingProgressBar = new ProgressBar(0, 0, loadingProgressBarWidth, loadingProgressBarHeight, 0, 100, 0);
-        loadingScreen.addComponent(loadingProgressBar);
-        loadingProgressBar.alignCenter();
-
-        this.canvas.addScene(loadingScreen);
+        const loadingScreen = await this.showLoadingScreen();
+        const loadingProgressBar = loadingScreen.getLoadingProgressBar();
 
         const loadManager = this.loadManager;
+
+        loadManager.addUrl({
+            image: [`${PATH.IMAGE.UI}/bardata.jpg`]
+        }, {
+            image: this.uiImgsKey
+        });
 
         loadManager.addUrl({
             image: [`${PATH.IMAGE.BACKGROUND_IMAGES}/dungeon.jpg`]
         }, {
             image: this.backgroundImgsKey
         });
+
         loadManager.addUrl({
             image: [`${PATH.IMAGE.MAIN_CHAR}/mainChar.png`]
         }, {
@@ -202,7 +201,7 @@ export default class Game {
 
         this.ui.add(this.uiComponents);
 
-        const modalWindow = new TextInputModalWindow(0, 0, 600, 300, 'Enter your name:');
+        const modalWindow = new TextInputModalWindow(0, 0, 600, 300, 'Введите свое имя:');
         modalWindow.setBackgroundColor('#3c76a7');
         modalWindow.alignCenter();
         modalWindow.addButtonEventListener(events.MOUSE.MOUSE_DOWN, (e) => {
@@ -332,6 +331,38 @@ export default class Game {
         });
 
         recordTable.setOverflow('scroll');
+    }
+
+
+    async showLoadingScreen() {
+        const progressBarBackground = new Image();
+        progressBarBackground.src = `${PATH.IMAGE.UI}/bardata.jpg`;
+        await createFilePromise(progressBarBackground);
+
+        const { naturalWidth: progressBarBackgroundWidth, naturalHeight: progressBarBackgroundHeight } = progressBarBackground;
+        const progressBarBackgroundComponent = new ImageComponent(progressBarBackground, 0, 0, progressBarBackgroundWidth, progressBarBackgroundHeight, progressBarBackgroundWidth, progressBarBackgroundHeight, 0, 0, progressBarBackgroundWidth, progressBarBackgroundHeight);
+
+        const loadingScreen = new CompositeComponent(0, 0, window.innerWidth, window.innerHeight);
+        const loadingProgressBarBackgroundComponent = new CompositeComponent(0, 0, progressBarBackgroundWidth, progressBarBackgroundHeight, loadingScreen);
+        loadingProgressBarBackgroundComponent.alignCenter();
+        loadingProgressBarBackgroundComponent.setBackgroundImage(progressBarBackgroundComponent);
+
+        loadingScreen.setBackgroundColor('#000000');
+
+        const loadingProgressBar = new ProgressBar(0, 0, 114, 16, 0, 100, 0);
+        loadingProgressBarBackgroundComponent.addComponent(loadingProgressBar);
+        loadingProgressBar.alignCenter();
+
+        loadingProgressBar.setBackgroundColor('rgba(0, 0, 0, 0)');
+        loadingProgressBar.getTextComponent().setTextColor('#ffffff');
+
+        this.canvas.addScene(loadingScreen);
+
+        loadingScreen.getLoadingProgressBar = () => {
+            return  loadingProgressBar;
+        };
+
+        return loadingScreen;
     }
 
     setPlayer(player) {

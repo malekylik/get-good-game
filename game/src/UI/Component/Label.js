@@ -220,7 +220,7 @@ export default class Label extends Component {
     }
 
     setTextColor(color = '#000000') {
-        this.color.textColor = color;
+        this.properties.color.textColor = color;
     }
 
     setFont(font) {
@@ -383,7 +383,7 @@ export default class Label extends Component {
             this.neededToRecalculate.needed = false;
         }
 
-        context.fillStyle = this.properties.color.textColor = '#000000';
+        context.fillStyle = this.properties.color.textColor;
         context.font = `${this.properties.textProperties.fontSize}px ${this.properties.textProperties.fontFamily}`;
 
         this.textLines.forEach(({ line }, i) => {        
