@@ -1,12 +1,47 @@
-import { CompositeComponent } from "./Component";
+import ImageComponent from "../ImageComponent/ImageComponent";
+
+import { Component, CompositeComponent } from "./Component";
 import { getTextWidthWithCanvas } from "../../utils/textWidth";
 
 export default class StatusBar extends CompositeComponent {
-    constructor(top = 0, left = 0, width = 0, height = 0, parentComponent = null) {
+    constructor(top = 0, left = 0, width = 0, height = 0, images = {}, parentComponent = null) {
         super(top, left, width, height, parentComponent);
 
         this.enemyInfoWindowKey = 'enemy';
         this.playerInfoWindowKey = 'player';
+
+        const back = images.back;
+        const leftImg = images.left;
+        const right = images.right;
+    
+        const { naturalWidth: backWidth, naturalHeight: backHeight } = back;
+        const { naturalWidth: leftWidth, naturalHeight: leftHeight } = leftImg;
+        const { naturalWidth: rightWidth, naturalHeight: rightHeight } = right;
+
+        const backImgComponent = new ImageComponent(back, 0, 0, backWidth, backHeight, backWidth, backHeight, 0, 0, backWidth, backHeight);
+        const leftImgComponent = new ImageComponent(leftImg, 0, 0, leftWidth, leftHeight, leftWidth, leftHeight, 0, 0, leftWidth, leftHeight);
+        const rightImgComponent = new ImageComponent(right, 0, 0, rightWidth, rightHeight, rightWidth, rightHeight, 0, 0, rightWidth, rightHeight);
+     
+        let totalWidth = 0;
+
+        while (totalWidth < width) {
+            const component = new Component(0, totalWidth, backWidth, backHeight);
+
+            component.setBackgroundImage(backImgComponent);
+            this.addComponent(component);
+
+            totalWidth += backWidth;
+        }
+
+        const leftComponent = new Component(0, 0, leftWidth, leftHeight);
+
+        leftComponent.setBackgroundImage(leftImgComponent);
+        this.addComponent(leftComponent);
+
+        const rightComponent = new Component(0, width - rightWidth, rightWidth, rightHeight);
+
+        rightComponent.setBackgroundImage(rightImgComponent);
+        this.addComponent(rightComponent);
     }
 
     getPlayerInfoWindow() {

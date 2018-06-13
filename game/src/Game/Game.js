@@ -98,7 +98,15 @@ export default class Game {
         this.magicFactory.addMagicAssets(loadManager.getImagesByName(this.magicImgsKey).slice(0, 4), loadManager.getSoundByName(this.magicSoundKey)[0], 'magicArrow');
         this.magicFactory.addMagicAssets(loadManager.getImagesByName(this.magicImgsKey).slice(4, 4 + 2), loadManager.getSoundByName(this.magicSoundKey)[1], 'implosion');
 
-        const statusBar = new StatusBar(window.innerHeight - 150, 0, window.innerWidth, 150);
+        const statusBarImg = loadManager.getImagesByName(this.uiImgsKey).slice(5, 5 + 3);
+
+        const statusBarImgObg = {
+            back: statusBarImg[0],
+            left: statusBarImg[1],
+            right: statusBarImg[2],
+        };
+
+        const statusBar = new StatusBar(window.innerHeight - 150, 0, window.innerWidth, 150, statusBarImgObg);
         statusBar.setBackgroundColor('#00ff00');
 
         const playerInfoWindow = new CharacterInfoWindow(10, Math.ceil(window.innerWidth / 2) - 200 - 150, 200, 130, '', 0, 100, 0);
@@ -137,6 +145,9 @@ export default class Game {
                 `${PATH.IMAGE.UI}/leather.jpg`,
                 `${PATH.IMAGE.UI}/okbutton.jpg`,
                 `${PATH.IMAGE.UI}/microbutton.jpg`,
+                `${PATH.IMAGE.UI}/status.jpg`,
+                `${PATH.IMAGE.UI}/statusleft.jpg`,
+                `${PATH.IMAGE.UI}/statusright.jpg`,
             ]
         }, {
             image: this.uiImgsKey
