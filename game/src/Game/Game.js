@@ -151,6 +151,7 @@ export default class Game {
                 `${PATH.IMAGE.UI}/statusleft.jpg`,
                 `${PATH.IMAGE.UI}/statusright.jpg`,
                 `${PATH.IMAGE.UI}/characterinfowindow.jpg`,
+                `${PATH.IMAGE.UI}/spellsel.jpg`,
             ]
         }, {
             image: this.uiImgsKey
@@ -251,6 +252,7 @@ export default class Game {
         const magicFactory = this.magicFactory;
         const uiComponents = this.uiComponents;
 
+        const spellSelImg = loadManager.getImagesByName(this.uiImgsKey)[9];
         const mainChar = loadManager.getImagesByName(this.mainCharImgsKey)[0];
 
         const mainCharGraphic = new PlayerGraphicComponent('1%', '11%', mainChar);
@@ -264,7 +266,7 @@ export default class Game {
         monster.addMagic(magicFactory.createMagicArrow(5, true));
         monster.addMagic(magicFactory.createImplosionArrow(5));
 
-        let monsterKillCount = 0;
+        let monsterKilledCount = 0;
 
         const player = new Character(name, 100, 100, mainCharGraphic);
 
@@ -281,12 +283,13 @@ export default class Game {
                 monster.addMagic(magicFactory.createMagicArrow(5, true));
                 monster.addMagic(magicFactory.createImplosionArrow(5));
 
-                monsterKillCount += 1;
+                monsterKilledCount += 1;
             }
 
-            const magicSelecting = new MagicSelectingModalWindow(Math.ceil(window.innerHeight / 2 - (10 + 100) / 2 - 150 / 2), Math.floor(window.innerWidth / 2 - (20 + 136 * 3) / 2), 20 + 136 * 3, 10 + 100, player.getMagic());
+            const magicSelecting = new MagicSelectingModalWindow(Math.ceil(window.innerHeight / 2 - (10 + 100) / 2 - 150 / 2), Math.floor(window.innerWidth / 2 - (20 + 136 * 3) / 2), 20 + 136 * 3, 10 + 100, player.getMagic(), { back: spellSelImg });
             magicSelecting.setBackgroundColor('#a0256b');
-    
+            magicSelecting.setOverflow('scroll');
+ 
             uiComponents.addComponent(magicSelecting);
 
             const magic = await magicSelecting.selectMagic();
@@ -319,7 +322,7 @@ export default class Game {
             }
         }
 
-        this.storageManager.saveResult(player.getName(), monsterKillCount);
+        this.storageManager.saveResult(player.getName(), monsterKilledCount);
 
         const records = this.storageManager.getSortedRecords();
 
