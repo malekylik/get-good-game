@@ -109,8 +109,10 @@ export default class Game {
         const statusBar = new StatusBar(window.innerHeight - 150, 0, window.innerWidth, 150, statusBarImgObg);
         statusBar.setBackgroundColor('#00ff00');
 
-        const playerInfoWindow = new CharacterInfoWindow(10, Math.ceil(window.innerWidth / 2) - 200 - 150, 200, 130, '', 0, 100, 0);
-        const monsterInfoWindow = new CharacterInfoWindow(10, Math.ceil(window.innerWidth / 2) + 150, 200, 130, '', 0, 100, 0);
+        const infoWindowImage = loadManager.getImagesByName(this.uiImgsKey)[8];
+
+        const playerInfoWindow = new CharacterInfoWindow(10, Math.ceil(window.innerWidth / 2) - 200 - 150, 200, 130, '', 0, 100, 0, { back: infoWindowImage });
+        const monsterInfoWindow = new CharacterInfoWindow(10, Math.ceil(window.innerWidth / 2) + 150, 200, 130, '', 0, 100, 0, { back: infoWindowImage });
         statusBar.setPlayerInfoWindow(playerInfoWindow);
         statusBar.setEnemyInfoWindow(monsterInfoWindow);
         playerInfoWindow.setBackgroundColor('#f4f142');
@@ -148,6 +150,7 @@ export default class Game {
                 `${PATH.IMAGE.UI}/status.jpg`,
                 `${PATH.IMAGE.UI}/statusleft.jpg`,
                 `${PATH.IMAGE.UI}/statusright.jpg`,
+                `${PATH.IMAGE.UI}/characterinfowindow.jpg`,
             ]
         }, {
             image: this.uiImgsKey
