@@ -9,6 +9,7 @@ import MagicSelectingModalWindow from '../UI/ModalWindows/MagicSelectingModalWin
 import ProgressBar from '../UI/Component/ProgressBar';
 import StatusBar from '../UI/Component/StatusBar';
 import CharacterInfoWindow from '../UI/Component/CharacterInfoWindow';
+import Button from '../UI/Component/Button';
 import Table from '../UI/Component/Table';
 import LoadManager from '../Managers/LoadManager';
 import StorageManager from '../Managers/StorageManager';
@@ -47,7 +48,7 @@ export default class Game {
         this.canvas = new Canvas();
         this.eventQueue = new EventQueue();
         this.ui = new UI();
-        this.uiComponents = new CompositeComponent(0, 0, window.innerWidth, window.innerHeight);
+        this.uiComponents;
 
         this.background = new Component(0, 0, '100%', '100%');
 
@@ -98,6 +99,14 @@ export default class Game {
         this.magicFactory.addMagicAssets(loadManager.getImagesByName(this.magicImgsKey).slice(0, 4), loadManager.getSoundByName(this.magicSoundKey)[0], 'magicArrow');
         this.magicFactory.addMagicAssets(loadManager.getImagesByName(this.magicImgsKey).slice(4, 4 + 2), loadManager.getSoundByName(this.magicSoundKey)[1], 'implosion');
 
+        this.setUpUI();
+    }   
+
+    setUpUI(name = '') {
+        const loadManager = this.loadManager;
+
+        this.uiComponents = new CompositeComponent(0, 0, window.innerWidth, window.innerHeight);
+
         const statusBarImg = loadManager.getImagesByName(this.uiImgsKey).slice(5, 5 + 3);
 
         const statusBarImgObg = {
@@ -120,7 +129,7 @@ export default class Game {
 
         this.ui.add(this.uiComponents);
 
-        const modalWindow = this.showNameEnter();
+        const modalWindow = this.showNameEnter(name);
 
         modalWindow.addButtonEventListener(events.MOUSE.MOUSE_DOWN, (e) => {
             const name = e.target.getParentComponent().getInputUser();
@@ -135,7 +144,7 @@ export default class Game {
         this.uiComponents.addComponent(modalWindow);
 
         this.canvas.addUI(this.ui);
-    }   
+    }
 
     initLoadingPath() {
         const loadManager = this.loadManager;
@@ -153,6 +162,7 @@ export default class Game {
                 `${PATH.IMAGE.UI}/characterinfowindow.jpg`,
                 `${PATH.IMAGE.UI}/spellsel.jpg`,
                 `${PATH.IMAGE.UI}/table.jpg`,
+                `${PATH.IMAGE.UI}/reloadbutton.jpg`,
             ]
         }, {
             image: this.uiImgsKey
@@ -264,8 +274,8 @@ export default class Game {
 
         let monster = monsterFactory.createMonster('1%', '11%');
         this.setEnemy(monster);
-        monster.addMagic(magicFactory.createMagicArrow(5, true));
-        monster.addMagic(magicFactory.createImplosionArrow(5));
+        monster.addMagic(magicFactory.createMagicArrow(50, true));
+        monster.addMagic(magicFactory.createImplosionArrow(50));
 
         let monsterKilledCount = 0;
 
@@ -357,7 +367,7 @@ export default class Game {
         return loadingScreen;
     }
 
-    showNameEnter() {
+    showNameEnter(name = '') {
         const textFieldImage = this.loadManager.getImagesByName(this.uiImgsKey)[1];
         const { naturalWidth: textFieldWidth, naturalHeight: textFieldHeight } = textFieldImage;
 
@@ -384,14 +394,20 @@ export default class Game {
         modalWindow.getOkButtonComponent().setBoundingClientRect(modalHeight - 19 - okButtonHeight, modalWidth - 19 - okButtonWidth / 2, okButtonWidth / 2, okButtonHeight);
         modalWindow.getOkButtonComponent().setBackgroundImage(new ImageComponent(okButtonImage, 0, 0, okButtonWidth, okButtonHeight, okButtonWidth, okButtonHeight, 0, 0, okButtonWidth / 2, okButtonHeight));
 
+        modalWindow.getInputUserComponent().setText(name);
+
         return modalWindow;
     }
 
     showResultTable(player, killedMonster) {
         const tableImg = this.loadManager.getImagesByName(this.uiImgsKey)[10];
+        const reloadButtonImg = this.loadManager.getImagesByName(this.uiImgsKey)[11];
 
         const { naturalWidth: tableWidth, naturalHeight: tableHeight } = tableImg;
         const tableImageComponent = new ImageComponent(tableImg, 0, 0, tableWidth, tableHeight, tableWidth, tableHeight, 0, 0, tableWidth, tableHeight);
+
+        const { naturalWidth: reloadButtonWidth, naturalHeight: reloadButtonHeight } = reloadButtonImg;
+        const reloadButtonImageComponent = new ImageComponent(reloadButtonImg, 0, 0, reloadButtonWidth, reloadButtonHeight, reloadButtonWidth, reloadButtonHeight, 0, 0, reloadButtonWidth, reloadButtonHeight);
 
         this.storageManager.saveResult(player.getName(), killedMonster);
 
@@ -438,6 +454,28 @@ export default class Game {
         });
 
         recordTable.setOverflow('scroll');
+
+        const { top: topTable, right: rightTable } = recordTable.getBoundingClientRect();
+
+        const restartButton = new Button(topTable, rightTable + 5, reloadButtonWidth, reloadButtonHeight, '');
+        restartButton.setBackgroundImage(reloadButtonImageComponent);
+
+        restartButton.addEventListener(events.MOUSE.MOUSE_DOWN, (e) => {
+            this.uiComponents.dropChildren();
+
+            const name = this.player.getName();
+
+            this.setPlayer(null);
+            this.setEnemy(null);
+
+            this.canvas.getHtml().style.cursor = 'auto';
+
+            this.setUpUI(name);
+        });
+        
+        this.uiComponents.addComponent(restartButton, 'restart');
+
+        return recordTable;
     }
 
     setPlayer(player) {
@@ -446,6 +484,10 @@ export default class Game {
         }
 
         this.player = player;
+
+        if (player === null) {
+            return;
+        }
 
         const statusBar = this.uiComponents.getChildComponent(this.statusBarKey);
         statusBar.setPlayerInfo(`${player.getName()}:`, player.getCurrentHP());
@@ -464,6 +506,10 @@ export default class Game {
     setEnemy(enemy) {
         if (this.enemy) {
             this.canvas.removeScene(this.enemy.getGraphicComponent());
+        }
+
+        if (enemy === null) {
+            return;
         }
 
         this.enemy = enemy;

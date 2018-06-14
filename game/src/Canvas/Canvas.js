@@ -6,11 +6,11 @@ export default class Canvas {
         this.context = this.htmlComponent.getContext('2d');
 
         if (width === undefined) {
-            width = window.innerWidth;
+            width = 1366;
         }
 
         if (height === undefined) {
-            height = window.innerHeight;
+            height = 635;
         }
 
         this.setSize(width, height);

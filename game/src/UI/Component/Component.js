@@ -431,6 +431,10 @@ export class CompositeComponent extends Component {
         return child ? child.component : null;  
     }
 
+    dropChildren() {
+        this.children = [];
+    }
+
     traverse(callback) {
         const stop = callback(this)
         if (stop) {

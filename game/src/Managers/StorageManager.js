@@ -22,11 +22,15 @@ export default class StorageManager {
 
         this.records.sort((l, r) => l.time - r.time);
 
-        for (let i = 0; i < this.records.length && i < 9; i++) {
+        for (let i = 0; i < this.records.length && i < 10; i++) {
             const { name, monsterKilled } = this.records[i];
 
             const record = `name=${name};monsterKilled=${monsterKilled};`;
             localStorage.setItem('malekylik-game=' + i, record);
+        }
+
+        if (this.records.length > 10) {
+            this.records = this.records.slice(0, 10);
         }
     }
 
