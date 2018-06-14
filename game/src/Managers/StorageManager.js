@@ -22,7 +22,7 @@ export default class StorageManager {
 
         this.records.sort((l, r) => l.time - r.time);
 
-        for (let i = 0; i < this.records.length && i < 10; i++) {
+        for (let i = 0; i < this.records.length && i < 9; i++) {
             const { name, monsterKilled } = this.records[i];
 
             const record = `name=${name};monsterKilled=${monsterKilled};`;
@@ -47,7 +47,7 @@ export default class StorageManager {
     }
 
     getSortedRecords() {
-        this.records.sort((l, r) => l.monsterKilled - r.monsterKilled);
+        this.records.sort((l, r) => r.monsterKilled - l.monsterKilled);
         return this.records;
     }
 }

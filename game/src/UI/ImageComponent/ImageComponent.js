@@ -27,6 +27,9 @@ export default class ImageComponent {
         this.offsetX = 0;
         this.offsetY = 0;
 
+        this.scrollXOffset = 0;
+        this.scrollYOffset = 0;
+
 
         this.sx = sx;
         this.sy = sy;
@@ -35,11 +38,21 @@ export default class ImageComponent {
     setSize(width, height) {
         this.width = width;
         this.height = height;
-        
-        // this.sWidth = width;
-        // this.sHeight = height;
 
         this.recalculateFrames();
+    }
+
+    setScrollXOffer(x) {
+        this.scrollXOffset = x;
+    }
+
+    setScrollYOffer(y) {
+        this.scrollYOffset = y;
+    }
+
+    setDXPosition(dx, dy) {
+        this.x = dx;
+        this.y = dy;
     }
 
     recalculateFrames() {
@@ -157,9 +170,9 @@ export default class ImageComponent {
 
 
         if (this.width !== undefined) {
-            context.drawImage(this.htmlComponent, this.offsetX, this.offsetY, this.sWidth, this.sHeight, left, top, this.width, this.height);
+            context.drawImage(this.htmlComponent, this.offsetX, this.offsetY, this.sWidth, this.sHeight, left + this.scrollXOffset, top + this.scrollYOffset, this.width, this.height);
         } else {
-            context.drawImage(this.htmlComponent, left, top);
+            context.drawImage(this.htmlComponent, left + this.scrollXOffset, top + this.scrollYOffset);
         }
     }
 }

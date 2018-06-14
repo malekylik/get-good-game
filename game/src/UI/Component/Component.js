@@ -462,9 +462,13 @@ export class CompositeComponent extends Component {
 
             const { top } = component.initialBoundingClientRect; 
             component.setBoundingClientRect(top + scrollYOffer);
-        })
 
-        this.calculateClippedSize();
+            const backgroundImage = this.getBackgroundImage();
+
+            if (backgroundImage) {
+                backgroundImage.setScrollYOffer(backgroundImage.y + scrollYOffer);
+            }
+        })
     }
 
     setScrollXOffer(scrollXOffer) {
@@ -477,9 +481,13 @@ export class CompositeComponent extends Component {
 
             const { left } = component.initialBoundingClientRect; 
             component.setBoundingClientRect(undefined, left + scrollXOffer);
-        })
 
-        this.calculateClippedSize();
+            const backgroundImage = this.getBackgroundImage();
+
+            if (backgroundImage) {
+                backgroundImage.setScrollXOffer(backgroundImage.x + scrollXOffer);
+            }
+        })
     }
 
     calculateTotalWidthComponent() {

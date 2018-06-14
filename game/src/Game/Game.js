@@ -152,6 +152,7 @@ export default class Game {
                 `${PATH.IMAGE.UI}/statusright.jpg`,
                 `${PATH.IMAGE.UI}/characterinfowindow.jpg`,
                 `${PATH.IMAGE.UI}/spellsel.jpg`,
+                `${PATH.IMAGE.UI}/table.jpg`,
             ]
         }, {
             image: this.uiImgsKey
@@ -280,8 +281,8 @@ export default class Game {
                 monster = monsterFactory.createMonster('1%', '11%');
                 this.setEnemy(monster);
 
-                monster.addMagic(magicFactory.createMagicArrow(5, true));
-                monster.addMagic(magicFactory.createImplosionArrow(5));
+                monster.addMagic(magicFactory.createMagicArrow(50, true));
+                monster.addMagic(magicFactory.createImplosionArrow(50));
 
                 monsterKilledCount += 1;
             }
@@ -322,43 +323,7 @@ export default class Game {
             }
         }
 
-        this.storageManager.saveResult(player.getName(), monsterKilledCount);
-
-        const records = this.storageManager.getSortedRecords();
-
-        const recordTable = new Table(0, 0, 600, 300, records.length + 1, 2, 300, 100);
-        this.uiComponents.addComponent(recordTable);
-        recordTable.alignCenter();
-
-        const firstColumnName = new Label(0, 0, Math.ceil(getTextWidthWithCanvas('Имя:', 'monospace', 16)), 16, 'Имя:');
-        const secondColumnName = new Label(0, 0, Math.ceil(getTextWidthWithCanvas('Убито монстров:', 'monospace', 16)), 16, 'Убито монстров:');
-               
-        recordTable.getTableComponent(0, 0).addComponent(firstColumnName);
-        firstColumnName.alignCenter();
-
-        recordTable.getTableComponent(0, 1).addComponent(secondColumnName);
-        secondColumnName.alignCenter();
-
-        recordTable.setBackgroundColor('#ffffff');
-
-        records.forEach((record, i) => {
-            const { name, monsterKilled } = record;
-
-            if (name === undefined) {
-                name = '';
-            }
-
-            const nameLabel = new Label(0, 0, Math.ceil(getTextWidthWithCanvas(name, 'monospace', 16)), 16, name);
-            const monsterKilledLabel = new Label(0, 0, Math.ceil(getTextWidthWithCanvas(monsterKilled, 'monospace', 16)), 16, String(monsterKilled));
-
-            recordTable.getTableComponent(1 + i, 0).addComponent(nameLabel);
-            nameLabel.alignCenter();
-
-            recordTable.getTableComponent(1 + i, 1).addComponent(monsterKilledLabel);
-            monsterKilledLabel.alignCenter();
-        });
-
-        recordTable.setOverflow('scroll');
+        this.showResultTable(player, monsterKilledCount);
     }
 
     async showLoadingScreen() {
@@ -420,6 +385,59 @@ export default class Game {
         modalWindow.getOkButtonComponent().setBackgroundImage(new ImageComponent(okButtonImage, 0, 0, okButtonWidth, okButtonHeight, okButtonWidth, okButtonHeight, 0, 0, okButtonWidth / 2, okButtonHeight));
 
         return modalWindow;
+    }
+
+    showResultTable(player, killedMonster) {
+        const tableImg = this.loadManager.getImagesByName(this.uiImgsKey)[10];
+
+        const { naturalWidth: tableWidth, naturalHeight: tableHeight } = tableImg;
+        const tableImageComponent = new ImageComponent(tableImg, 0, 0, tableWidth, tableHeight, tableWidth, tableHeight, 0, 0, tableWidth, tableHeight);
+
+        this.storageManager.saveResult(player.getName(), killedMonster);
+
+        const records = this.storageManager.getSortedRecords();
+
+        const recordTable = new Table(0, 0, tableWidth, 277 - 25, records.length + 1, 2, 131, 25);
+        this.uiComponents.addComponent(recordTable);
+        recordTable.alignCenter();
+        recordTable.setBackgroundImage(tableImageComponent);
+        recordTable.getBackgroundImage().setSize(tableWidth, tableHeight);
+
+        const firstColumnName = new Label(0, 0, Math.ceil(getTextWidthWithCanvas('Имя:', 'monospace', 16)), 16, 'Имя:');
+        const secondColumnName = new Label(0, 0, Math.ceil(getTextWidthWithCanvas('Убито монстров:', 'monospace', 16)), 16, 'Убито монстров:');
+               
+        firstColumnName.setTextColor('#ffffff');
+        secondColumnName.setTextColor('#ffffff');
+
+        secondColumnName.setFontSize(14);
+
+        recordTable.getTableComponent(0, 0).addComponent(firstColumnName);
+        firstColumnName.alignCenter();
+
+        recordTable.getTableComponent(0, 1).addComponent(secondColumnName);
+        secondColumnName.alignCenter();
+
+        records.forEach((record, i) => {
+            const { name, monsterKilled } = record;
+
+            if (name === undefined) {
+                name = '';
+            }
+
+            const nameLabel = new Label(0, 0, Math.ceil(getTextWidthWithCanvas(name, 'monospace', 16)), 16, name);
+            const monsterKilledLabel = new Label(0, 0, Math.ceil(getTextWidthWithCanvas(monsterKilled, 'monospace', 16)), 16, String(monsterKilled));
+
+            nameLabel.setTextColor('#ffffff');
+            monsterKilledLabel.setTextColor('#ffffff');
+
+            recordTable.getTableComponent(1 + i, 0).addComponent(nameLabel);
+            nameLabel.alignCenter();
+
+            recordTable.getTableComponent(1 + i, 1).addComponent(monsterKilledLabel);
+            monsterKilledLabel.alignCenter();
+        });
+
+        recordTable.setOverflow('scroll');
     }
 
     setPlayer(player) {

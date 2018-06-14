@@ -14,12 +14,9 @@ export default class Table extends CompositeComponent {
                 const cell = new CompositeComponent(totalRowsHeight, totalRowsWidth, cellWidth, cellHeight);
                 this.addComponent(cell, String(i * columnCount + j));
 
-                totalRowsWidth += cellWidth;
+                cell.setBackgroundColor('rgba(0, 0, 0, 0)');
 
-                const red = Math.round(Math.random() * 255).toString(16);
-                const green = Math.round(Math.random() * 255).toString(16);
-                const blue = Math.round(Math.random() * 255).toString(16);
-                cell.setBackgroundColor(`#${red}${green}${blue}`);
+                totalRowsWidth += cellWidth;
             }
 
             totalRowsHeight += cellHeight;

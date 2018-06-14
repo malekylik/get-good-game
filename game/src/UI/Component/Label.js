@@ -210,13 +210,17 @@ export default class Label extends Component {
         return string.slice(0, index) + key + string.slice(index);
     }
 
+    getText() {
+        return this.text;
+    }
+
     setText(text = '') {
         this.neededToRecalculate.needed = true;
         this.text = text;
     }
 
-    getText() {
-        return this.text;
+    setFontSize(fontSize = 16) {
+        this.properties.textProperties.fontSize = fontSize;
     }
 
     setTextColor(color = '#000000') {
