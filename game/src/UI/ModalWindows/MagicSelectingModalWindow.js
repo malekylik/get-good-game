@@ -1,7 +1,9 @@
 import events from '../../event/events/events';
 import ImageComponent from '../ImageComponent/ImageComponent';
+import Label from '../Component/Label';
 
 import { CompositeComponent } from '../Component/Component';
+import { getTextWidthWithCanvas } from '../../utils/textWidth';
 
 export default class MagicSelectingModalWindow extends CompositeComponent {
     constructor(top = 0, left = 0, width = 0, height = 0, magics = [], images = {}, parentComponent = null) {
@@ -20,9 +22,24 @@ export default class MagicSelectingModalWindow extends CompositeComponent {
             const graphicComponent = magic.getGraphicComponent();
             const { width, height } = graphicComponent.getBoundingClientRect();
 
-            graphicComponent.setBoundingClientRect(5, this.totalWidth + 5, width, height);
+            const magicName = magic.getName();
+            const magicNameWidth = Math.ceil(getTextWidthWithCanvas(magicName, 'monospace', '16px'));
 
-            this.addComponent(graphicComponent, magic.getName());
+            graphicComponent.setBoundingClientRect(0, 0, width, height);
+            const magicWithName = new CompositeComponent(5, this.totalWidth + 5, width, height + 3 + 16);
+            
+            const magicNameLabel = new Label(0, 0, magicNameWidth, 16, magicName);
+
+            magicNameLabel.properties.cursor = 'auto';
+
+            magicWithName.addComponent(graphicComponent, 'picture');
+            magicWithName.addComponent(magicNameLabel, 'name');
+            magicNameLabel.alignCenter();
+
+            magicNameLabel.setBoundingClientRect(height + 3);
+            magicNameLabel.setTextColor('#E8D478');
+
+            this.addComponent(magicWithName, magic.getName());
 
             this.totalWidth += 5 + width;
         });
@@ -49,7 +66,7 @@ export default class MagicSelectingModalWindow extends CompositeComponent {
     selectMagic() {
         return new Promise((resolve) => {
             this.addMagicSelectingEventListener(events.MOUSE.MOUSE_DOWN, (e) => {
-                resolve(e.target.getParentComponent().findMagicByGraphicComponent(e.target));
+                resolve(e.target.getParentComponent().getParentComponent().findMagicByGraphicComponent(e.target));
             });
         });
     }  

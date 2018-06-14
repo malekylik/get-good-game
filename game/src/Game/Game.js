@@ -297,7 +297,7 @@ export default class Game {
                 monsterKilledCount += 1;
             }
 
-            const magicSelecting = new MagicSelectingModalWindow(Math.ceil(window.innerHeight / 2 - (10 + 100) / 2 - 150 / 2), Math.floor(window.innerWidth / 2 - (20 + 136 * 3) / 2), 20 + 136 * 3, 10 + 100, player.getMagic(), { back: spellSelImg });
+            const magicSelecting = new MagicSelectingModalWindow(Math.ceil(window.innerHeight / 2 - (10 + 100) / 2 - 150 / 2), Math.floor(window.innerWidth / 2 - (20 + 136 * 3) / 2), 20 + 136 * 3, 10 + 100 + 3 + 16 + 3, player.getMagics(), { back: spellSelImg });
             magicSelecting.setBackgroundColor('#a0256b');
             magicSelecting.setOverflow('scroll');
  
@@ -326,7 +326,7 @@ export default class Game {
             }
 
             if (monster.isAlive()) {
-                const magics = monster.getMagic();
+                const magics = monster.getMagics();
                 const index = Math.round(Math.random() * (magics.length - 1));
 
                 await monster.attack(player, magics[index], this.canvas);

@@ -49,7 +49,7 @@ export default class MagicFactory {
 
         const graphicComponent = new MagicGraphicComponent(10, 10, 2, img);
         
-        return new MagicArrow('Magic arrow', damage, graphicComponent, [movingAnimation, animation], sound);
+        return new MagicArrow('Волшебная стрела', damage, graphicComponent, [movingAnimation, animation], sound);
     }
 
     createImplosionArrow(damage) {
@@ -71,6 +71,6 @@ export default class MagicFactory {
         animation.setBackgroundImage(magicBlowAnimation);
 
         const graphicComponent = new MagicGraphicComponent(10, 10, 2, img);
-        return new Implosion('Implosion', damage, graphicComponent, [animation], sound);
+        return new Implosion('Взрыв', damage, graphicComponent, [animation], sound);
     }
 } 

@@ -42,7 +42,7 @@ export default class Character {
         this.magics.push(magic);
     }
 
-    getMagic() {
+    getMagics() {
         return this.magics;
     }
 
