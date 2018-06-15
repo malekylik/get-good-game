@@ -274,8 +274,8 @@ export default class Game {
 
         let monster = monsterFactory.createMonster('1%', '11%');
         this.setEnemy(monster);
-        monster.addMagic(magicFactory.createMagicArrow(50, true));
-        monster.addMagic(magicFactory.createImplosionArrow(50));
+        monster.addMagic(magicFactory.createMagicArrow(5, true));
+        monster.addMagic(magicFactory.createImplosionArrow(5));
 
         let monsterKilledCount = 0;
 
@@ -291,8 +291,8 @@ export default class Game {
                 monster = monsterFactory.createMonster('1%', '11%');
                 this.setEnemy(monster);
 
-                monster.addMagic(magicFactory.createMagicArrow(50, true));
-                monster.addMagic(magicFactory.createImplosionArrow(50));
+                monster.addMagic(magicFactory.createMagicArrow(5, true));
+                monster.addMagic(magicFactory.createImplosionArrow(5));
 
                 monsterKilledCount += 1;
             }

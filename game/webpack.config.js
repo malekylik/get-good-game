@@ -1,9 +1,10 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
+const mode = process.env.NODE_ENV.trim() === 'production' ? 'production' : 'development';
 
 module.exports = {
-  mode: 'development',
+  mode: mode,
   entry: {
     main: './src/index.js',
   },
@@ -21,7 +22,7 @@ module.exports = {
       inject: false,
       hash: true,
       template: './src/index.html',
-      filename: 'index.html',
+      filename: 'get-good-game.html',
     }),
     new CleanWebpackPlugin(['dist'], {
       verbose: false,

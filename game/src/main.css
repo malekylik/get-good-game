@@ -1,36 +1,288 @@
+* {
+    box-sizing: border-box;
+}
+
 body {
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 10px;
+}
+
+h1, h2, h3 {
     margin: 0;
 }
 
-.check {
-    width: 300px;
-    height: 200px;
+ul {
+    margin: 0;
+    padding: 0;
+}
+
+p {
+    margin: 0;
+}
+
+body > * {
+    min-height: 720px;
+    margin: 0 auto;
+}
+
+.header {
+    background-color: #AA4CFD;
+    color: white;
+}
+
+.header > * {
+    user-select: none;
+}
+
+.header-wrapper {
+    width: 1280px;
+    min-height: 720px;
+    margin: 0 auto;
+    position: relative;
+    display: flex;
+}
+
+.nav {
+    display: flex;
+    height: 50px;
+    justify-content: space-around;
+    align-items: center;
+    position: fixed;
+    width: 100%;
+    top: 0;
+    left: 0;
+    z-index: 2;
+    font-size: 1.4rem;
+    background-color: #AA4CFD;
+}
+
+.nav > a {
+    color: white;
+    text-decoration: none;
+}
+
+.nav-links {
+    display: flex;
+    list-style: none;
+}
+
+.nav-link {
     cursor: pointer;
-    /* position: relative; */
-    background: #aaaaaa;
-    animation-name: color;
-    animation-duration: 2s;
-    animation-iteration-count: infinite;
-
-    padding: 20px;
-    /* overflow: hidden; */
+    padding: 5px 10px;
+    height: 100%;
+    display: flex;
+    align-items: center;
 }
 
-.check:hover {
-    left: 0px;
+.nav-link:hover {
+    background-color: black;
 }
 
-.check1 {
-    width: 500px;
-    height: 20px;
-    background: #aa0000;
+.play-button {
+    cursor: pointer;
+    padding: 5px 10px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    background-color: black;
 }
 
-@keyframes color {
-    from {
-        background: #aaaaaa;
-    }
-    to {
-        background: #0000ff;
-    }
+.play-button:hover {
+    color: #55B302;
+}
+
+.header-image {
+    max-height: 720px;
+    filter: grayscale(100%);
+}
+
+.header-image-wrapper {
+    position: relative;
+    display: inline-flex;
+    margin: auto;
+}
+
+.header-image-wrapper::after {
+    content: " ";
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background-color: rgba(134, 0, 252, .7);
+}
+
+.game-title-wrapper {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    display: flex;
+    flex-flow: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.game-title {
+    font-size: 3.6rem;
+    user-select: none;
+}
+
+.header-game-description {
+    font-size: 1.8rem;
+}  
+
+.main > section:nth-child(2n+2) {
+    background-color: #AA4CFD;
+}
+
+main > section {
+    min-height: 720px;
+}
+
+.screen {
+    width: 340px;
+    height: 200px;
+}
+
+.screen-section {
+    width: 1280px;
+    margin: 0 auto;
+    padding-top: 50px; 
+    padding-bottom: 50px; 
+    display: flex;
+    flex-flow: column;
+}
+
+.screen-section-description {
+    font-size: 2.4rem;
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.screen-gallery {
+    display: grid;
+    grid-template-columns: repeat(3, 340px);
+    grid-column-gap: 10px;
+    grid-row-gap: 5px;
+    justify-content: center;
+}
+
+.screen-gallery > a {
+    cursor: pointer;
+}
+
+.developer-section {
+    display: flex;
+
+}
+
+.developer-section-wrapper {
+    width: 1280px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: center;
+    padding-top: 150px;
+    flex-flow: column;
+    justify-content: space-around;
+}
+
+.developer-description-with-photo {
+    height: 420px;
+    display: flex;
+    margin-bottom: 20px;
+} 
+
+.developer-description {
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-left: 25px;
+    display: flex;
+    flex-flow: column;
+    justify-content: space-between;
+}
+
+.developer-description-name {
+    margin-top: 10px;
+}
+
+.developer-description-header > h2 {
+    font-size: 1.6rem;
+}
+
+.developer-description-main {
+    font-size: 1.2rem;
+}
+
+.developer-description-terrible-truth {
+    font-style: italic;
+    font-size: 0.6rem;
+}
+
+.contact-links {
+    list-style: none;
+    display: inline-flex;
+    margin: auto;
+}
+
+.contact-link {
+    font-size: 2rem;
+    margin-right: 10px;
+}
+
+.contact-link:last-child {
+    margin-right: 0;
+}
+
+.icon {
+    color: black;
+}
+
+.icon:hover {
+    color: white;
+}
+
+.footer {
+    background-color: black;
+    height: 50px;
+    min-height: initial;
+}
+
+.footer-wrapper {
+    width: 1280px;
+    height: 100%;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.footer-developer-name {
+    font-size: 1.0rem;
+    color: white;
+    font-weight: 400;
+    text-align: center;
+}
+
+.screen-full-wrapper {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    z-index: 5;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+}
+
+.screen-link {
+    max-width: 100%;
+    max-height: 70%;
+}
+
+.screen-full {
+    height: 100%;
 }
