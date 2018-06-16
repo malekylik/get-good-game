@@ -2,12 +2,14 @@ import SolveExpressionTaskWindow from '../UI/ModalWindows/TaskModalWindow/SolveE
 import TranslateTaskWindow from '../UI/ModalWindows/TaskModalWindow/TranslateTaskModalWindow';
 import ListeningTaskModalWindow from '../UI/ModalWindows/TaskModalWindow/ListeningTaskModalWindow';
 import ConvertFromDecToBinTaskModalWindow from '../UI/ModalWindows/TaskModalWindow/ConvertFromDecToBinTaskModalWindow';
+import SetPointAtChartTaskModalWindow from '../UI/ModalWindows/TaskModalWindow/SetPointAtChartTaskModalWindow';
 
 const tasks = [
-    SolveExpressionTaskWindow,
-    TranslateTaskWindow,
-    ListeningTaskModalWindow,
-    ConvertFromDecToBinTaskModalWindow
+    // SolveExpressionTaskWindow,
+    // TranslateTaskWindow,
+    // ListeningTaskModalWindow,
+    // ConvertFromDecToBinTaskModalWindow,
+    SetPointAtChartTaskModalWindow,
 ];
 
 export default class TaskFactory {

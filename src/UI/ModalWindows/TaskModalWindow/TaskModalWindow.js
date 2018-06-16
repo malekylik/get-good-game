@@ -46,6 +46,14 @@ export default class TaskModalWindow extends CompositeComponent {
         enterButton.setBackgroundImage(new ImageComponent(okButtonImage, 0, 0, okButtonWidth, okButtonHeight, okButtonWidth, okButtonHeight, 0, 0, okButtonWidth / 2, okButtonHeight));
     }
 
+    getOkButtonComponent() {
+        return this.getChildComponent(this.buttonKey);
+    }
+
+    getTaskDescriptionComponent() {
+        return this.getChildComponent(this.descriptionKey);
+    }
+
     addButtonEventListener(name, event) {
         this.getChildComponent(this.buttonKey).addEventListener(name, event);
     }

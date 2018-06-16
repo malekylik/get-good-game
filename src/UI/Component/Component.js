@@ -324,6 +324,26 @@ export class Component {
         return this.properties.overflow;
     }
 
+    getAbsoluteCoord() {
+        let { top, left } = this.getBoundingClientRect();
+
+        let parent = this.getParentComponent();
+
+        while (parent !== null) {
+            const { top: parentTop, left: parentLeft } = parent.getBoundingClientRect();
+
+            top += parentTop;
+            left += parentLeft;
+
+            parent = parent.getParentComponent();
+        }
+
+        return {
+            top,
+            left
+        };
+    }
+
     addComponent(component) {
 
     }
