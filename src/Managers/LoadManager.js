@@ -91,8 +91,6 @@ export default class LoadManager {
             this.currentLoadedSize = currentLoadedSize;
             const percent = Math.round(this.currentLoadedSize / this.totalSize * 100);
 
-            console.log(percent);
-
             if (onprogressCallback) {
                 onprogressCallback(percent);
             }

@@ -68,11 +68,7 @@ export default class Game {
 
         const totalSize = await loadManager.calculateTotalSize();
 
-        console.log(`total: ${totalSize}`);
-
         await loadManager.load((loadedPercentage) => loadingProgressBar.setValue(loadedPercentage));
-
-        console.log('loaded');
 
         this.canvas.removeScene(loadingScreen);
 

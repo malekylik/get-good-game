@@ -5,11 +5,11 @@ import ConvertFromDecToBinTaskModalWindow from '../UI/ModalWindows/TaskModalWind
 import SetPointAtChartTaskModalWindow from '../UI/ModalWindows/TaskModalWindow/SetPointAtChartTaskModalWindow';
 
 const tasks = [
-    // SolveExpressionTaskWindow,
-    // TranslateTaskWindow,
-    // ListeningTaskModalWindow,
-    // ConvertFromDecToBinTaskModalWindow,
+    SolveExpressionTaskWindow,
+    TranslateTaskWindow,
     SetPointAtChartTaskModalWindow,
+    ListeningTaskModalWindow,
+    ConvertFromDecToBinTaskModalWindow,
 ];
 
 export default class TaskFactory {

@@ -90,6 +90,17 @@ export default class Chart extends Component {
         }
     }
 
+    getPoint() {
+        if (this.point === null) {
+            return null;
+        }
+
+        return {
+            x: this.point.x,
+            y: this.point.y
+        };
+    }
+
     paintComponent(context, elapsedTime) {
         context.save();
         super.paintComponent(context, elapsedTime);

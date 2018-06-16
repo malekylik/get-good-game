@@ -12,10 +12,6 @@ export default class EventsHandler {
     handle(event) {
         const handlers = this[event.type];
 
-        // if (event.type !== events.MOUSE.MOUSE_MOVE && event.type !== events.KEYBOARD.KEY_PRESS) {
-        //     console.log(event);
-        // }
-
         if (handlers) {
             for (let handler of handlers) {
                 handler(event);
