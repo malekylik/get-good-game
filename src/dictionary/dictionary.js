@@ -269,7 +269,7 @@ const dictionary = [
     },
     {
         word: 'relax',
-        translate: ['расслабиться', 'отдыхать']
+        translate: ['расслабиться', 'отдыхать', 'расслабляться']
     },
     {
         word: 'rotten',

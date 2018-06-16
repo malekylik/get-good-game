@@ -15,7 +15,12 @@ module.exports = {
   },
   devtool: 'inline-source-map',
   devServer: {
-    contentBase: './dist'
+    contentBase: './dist',
+    historyApiFallback: {
+      rewrites: [
+        { from: '/', to: '/get-good-game.html' },
+      ]
+    }
   },
   plugins: [
     new HtmlWebpackPlugin({

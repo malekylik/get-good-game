@@ -12,7 +12,11 @@ export default class TaskModalWindow extends CompositeComponent {
 
         const halfWidth = Math.ceil(width / 2);
         const halfHeight = Math.ceil(height / 2);
-        const halfDescriptionWidth = Math.ceil((getTextWidthWithCanvas(description, 'monospace', '16px') + 1) / 2);
+        let halfDescriptionWidth = Math.ceil((getTextWidthWithCanvas(description, 'monospace', '16px') + 1) / 2);
+
+        if (halfDescriptionWidth > halfWidth - 20) {
+            halfDescriptionWidth = halfWidth - 20;
+        }
        
         const taskDescription = new Label(10, halfWidth - halfDescriptionWidth, halfDescriptionWidth * 2, 30, description);
         const enterButton = new Button(halfHeight * 2 - 50 - 5, halfWidth * 2 - 100 - 5, 100, 50, '');

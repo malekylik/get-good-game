@@ -41,8 +41,12 @@ export default class SolveExpressionTaskWindow extends TaskModalWindow {
         first = Math.round(Math.random() * 1000);
 
         if (operation.charPresentation === 'x') {
-            const limit = Math.ceil(10000 / first);
-            second = Math.floor(Math.random() * limit);
+            if (first === 0) {
+                second = Math.round(Math.random() * 1000);
+            } else {
+                const limit = Math.ceil(10000 / first);
+                second = Math.floor(Math.random() * limit); 
+            }
         } else {
             second = Math.round(Math.random() * 1000);
         }
