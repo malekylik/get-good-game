@@ -7,7 +7,7 @@ import { CompositeComponent } from '../../Component/Component';
 import { getTextWidthWithCanvas } from '../../../utils/textWidth';
 
 export default class TaskModalWindow extends CompositeComponent {
-    constructor(top = 0, left = 0, width = 0, height = 0, description = '' , images = {}, parentComponent = null) {
+    constructor(top = 0, left = 0, width = 0, height = 0, description = '' , additionalResources = {}, parentComponent = null) {
         super(top, left, width, height, parentComponent);
 
         const halfWidth = Math.ceil(width / 2);
@@ -34,10 +34,10 @@ export default class TaskModalWindow extends CompositeComponent {
         taskDescription.setBackgroundColor('rgba(0, 0, 0, 0)');
         taskDescription.setTextColor('#ffffff');
 
-        const modalWindowImage = images.modalWindowImage;
+        const modalWindowImage = additionalResources.images.modalWindowImage;
         const { naturalWidth: modalWidth, naturalHeight: modalHeight } = modalWindowImage;
 
-        const okButtonImage = images.okButtonImage;
+        const okButtonImage = additionalResources.images.okButtonImage;
         const { naturalWidth: okButtonWidth, naturalHeight: okButtonHeight } = okButtonImage;
 
         this.setBackgroundImage(new ImageComponent(modalWindowImage, 0, 0, modalWidth, modalHeight, modalWidth, modalHeight, 0, 0, modalWidth, modalHeight));

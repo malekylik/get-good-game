@@ -6,12 +6,12 @@ import ImageComponent from '../../ImageComponent/ImageComponent';
 import { getTextWidthWithCanvas } from '../../../utils/textWidth';
 
 export default class TranslateTaskWindow extends TaskModalWindow {
-    constructor(top = 0, left = 0, width = 0, height = 0, images = {}, parentComponent = null) {
-        super(top, left, width, height, 'Переведите слово:', images, parentComponent);
+    constructor(top = 0, left = 0, width = 0, height = 0, additionalResources = {}, parentComponent = null) {
+        super(top, left, width, height, 'Переведите слово:', additionalResources, parentComponent);
 
         this.wordObj = dictionary[Math.round(Math.random() * (dictionary.length - 1))];
 
-        const textFieldImage = images.textFieldImage;
+        const textFieldImage = additionalResources.images.textFieldImage;
         const { naturalWidth: textFieldWidth, naturalHeight: textFieldHeight } = textFieldImage;
 
         const labelText = `${this.wordObj.word}: `;

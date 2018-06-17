@@ -5,12 +5,12 @@ import ImageComponent from '../../ImageComponent/ImageComponent';
 import { getTextWidthWithCanvas } from '../../../utils/textWidth';
 
 export default class ConvertFromDecToBinTaskModalWindow  extends TaskModalWindow {
-    constructor(top = 0, left = 0, width = 0, height = 0, images = {}, parentComponent = null) {
-        super(top, left, width, height, 'Переведите число из десетичной в двоичную систему счисления:', images, parentComponent);
-        const textFieldImage = images.textFieldImage;
+    constructor(top = 0, left = 0, width = 0, height = 0, additionalResources = {}, parentComponent = null) {
+        super(top, left, width, height, 'Переведите число из десетичной в двоичную систему счисления:', additionalResources, parentComponent);
+        const textFieldImage = additionalResources.images.textFieldImage;
         const { naturalWidth: textFieldWidth, naturalHeight: textFieldHeight } = textFieldImage;
 
-        this.numberToConvert = Math.round(Math.random() * 100);
+        this.numberToConvert = Math.round(Math.random() * 32);
 
         const labelText = `Число для перевода ${this.numberToConvert}:`;
 

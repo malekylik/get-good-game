@@ -26,29 +26,29 @@ const operations = [
 ];
 
 export default class SolveExpressionTaskWindow extends TaskModalWindow {
-    constructor(top = 0, left = 0, width = 0, height = 0, images = {}, parentComponent = null) {
-        super(top, left, width, height, 'Решите данное выражение:', images, parentComponent);
+    constructor(top = 0, left = 0, width = 0, height = 0, additionalResources = {}, parentComponent = null) {
+        super(top, left, width, height, 'Решите данное выражение:', additionalResources, parentComponent);
 
         const operation = operations[Math.round(Math.random() * (operations.length - 1))];
         this.operation = operation;
 
-        const textFieldImage = images.textFieldImage;
+        const textFieldImage = additionalResources.images.textFieldImage;
         const { naturalWidth: textFieldWidth, naturalHeight: textFieldHeight } = textFieldImage;
 
         let first = 1;
         let second = 1;
 
-        first = Math.round(Math.random() * 1000);
+        first = Math.round(Math.random() * 50);
 
         if (operation.charPresentation === 'x') {
             if (first === 0) {
-                second = Math.round(Math.random() * 1000);
+                second = Math.round(Math.random() * 50);
             } else {
-                const limit = Math.ceil(10000 / first);
+                const limit = Math.ceil(100 / first);
                 second = Math.floor(Math.random() * limit); 
             }
         } else {
-            second = Math.round(Math.random() * 1000);
+            second = Math.round(Math.random() * 50);
         }
 
         this.first = first;

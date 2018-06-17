@@ -19,6 +19,7 @@ import TaskFactory from '../Factories/TaskFactory';
 import MagicFactory from '../Factories/MagicFactory';
 import PlayerGraphicComponent from '../GraphicComponent/PlayerGrapchicComponent';
 import Character from '../Character/Character';
+import nameTaskMap from '../dictionary/nameTaskMap';
 
 import { Component, CompositeComponent } from '../UI/Component/Component';
 import { getTextWidthWithCanvas } from '../utils/textWidth';
@@ -35,6 +36,7 @@ export default class Game {
         this.legImgsKey = 'legs';
         this.magicImgsKey = 'magics';
         this.uiImgsKey = 'ui';
+        this.taskImgsKey = 'task';
 
         this.magicSoundKey = 'magics';
 
@@ -88,7 +90,7 @@ export default class Game {
         const rightArms = loadManager.getImagesByName(this.rightArmImgsKey);
         const legs = loadManager.getImagesByName(this.legImgsKey);
 
-        this.taskFactory = new TaskFactory(this.loadManager.getImagesByName(this.uiImgsKey));
+        this.taskFactory = new TaskFactory(this.loadManager.getImagesByName(this.uiImgsKey), this.loadManager.getImagesByName(this.taskImgsKey));
         this.magicFactory = new MagicFactory();
         this.monsterFactory = new MonsterFactory(heads, leftArms, rightArms, bodies, legs);
 
@@ -247,6 +249,12 @@ export default class Game {
         }, {
             image: this.magicImgsKey,
             sound: this.magicSoundKey
+        });
+
+        loadManager.addUrl({
+            image: nameTaskMap.map(({ image }) => image),
+        }, {
+            image: this.taskImgsKey,
         });
 
         return loadManager;

@@ -2,13 +2,13 @@ import Chart from '../../Component/Chart';
 import TaskModalWindow from './TaskModalWindow';
 
 export default class SetPointAtChartTaskModalWindow  extends TaskModalWindow {
-    constructor(top = 0, left = 0, width = 0, height = 0, images = {}, parentComponent = null) {
+    constructor(top = 0, left = 0, width = 0, height = 0, additionalResources = {}, parentComponent = null) {
         const point = {
             x: Math.round(Math.random() * 10),
             y: Math.round(Math.random() * 10)
         };
 
-        super(top, left, width, height, `Поставте точку с координатами (${point.x}:${point.y}):`, images, parentComponent);
+        super(top, left, width, height, `Поставте точку с координатами (${point.x}:${point.y}):`, additionalResources, parentComponent);
 
         const taskDescriptionBoundingBox = super.getTaskDescriptionComponent().getBoundingClientRect();
         const okButtonBoundingBox = super.getOkButtonComponent().getBoundingClientRect();

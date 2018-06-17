@@ -8,11 +8,14 @@ const PATH = {
         BACKGROUND_IMAGES: './assets/images',
         MAIN_CHAR: './assets/images',
         MAGIC: './assets/images/magic',
-        UI: './assets/images/ui'
+        UI: './assets/images/ui',
+        TASK: {
+            NAME: './assets/images/task/name'
+        },
     },
     SOUND: {
         MAGIC: './assets/sound/magic'
-    }
+    },
 }; 
 
 export default PATH;

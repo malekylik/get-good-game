@@ -10,14 +10,14 @@ import { getTextWidthWithCanvas } from '../../../utils/textWidth';
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
 export default class ListeningTaskModalWindow  extends TaskModalWindow {
-    constructor(top = 0, left = 0, width = 0, height = 0, images = {}, parentComponent = null) {
-        super(top, left, width, height, 'Произнесите слово:', images, parentComponent);
+    constructor(top = 0, left = 0, width = 0, height = 0, additionalResources = {}, parentComponent = null) {
+        super(top, left, width, height, 'Произнесите слово:', additionalResources, parentComponent);
 
-        const textFieldImage = images.textFieldImage;
+        const textFieldImage = additionalResources.images.textFieldImage;
         const { naturalWidth: textFieldWidth, naturalHeight: textFieldHeight } = textFieldImage;
 
 
-        const microButtonImage = images.microButtonImage;
+        const microButtonImage = additionalResources.images.microButtonImage;
         const { naturalWidth: microButtonWidth, naturalHeight: microButtonHeight } = microButtonImage;
 
         this.word = dictionary[Math.round(Math.random() * (dictionary.length - 1))].word;
@@ -41,6 +41,7 @@ export default class ListeningTaskModalWindow  extends TaskModalWindow {
 
         answer.setBackgroundImage(new ImageComponent(textFieldImage, 0, 0, textFieldWidth, textFieldHeight, textFieldWidth, textFieldHeight, 0, 0, textFieldWidth, textFieldHeight));
         answer.setTextColor('#FFFF00');
+        answer.properties.cursor = 'auto';
         expression.setBackgroundColor('rgba(0, 0, 0, 0)');
         expression.setTextColor('#ffffff');
 
