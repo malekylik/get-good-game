@@ -8,6 +8,7 @@ import NameTaskModalWindow from '../UI/ModalWindows/TaskModalWindow/NameTaskModa
 import CompareTwoNumbersTaskModalWindow from '../UI/ModalWindows/TaskModalWindow/CompareTwoNumbersTaskModalWindow';
 import ContinueNumberSequenceTaskModalWindow from '../UI/ModalWindows/TaskModalWindow/ContinueNumberSequenceTaskModalWindow';
 import NumberCompositionTaskModalWindow from '../UI/ModalWindows/TaskModalWindow/NumberCompositionTaskModalWindow';
+import ChoseRightOperationTaskModalWindow from '../UI/ModalWindows/TaskModalWindow/ChoseRightOperationTaskModalWindow';
 
 const tasks = [
     TranslateTaskWindow,
@@ -18,6 +19,7 @@ const tasks = [
     NumberCompositionTaskModalWindow,
     CompareTwoNumbersTaskModalWindow,
     ContinueNumberSequenceTaskModalWindow,
+    ChoseRightOperationTaskModalWindow,
     ListeningTaskModalWindow,
 ];
 
