@@ -6,6 +6,7 @@ import ConvertFromDecToBinTaskModalWindow from '../UI/ModalWindows/TaskModalWind
 import SetPointAtChartTaskModalWindow from '../UI/ModalWindows/TaskModalWindow/SetPointAtChartTaskModalWindow';
 import NameTaskModalWindow from '../UI/ModalWindows/TaskModalWindow/NameTaskModalWindow';
 import CompareTwoNumbersTaskModalWindow from '../UI/ModalWindows/TaskModalWindow/CompareTwoNumbersTaskModalWindow';
+import ContinueNumberSequenceTaskModalWindow from '../UI/ModalWindows/TaskModalWindow/ContinueNumberSequenceTaskModalWindow';
 
 const tasks = [
     TranslateTaskWindow,
@@ -14,6 +15,7 @@ const tasks = [
     ConvertFromDecToBinTaskModalWindow,
     NameTaskModalWindow,
     CompareTwoNumbersTaskModalWindow,
+    ContinueNumberSequenceTaskModalWindow,
     ListeningTaskModalWindow,
 ];
 
