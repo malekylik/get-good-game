@@ -8,7 +8,7 @@ import { Component } from '../../Component/Component';
 export default class NameTaskModalWindow  extends TaskModalWindow {
     constructor(top = 0, left = 0, width = 0, height = 0, additionalResources = {}, parentComponent = null) {
 
-        super(top, left, width, height, `Назовите то, что Вы видите на картинке одним словом на английском:`, additionalResources, parentComponent);
+        super(top, left, width, height, `Назови то, что нарисовано на картинке одним словом на английском:`, additionalResources, parentComponent);
 
         const textFieldImage = additionalResources.images.textFieldImage;
         const { naturalWidth: textFieldWidth, naturalHeight: textFieldHeight } = textFieldImage;
