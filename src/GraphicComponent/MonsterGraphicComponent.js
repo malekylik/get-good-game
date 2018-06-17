@@ -35,5 +35,24 @@ export default class MonsterGraphicComponent extends CompositeComponent {
         this.addComponent(legComponent, 'leg');
         this.addComponent(leftArmComponent, 'leftarm');
         this.addComponent(rightArmComponent, 'rightarm');
+
+        const time = 2;
+        const downSpeed = -30  / (time * 1000 * 0.25); 
+        const upSpeed = 60  / (time * 1000 * 0.5); 
+        const toInitialSpeed = -30  / (time * 1000 * 0.25); 
+
+        headComponent.animations.setAnimation('headMoving', time, 'infinite', (context, initialProperties, properties, elapseTime, component) => {
+            let speed;
+
+            if (elapseTime <= 0.25) {
+                speed = downSpeed;
+            } else if (elapseTime > 0.25 && elapseTime <= 0.75) {
+                speed = upSpeed;
+            } else if (elapseTime > 0.75) {
+                speed = toInitialSpeed;
+            }
+
+            properties.boundingClientRect.top += speed;
+        });
     }
 }

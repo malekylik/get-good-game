@@ -38,7 +38,6 @@ export default class Animatable {
 
             if (a.elapseTime > a.time) {
                 a.elapseTime = 0;
-                a.animationTimePast += 1;
 
                 this.animatedProperties = {};
                 if (component.hovered) {
@@ -47,17 +46,21 @@ export default class Animatable {
                     merge(this.animatedProperties, component.properties);
                 }
 
-                if (a.animationTimePast >= a.timeCount) {
-                    delete this.animations[keys[i]];
+                if (a.timeCount !== 'infinite') {
+                    a.animationTimePast += 1;
 
-                    component.handlers.handle({
-                        target: component,
-                        type: events.ANIMATION.ANIMATION_END,
-                        subtype: 'ANIMATION',
-                        payload: {
-                            animationName: keys[i]
-                        }
-                    });
+                    if (a.animationTimePast >= a.timeCount) {
+                        delete this.animations[keys[i]];
+    
+                        component.handlers.handle({
+                            target: component,
+                            type: events.ANIMATION.ANIMATION_END,
+                            subtype: 'ANIMATION',
+                            payload: {
+                                animationName: keys[i]
+                            }
+                        });
+                    }
                 }
             } 
         }
