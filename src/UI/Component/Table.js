@@ -1,3 +1,5 @@
+import events from '../../event/events/events';
+
 import { CompositeComponent } from './Component';
 
 export default class Table extends CompositeComponent {
@@ -6,6 +8,8 @@ export default class Table extends CompositeComponent {
 
         this.columnCount = columnCount;
         this.rowCount = rowCount;
+
+        this.arrowKeyHandler = this.arrowKeyHandler.bind(this);
 
         let totalRowsHeight = 0;
         for (let i = 0; i < rowCount; i++) {
@@ -20,6 +24,33 @@ export default class Table extends CompositeComponent {
             }
 
             totalRowsHeight += cellHeight;
+        }
+
+        this.addEventListener(events.KEYBOARD.KEY_DOWN, this.arrowKeyHandler);
+    }
+
+    arrowKeyHandler(e) {
+        const scrollX = this.scrollX;
+        const scrollY = this.scrollY;
+        const key = e.payload.key;
+
+        if (scrollX) {
+            if (key === 'ArrowLeft') {
+                scrollX.prevButtonHandler(e);
+            } 
+
+            if (key === 'ArrowRight') {
+                scrollX.nextButtonHandler(e);
+            } 
+        }
+
+        if (scrollY) {
+            if (key === 'ArrowUp') {
+                scrollY.prevButtonHandler(e);
+            }
+            if (key === 'ArrowDown') {
+                scrollY.nextButtonHandler(e);
+            }
         }
     }
 

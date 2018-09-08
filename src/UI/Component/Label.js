@@ -48,6 +48,67 @@ export default class Label extends Component {
         this.cursor = new Cursor(0, 0, 1, this.properties.textProperties.fontSize);
     }
 
+    checkCollisionWithGlyphs(topOffset, leftOffset, mouseCoord) {
+        let isInside = false;
+
+        for (let i = 0; i < this.glyphPosition.length; i++) {
+            const line = this.glyphPosition[i];
+            for (let j = 0; j < line.length; j++) {
+                const { top, left, width, height } = line[j];
+
+                isInside = this.collision.isInside({
+                        top: top + topOffset,
+                        left: left + leftOffset,
+                        width,
+                        height
+                    },
+                    mouseCoord
+                );
+
+                if (isInside) {
+                    return {
+                        top,
+                        left,
+                        row: i,
+                        column: j,
+                        index: this.textLines[i].startOfLine + j
+                    };
+                }
+            }
+        }
+
+        return null;
+    }
+
+    checkCollisionWithLines(topOffset, leftOffset, mouseCoord) {
+        let isInside = false;
+
+        for (let i = 0; i < this.linesMetric.length; i++) { 
+            const { top, left, width, height } = this.linesMetric[i];
+
+            isInside = this.collision.isInside({
+                    top: top + topOffset,
+                    left: left + leftOffset,
+                    width: this.getBoundingClientRect().width,
+                    height
+                },
+                mouseCoord
+            );
+
+            if (isInside) {
+                return {
+                    top,
+                    width,
+                    row: i,
+                    column: this.glyphPosition[i].length,
+                    index: this.textLines[i].startOfLine + this.glyphPosition[i].length
+                };
+            }
+        }
+
+        return null;
+    }
+
     handleMouseDown(e) {
         if (e.target.editable) {
             const target = e.target;
@@ -63,24 +124,6 @@ export default class Label extends Component {
 
                 return;
             }
-            
-            let isInside = false;
-            let line = '';
-
-            const { top, left } = target.getBoundingClientRect();
-
-            let topOffset = top;
-            let leftOffset = left;
-
-            let parent = target.getParentComponent();
-
-            while (parent) {
-                const { top, left } = parent.getBoundingClientRect();
-                topOffset += top;
-                leftOffset += left;
-
-                parent = parent.getParentComponent();
-            }
 
             const mouseCoord = {
                 top: e.payload.mouseCoord.top,
@@ -89,66 +132,43 @@ export default class Label extends Component {
                 height: 1
             };
 
-            for (let i = 0; i < target.glyphPosition.length && !isInside; i++) {
-                const line = target.glyphPosition[i];
-                for (let j = 0; j < line.length && !isInside; j++) {
-                    const { top, left, width, height } = line[j];
+            const { top: topOffset, left: leftOffset } = target.getAbsoluteCoord();
+            const glyphInfo = target.checkCollisionWithGlyphs(topOffset, leftOffset, mouseCoord);
 
-                isInside = target.collision.isInside({
-                        top: top + topOffset,
-                        left: left + leftOffset,
-                        width,
-                        height
-                    },
-                    mouseCoord
-                );
-
-                if (isInside) {
-                        target.cursor.setPosition(top, left);
-                        target.cursorPosition = {
-                            row: i,
-                            column: j,
-                            index: target.textLines[i].startOfLine + j
-                        };
-                    }
-                }
-            }
-
-            if (!isInside) {
-                for (let i = 0; i < target.linesMetric.length && !isInside; i++) { 
-                    const { top, left, width, height } = target.linesMetric[i];
-
-                isInside = target.collision.isInside({
-                        top: top + topOffset,
-                        left: left + leftOffset,
-                        width: target.getBoundingClientRect().width,
-                        height
-                    },
-                    mouseCoord
-                );
-
-                if (isInside) {
-                    target.cursor.setPosition(top, width);
-
-                    target.cursorPosition = {
-                        row: i,
-                        column: target.glyphPosition[i].length,
-                        index: target.textLines[i].startOfLine + target.glyphPosition[i].length
-                    };
-                }
-                }
-            }
-
-            if (!isInside) {
-                const { top, width } = target.linesMetric[target.linesMetric.length - 1];
-                target.cursor.setPosition(top, width);
-
+            if (glyphInfo !== null) {
+                const { top, left, row, column, index } = glyphInfo;
+                target.cursor.setPosition(top, left);
                 target.cursorPosition = {
-                    row: target.linesMetric.length - 1,
-                    column: target.glyphPosition[target.glyphPosition.length - 1].length,
-                    index: target.textLines[target.glyphPosition.length - 1].startOfLine + target.glyphPosition[target.glyphPosition.length - 1].length
+                    row,
+                    column,
+                    index
                 };
+
+                return;
             }
+
+            const lineInfo = target.checkCollisionWithLines(topOffset, leftOffset, mouseCoord);
+
+            if (lineInfo !== null) {
+                const { top, width, row, column, index } = lineInfo;
+                target.cursor.setPosition(top, width);
+                target.cursorPosition = {
+                    row,
+                    column,
+                    index
+                };
+
+                return;
+            }
+
+            const { top, width } = target.linesMetric[target.linesMetric.length - 1];
+            target.cursor.setPosition(top, width);
+
+            target.cursorPosition = {
+                row: target.linesMetric.length - 1,
+                column: target.glyphPosition[target.glyphPosition.length - 1].length,
+                index: target.textLines[target.glyphPosition.length - 1].startOfLine + target.glyphPosition[target.glyphPosition.length - 1].length
+            };
         }
     }
 
@@ -186,10 +206,42 @@ export default class Label extends Component {
 
                 target.text = target.deleteGlyph(index - 1, target.text);
                 index -= 1;
+            } else if (key === ' ') {
+                target.handleKeyPress(e);
+                return;
+            } else if (key === 'ArrowRight') {
+                if (index >= target.text.length) return;
+
+                index += 1;
+            } else if (key === 'ArrowLeft') {
+                if (index === 0) return;
+
+                index -= 1;
+            } else if (key === 'ArrowUp') {
+                if (index === 0) return;
+
+                const prevLineLength = (target.textLines[target.cursorPosition.row - 1] && target.textLines[target.cursorPosition.row - 1].line.length) || -1;
+                const currentLineLength = target.textLines[target.cursorPosition.row].line.length;
+
+                index -= Math.max(prevLineLength, currentLineLength);
+
+                if (index < 0) {
+                    index = 0;
+                }
+            } else if (key === 'ArrowDown') {
+                if (index >= target.text.length) return;
+
+                const currentLineLength = target.textLines[target.cursorPosition.row].line.length;
+                const nextLineLength = (target.textLines[target.cursorPosition.row + 1] && target.textLines[target.cursorPosition.row + 1].line.length) || -1;
+
+                index += Math.max(currentLineLength, nextLineLength);
+
+                if (index >= target.text.length) {
+                    index = target.text.length;
+                }
             }
 
             target.cursorPosition.index = index;
-
             target.neededToRecalculate.needed = true;
         }
     }
@@ -264,7 +316,7 @@ export default class Label extends Component {
         let glyphWidth = 0;
         let startOfLine = 0;
         let line = '';
-        glyphs.forEach((glyph, i) => {
+        glyphs.forEach((glyph) => {
             glyphWidth = context.measureText(glyph).width;
 
             if (lineWidth + glyphWidth < width) {
@@ -337,11 +389,17 @@ export default class Label extends Component {
         });
     }
 
+    setCursorToEnd() {
+        this.cursorPosition.index = this.text.length;
+
+        this.neededToRecalculate.needed = true;
+    }
+
     convertIndexTo2DPosition(index) {
         let row = 0;
         let column = 0;
         for (let i = 0; i < this.textLines.length; i++) {
-            if (this.textLines[i].startOfLine < index) {
+            if (this.textLines[i].startOfLine <= index) {
                 row = i;
             } else {
                 break;

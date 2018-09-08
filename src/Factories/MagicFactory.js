@@ -22,12 +22,15 @@ export default class MagicFactory {
             return null;
         }
 
-        const images = this.assets.magicArrow.images;
-        const sound = this.assets.magicArrow.sound;
+        const top = 10;
+        const left = 10;
+        const scale = 2;
 
-        const img = images[0];
-        let movingAnimationImg = images[1];
+        const images = this.assets.magicArrow.images;
+
+        const iconImage = images[0];
         const blowAnimationImg = images[3];
+        let movingAnimationImg = images[1];
 
         if (forEnemy) {
             movingAnimationImg = images[2];
@@ -35,21 +38,22 @@ export default class MagicFactory {
 
         let { naturalWidth, naturalHeight } = movingAnimationImg;
 
-        const magicMovingAnimation = new ImageComponent(movingAnimationImg, 0, 0, naturalWidth , naturalHeight, naturalWidth / 14, naturalHeight, 0, 0, naturalWidth / 14, naturalHeight);
+        const animationFramesCount = 14;
+        const magicMovingAnimation = new ImageComponent(movingAnimationImg, 0, 0, naturalWidth , naturalHeight, naturalWidth / animationFramesCount, naturalHeight, 0, 0, naturalWidth / animationFramesCount, naturalHeight);
 
-        const movingAnimation = new Component(0, 0, naturalWidth / 14, naturalHeight);
+        const movingAnimation = new Component(0, 0, naturalWidth / animationFramesCount, naturalHeight);
         movingAnimation.setBackgroundImage(magicMovingAnimation);
         
         ({naturalWidth, naturalHeight } = blowAnimationImg);
 
-        const magicBlowAnimation = new ImageComponent(blowAnimationImg, 0, 0, naturalWidth , naturalHeight, naturalWidth / 14, naturalHeight, 0, 0, naturalWidth / 14, naturalHeight);
+        const magicBlowAnimation = new ImageComponent(blowAnimationImg, 0, 0, naturalWidth , naturalHeight, naturalWidth / animationFramesCount, naturalHeight, 0, 0, naturalWidth / animationFramesCount, naturalHeight);
 
-        const animation = new Component(0, 0, naturalWidth / 14, naturalHeight);
+        const animation = new Component(0, 0, naturalWidth / animationFramesCount, naturalHeight);
         animation.setBackgroundImage(magicBlowAnimation);
 
-        const graphicComponent = new MagicGraphicComponent(10, 10, 2, img);
+        const graphicComponentInSelectingWindow = new MagicGraphicComponent(top, left, scale, iconImage);
         
-        return new MagicArrow('Волшебная стрела', damage, graphicComponent, [movingAnimation, animation], sound);
+        return new MagicArrow('Волшебная стрела', damage, graphicComponentInSelectingWindow, [movingAnimation, animation], this.assets.magicArrow.sound);
     }
 
     createImplosionArrow(damage) {
@@ -57,20 +61,24 @@ export default class MagicFactory {
             return null;
         }
 
-        const images = this.assets.implosion.images;
-        const sound = this.assets.implosion.sound;
+        const top = 10;
+        const left = 10;
+        const scale = 2;
 
-        const img = images[0];
+        const images = this.assets.implosion.images;
+
+        const iconImage = images[0];
         const blowAnimationImg = images[1];
 
         let { naturalWidth, naturalHeight } = blowAnimationImg;
 
-        const magicBlowAnimation = new ImageComponent(blowAnimationImg, 0, 0, naturalWidth , naturalHeight, naturalWidth / 19, naturalHeight, 0, 0, naturalWidth / 19, naturalHeight);
+        const animationFramesCount = 19;
+        const magicBlowAnimation = new ImageComponent(blowAnimationImg, 0, 0, naturalWidth , naturalHeight, naturalWidth / animationFramesCount, naturalHeight, 0, 0, naturalWidth / animationFramesCount, naturalHeight);
 
-        const animation = new Component(0, 0, naturalWidth / 19, naturalHeight);
+        const animation = new Component(0, 0, naturalWidth / animationFramesCount, naturalHeight);
         animation.setBackgroundImage(magicBlowAnimation);
 
-        const graphicComponent = new MagicGraphicComponent(10, 10, 2, img);
-        return new Implosion('Взрыв', damage, graphicComponent, [animation], sound);
+        const graphicComponentInSelectingWindow = new MagicGraphicComponent(top, left, scale, iconImage);
+        return new Implosion('Взрыв', damage, graphicComponentInSelectingWindow, [animation], this.assets.implosion.sound);
     }
 } 

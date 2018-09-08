@@ -3,6 +3,8 @@ export default class StorageManager {
         this.keys = [];
         this.records = [];
 
+        this.maxRecordsNumber = 10;
+
         for (let i = 0; i < localStorage.length; i++) {
             const key = localStorage.key(i);
 
@@ -15,6 +17,8 @@ export default class StorageManager {
     }
 
     saveResult(name, monsterKilled) {
+        const maxRecordsNumber = this.maxRecordsNumber;
+
         this.records.push({
             name,
             monsterKilled
@@ -22,15 +26,15 @@ export default class StorageManager {
 
         this.records.sort((l, r) => l.time - r.time);
 
-        for (let i = 0; i < this.records.length && i < 10; i++) {
+        for (let i = 0; i < this.records.length && i < maxRecordsNumber; i++) {
             const { name, monsterKilled } = this.records[i];
 
             const record = `name=${name};monsterKilled=${monsterKilled};`;
             localStorage.setItem('malekylik-game=' + i, record);
         }
 
-        if (this.records.length > 10) {
-            this.records = this.records.slice(0, 10);
+        if (this.records.length > maxRecordsNumber) {
+            this.records = this.records.slice(0, maxRecordsNumber);
         }
     }
 

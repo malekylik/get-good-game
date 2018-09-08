@@ -32,7 +32,7 @@ export default class Cursor {
 
             context.beginPath();
             context.moveTo(this.metric.left, this.metric.top);
-            context.lineTo(this.metric.left, this.metric.top + this.metric.height);
+            context.lineTo(this.metric.left, Math.round(this.metric.top + this.metric.height + this.metric.height * 0.2));
             context.stroke();
         }
 

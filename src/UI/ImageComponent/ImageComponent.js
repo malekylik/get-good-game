@@ -30,7 +30,6 @@ export default class ImageComponent {
         this.scrollXOffset = 0;
         this.scrollYOffset = 0;
 
-
         this.sx = sx;
         this.sy = sy;
     }
@@ -167,7 +166,6 @@ export default class ImageComponent {
             left = x;
             top = y;
         }
-
 
         if (this.width !== undefined) {
             context.drawImage(this.htmlComponent, this.offsetX, this.offsetY, this.sWidth, this.sHeight, left + this.scrollXOffset, top + this.scrollYOffset, this.width, this.height);

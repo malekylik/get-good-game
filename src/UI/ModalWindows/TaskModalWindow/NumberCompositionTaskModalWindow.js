@@ -11,8 +11,48 @@ export default class NumberCompositionTaskModalWindow extends TaskModalWindow {
         const textFieldImage = additionalResources.images.textFieldImage;
         const { naturalWidth: textFieldWidth, naturalHeight: textFieldHeight } = textFieldImage;
 
-        let resultNumber = Math.round(Math.random() * (99 - 2)) + 2;
-        let compositeNumber = Math.round(Math.random() * (resultNumber - 2)) + 1;
+        const labelText = this.initTask();
+
+        const halfHeight = Math.ceil(height / 2);
+        const halfTextFieldHeight = Math.round(textFieldHeight / 2);
+        const halfExpressionWidth = Math.ceil((getTextWidthWithCanvas(labelText, 'monospace', '16px') + 1) / 2);
+        const expression = new Label(halfHeight - textFieldHeight - halfTextFieldHeight, 5, halfExpressionWidth * 2, textFieldHeight, labelText);
+        const answerInput = new Label(halfHeight - halfTextFieldHeight, 5,textFieldWidth, textFieldHeight, '');
+
+        answerInput.tabable = true;
+        answerInput.editable = true;
+        answerInput.drawBorder = true;
+        answerInput.setBackgroundColor('#bb0000');
+
+        answerInput.maxTextLength = 2;
+        answerInput.setBackgroundImage(new ImageComponent(textFieldImage, 0, 0, textFieldWidth, textFieldHeight, textFieldWidth, textFieldHeight, 0, 0, textFieldWidth, textFieldHeight));
+        answerInput.setTextColor('#FFFF00');
+        answerInput.cursor.setColor('#08B600');
+        expression.setBackgroundColor('rgba(0, 0, 0, 0)');
+        expression.setTextColor('#ffffff');
+
+        this.descriptionKey = 'description';
+        this.expressionKey = 'expression';
+        this.answerKey = 'answer';
+        this.buttonKey = 'button';
+
+        this.addComponent(expression, this.expressionKey);
+        this.addComponent(answerInput, this.answerKey);
+        answerInput.alignCenter();
+
+        expression.setBoundingClientRect(undefined, answerInput.getBoundingClientRect().left);
+    }
+
+    getDefaultComponent() {
+        return this.getChildComponent(this.answerKey);
+    }
+
+    initTask() {
+        const minNumber = 2;
+        const maxNumber = 99;
+
+        let resultNumber = Math.round(Math.random() * (maxNumber - minNumber)) + minNumber;
+        let compositeNumber = Math.round(Math.random() * (resultNumber - minNumber)) + 1;
         this.number = resultNumber - compositeNumber;
 
         let labelText;
@@ -23,31 +63,7 @@ export default class NumberCompositionTaskModalWindow extends TaskModalWindow {
             labelText = `${compositeNumber} + ? = ${resultNumber}`;
         }
 
-        const halfHeight = Math.ceil(height / 2);
-        const halfExpressionWidth = Math.ceil((getTextWidthWithCanvas(labelText, 'monospace', '16px') + 1) / 2);
-        const expression = new Label(halfHeight - textFieldHeight - 8, 5, halfExpressionWidth * 2, textFieldHeight, labelText);
-        const answer = new Label(halfHeight - 15, 5,textFieldWidth, textFieldHeight, '');
-
-        answer.editable = true;
-        answer.setBackgroundColor('#bb0000');
-
-        answer.maxTextLength = 2;
-        answer.setBackgroundImage(new ImageComponent(textFieldImage, 0, 0, textFieldWidth, textFieldHeight, textFieldWidth, textFieldHeight, 0, 0, textFieldWidth, textFieldHeight));
-        answer.setTextColor('#FFFF00');
-        answer.cursor.setColor('#08B600');
-        expression.setBackgroundColor('rgba(0, 0, 0, 0)');
-        expression.setTextColor('#ffffff');
-
-        this.descriptionKey = 'description';
-        this.expressionKey = 'expression';
-        this.answerKey = 'answer';
-        this.buttonKey = 'button';
-
-        this.addComponent(expression, this.expressionKey);
-        this.addComponent(answer, this.answerKey);
-        answer.alignCenter();
-
-        expression.setBoundingClientRect(undefined, answer.getBoundingClientRect().left);
+        return labelText;
     }
 
     answerIsRight() {

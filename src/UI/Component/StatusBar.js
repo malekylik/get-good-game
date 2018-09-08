@@ -10,20 +10,21 @@ export default class StatusBar extends CompositeComponent {
         this.enemyInfoWindowKey = 'enemy';
         this.playerInfoWindowKey = 'player';
 
-        const back = images.back;
-        const leftImg = images.left;
-        const right = images.right;
-    
-        const { naturalWidth: backWidth, naturalHeight: backHeight } = back;
+        this.setBackground(images.left, images.right, images.back);
+    }
+
+    setBackground(leftImg, rightImg, backImg) {
+        const width = this.getBoundingClientRect().width;
+
+        const { naturalWidth: backWidth, naturalHeight: backHeight } = backImg;
         const { naturalWidth: leftWidth, naturalHeight: leftHeight } = leftImg;
-        const { naturalWidth: rightWidth, naturalHeight: rightHeight } = right;
+        const { naturalWidth: rightWidth, naturalHeight: rightHeight } = rightImg;
 
-        const backImgComponent = new ImageComponent(back, 0, 0, backWidth, backHeight, backWidth, backHeight, 0, 0, backWidth, backHeight);
+        const backImgComponent = new ImageComponent(backImg, 0, 0, backWidth, backHeight, backWidth, backHeight, 0, 0, backWidth, backHeight);
         const leftImgComponent = new ImageComponent(leftImg, 0, 0, leftWidth, leftHeight, leftWidth, leftHeight, 0, 0, leftWidth, leftHeight);
-        const rightImgComponent = new ImageComponent(right, 0, 0, rightWidth, rightHeight, rightWidth, rightHeight, 0, 0, rightWidth, rightHeight);
-     
-        let totalWidth = 0;
+        const rightImgComponent = new ImageComponent(rightImg, 0, 0, rightWidth, rightHeight, rightWidth, rightHeight, 0, 0, rightWidth, rightHeight);
 
+        let totalWidth = 0;
         while (totalWidth < width) {
             const component = new Component(0, totalWidth, backWidth, backHeight);
 

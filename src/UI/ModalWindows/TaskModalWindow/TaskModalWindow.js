@@ -1,25 +1,29 @@
 import Label from '../../Component/Label';
-import Button from '../../Component/Button';
 import events from '../../../event/events/events';
 import ImageComponent from '../../ImageComponent/ImageComponent';
 
+import { Button } from '../../Component/Component';
 import { CompositeComponent } from '../../Component/Component';
 import { getTextWidthWithCanvas } from '../../../utils/textWidth';
 
 export default class TaskModalWindow extends CompositeComponent {
-    constructor(top = 0, left = 0, width = 0, height = 0, description = '' , additionalResources = {}, parentComponent = null) {
+    constructor(top = 0, left = 0, width = 0, height = 0, description = '' , additionalResources = {}, windowComponent, parentComponent = null) {
         super(top, left, width, height, parentComponent);
 
         const halfWidth = Math.ceil(width / 2);
-        const halfHeight = Math.ceil(height / 2);
-        let halfDescriptionWidth = Math.ceil((getTextWidthWithCanvas(description, 'monospace', '16px') + 1) / 2);
+        let halfDescriptionWidth = Math.ceil((getTextWidthWithCanvas(description, 'monospace', '16px') ) / 2);
 
-        if (halfDescriptionWidth > halfWidth - 20) {
-            halfDescriptionWidth = halfWidth - 20;
+
+        const descriptionMargin = 20;
+        if (halfDescriptionWidth > halfWidth - descriptionMargin) {
+            halfDescriptionWidth = halfWidth - descriptionMargin;
         }
        
         const taskDescription = new Label(10, halfWidth - halfDescriptionWidth, halfDescriptionWidth * 2, 30, description);
-        const enterButton = new Button(halfHeight * 2 - 50 - 5, halfWidth * 2 - 100 - 5, 100, 50, '');
+
+        const enterWidth = 100;
+        const enterHeight = 100;
+        const enterButton = new Button(0, 0, enterWidth, enterHeight, '');
 
         taskDescription.setBackgroundColor('#00bbbb');
 
@@ -42,8 +46,47 @@ export default class TaskModalWindow extends CompositeComponent {
 
         this.setBackgroundImage(new ImageComponent(modalWindowImage, 0, 0, modalWidth, modalHeight, modalWidth, modalHeight, 0, 0, modalWidth, modalHeight));
 
-        enterButton.setBoundingClientRect(modalHeight - 19 - okButtonHeight, modalWidth - 19 - okButtonWidth / 2, okButtonWidth / 2, okButtonHeight);
+        const enterButtonMargin = 19;
+        enterButton.setBoundingClientRect(modalHeight - enterButtonMargin - okButtonHeight, modalWidth - enterButtonMargin - okButtonWidth / 2, okButtonWidth / 2, okButtonHeight);
         enterButton.setBackgroundImage(new ImageComponent(okButtonImage, 0, 0, okButtonWidth, okButtonHeight, okButtonWidth, okButtonHeight, 0, 0, okButtonWidth / 2, okButtonHeight));
+        enterButton.tabable = true;
+        enterButton.drawBorder = true;
+
+        this.initEvents(enterButton, windowComponent);
+    }
+
+    initEvents(enterButton, windowComponent) {
+        const mouseEnterHandler = () => {
+            if (enterButton.isSelected) {
+                enterButton.getBackgroundImage().setFrame(1);
+            }
+        };
+
+        const mouseUpHandler = () => {
+            enterButton.removeEventListener(events.MOUSE.MOUSE_ENTER, mouseEnterHandler);
+        };
+
+        enterButton.addEventListener(events.MOUSE.MOUSE_DOWN, () => {
+            enterButton.getBackgroundImage().setFrame(1);
+
+            enterButton.addEventListener(events.MOUSE.MOUSE_ENTER, mouseEnterHandler);
+        });
+
+        windowComponent.addEventListener(events.MOUSE.MOUSE_UP, mouseUpHandler);
+
+        enterButton.addEventListener(events.MOUSE.MOUSE_LEAVE, () => {           
+            if (enterButton.isSelected) {
+                enterButton.getBackgroundImage().setFrame(0);
+            }
+        });
+
+        this.onremove = () => {
+            windowComponent.removeEventListener(events.MOUSE.MOUSE_UP, mouseUpHandler);
+        }
+    }
+
+    getDefaultComponent() {
+        return this.getOkButtonComponent();
     }
 
     getOkButtonComponent() {
@@ -64,8 +107,15 @@ export default class TaskModalWindow extends CompositeComponent {
 
     getResult() {
         return new Promise((resolve) => {
-            this.addButtonEventListener(events.MOUSE.MOUSE_DOWN, () => {
+            this.addButtonEventListener(events.MOUSE.MOUSE_UP, () => {
+                    this.getOkButtonComponent().getBackgroundImage().setFrame(0);
                     resolve(this.answerIsRight());
+            });
+
+            this.addEventListener(events.KEYBOARD.KEY_PRESS, (e) => {
+                if (e.payload.key === 'Enter' && e.cancelBubble !== true) {
+                    resolve(this.answerIsRight());
+                }
             });
         });
     }

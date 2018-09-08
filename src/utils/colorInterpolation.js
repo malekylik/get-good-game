@@ -1,20 +1,21 @@
+const formatValue = (value) => {
+    let formatedValue = value;
+
+    if (formatedValue.length < 2) {
+        formatedValue = formatedValue.padStart(2, '0');
+    }
+
+    return formatedValue;
+};
+
 export const rgbColorInterpolation = (first, second, t) => {
     let interpolateR = Math.floor((first.r + (second.r - first.r) * t)).toString(16);
     let interpolateG = Math.floor((first.g + (second.g - first.g) * t)).toString(16);
     let interpolateB = Math.floor((first.b + (second.b - first.b) * t)).toString(16);
-    const interpolateA = Math.floor((first.a + (second.a - first.a) * t)).toString(16);
 
-    if (interpolateR.length < 2) {
-        interpolateR = interpolateR.padStart(2, '0');
-    }
-
-    if (interpolateG.length < 2) {
-        interpolateG = interpolateG.padStart(2, '0');
-    }
-
-    if (interpolateB.length < 2) {
-        interpolateB = interpolateB.padStart(2, '0');
-    }
+    interpolateR = formatValue(interpolateR);
+    interpolateG = formatValue(interpolateG);
+    interpolateB = formatValue(interpolateB);
 
     return `#${interpolateR}${interpolateG}${interpolateB}`;
 }
