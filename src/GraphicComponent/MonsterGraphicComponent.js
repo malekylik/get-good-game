@@ -4,31 +4,25 @@ import { Component, CompositeComponent } from '../UI/Component/Component';
 
 export default class MonsterGraphicComponent extends CompositeComponent {
     constructor(top, left, headImage, leftArmImage, rightImage, bodyImage, legImage, parentComponent = null) {
-        const { naturalWidth: headNaturalWidth, naturalHeight: headNaturalHeight } = headImage;
+        const { naturalHeight: headNaturalHeight } = headImage;
         const { naturalWidth: bodyNaturalWidth, naturalHeight: bodyNaturalHeight } = bodyImage;
-        const { naturalWidth: leftNaturalWidth, naturalHeight: leftNaturalHeight } = leftArmImage;
-        const { naturalWidth: rightNaturalWidth, naturalHeight: rightNaturalHeight } = rightImage;
-        const { naturalWidth: legNaturalWidth, naturalHeight: legNaturalHeight } = legImage;
+        const { naturalWidth: leftNaturalWidth } = leftArmImage;
+        const { naturalWidth: rightNaturalWidth } = rightImage;
+        const { naturalHeight: legNaturalHeight } = legImage;
 
+        const heightCorrection = 30;
         const width = leftNaturalWidth + bodyNaturalWidth + rightNaturalWidth;
-        const height = headNaturalHeight + bodyNaturalHeight + legNaturalHeight - 30;
+        const height = headNaturalHeight + bodyNaturalHeight + legNaturalHeight - heightCorrection;
 
         super(top, left, width, height, parentComponent);
 
-        const bodyComponent = new Component(height - legNaturalHeight - bodyNaturalHeight, width / 2 - bodyNaturalWidth / 2, bodyNaturalWidth, bodyNaturalHeight);
-        bodyComponent.setBackgroundImage(new ImageComponent(bodyImage, 0, 0, bodyNaturalWidth, bodyNaturalHeight, bodyNaturalWidth, bodyNaturalHeight, 0, 0, bodyNaturalWidth, bodyNaturalHeight))  
-
-        const headComponent = new Component(height - legNaturalHeight - bodyNaturalHeight - headNaturalHeight + 30, width / 2 - headNaturalWidth / 2 - 15, headNaturalWidth, headNaturalHeight);
-        headComponent.setBackgroundImage(new ImageComponent(headImage, 0, 0, headNaturalWidth, headNaturalHeight, headNaturalWidth, headNaturalHeight, 0, 0, headNaturalWidth, headNaturalHeight));
-
-        const legComponent = new Component(height - legNaturalHeight, width / 2 - legNaturalWidth / 2 - 13, legNaturalWidth, legNaturalHeight);
-        legComponent.setBackgroundImage(new ImageComponent(legImage, 0, 0, legNaturalWidth, legNaturalHeight, legNaturalWidth, legNaturalHeight, 0, 0, legNaturalWidth, legNaturalHeight));
-        
-        const leftArmComponent = new Component(height - legNaturalHeight - bodyNaturalHeight + 45, width / 2 - 15, leftNaturalWidth, leftNaturalHeight);
-        leftArmComponent.setBackgroundImage(new ImageComponent(leftArmImage, 0, 0, leftNaturalWidth, leftNaturalHeight, leftNaturalWidth, leftNaturalHeight, 0, 0, leftNaturalWidth, leftNaturalHeight));
-
-        const rightArmComponent = new Component(height - legNaturalHeight - bodyNaturalHeight + 40, width / 2 - 89, rightNaturalWidth, rightNaturalHeight);
-        rightArmComponent.setBackgroundImage(new ImageComponent(rightImage, 0, 0, rightNaturalWidth, rightNaturalHeight, rightNaturalWidth, rightNaturalHeight, 0, 0, rightNaturalWidth, rightNaturalHeight));
+        const { 
+            headComponent,
+            bodyComponent,
+            leftArmComponent,
+            rightArmComponent,
+            legComponent
+        } = this.initMonsterParts(headImage, bodyImage, leftArmImage, rightImage, legImage);
 
         this.addComponent(bodyComponent, 'body');
         this.addComponent(headComponent, 'head');
@@ -36,12 +30,61 @@ export default class MonsterGraphicComponent extends CompositeComponent {
         this.addComponent(leftArmComponent, 'leftarm');
         this.addComponent(rightArmComponent, 'rightarm');
 
-        const time = 2;
-        const downSpeed = -30  / (time * 1000 * 0.25); 
-        const upSpeed = 60  / (time * 1000 * 0.5); 
-        const toInitialSpeed = -30  / (time * 1000 * 0.25); 
+        this.initAnimationToHead(headComponent);
+    }
 
-        headComponent.animations.setAnimation('headMoving', time, 'infinite', (context, initialProperties, properties, elapseTime, component) => {
+    initMonsterParts(headImage, bodyImage, leftArmImage, rightImage, legImage) {
+        const { naturalWidth: headNaturalWidth, naturalHeight: headNaturalHeight } = headImage;
+        const { naturalWidth: bodyNaturalWidth, naturalHeight: bodyNaturalHeight } = bodyImage;
+        const { naturalWidth: leftNaturalWidth, naturalHeight: leftNaturalHeight } = leftArmImage;
+        const { naturalWidth: rightNaturalWidth, naturalHeight: rightNaturalHeight } = rightImage;
+        const { naturalWidth: legNaturalWidth, naturalHeight: legNaturalHeight } = legImage;
+
+        const { width, height } = this.getBoundingClientRect();
+
+        const bodyComponent = new Component(height - legNaturalHeight - bodyNaturalHeight, width / 2 - bodyNaturalWidth / 2, bodyNaturalWidth, bodyNaturalHeight);
+        bodyComponent.setBackgroundImage(new ImageComponent(bodyImage, 0, 0, bodyNaturalWidth, bodyNaturalHeight, bodyNaturalWidth, bodyNaturalHeight, 0, 0, bodyNaturalWidth, bodyNaturalHeight))  
+
+        const headTopOffset = 30;
+        const headLeftOffset = 15;
+        const headComponent = new Component(height - legNaturalHeight - bodyNaturalHeight - headNaturalHeight + headTopOffset, width / 2 - headNaturalWidth / 2 - headLeftOffset, headNaturalWidth, headNaturalHeight);
+        headComponent.setBackgroundImage(new ImageComponent(headImage, 0, 0, headNaturalWidth, headNaturalHeight, headNaturalWidth, headNaturalHeight, 0, 0, headNaturalWidth, headNaturalHeight));
+
+        const legLeftOffset = 13;
+        const legComponent = new Component(height - legNaturalHeight, width / 2 - legNaturalWidth / 2 - legLeftOffset, legNaturalWidth, legNaturalHeight);
+        legComponent.setBackgroundImage(new ImageComponent(legImage, 0, 0, legNaturalWidth, legNaturalHeight, legNaturalWidth, legNaturalHeight, 0, 0, legNaturalWidth, legNaturalHeight));
+        
+        const leftArmTopOffset = 45;
+        const leftArmLeftOffset = 15;
+        const leftArmComponent = new Component(height - legNaturalHeight - bodyNaturalHeight + leftArmTopOffset, width / 2 - leftArmLeftOffset, leftNaturalWidth, leftNaturalHeight);
+        leftArmComponent.setBackgroundImage(new ImageComponent(leftArmImage, 0, 0, leftNaturalWidth, leftNaturalHeight, leftNaturalWidth, leftNaturalHeight, 0, 0, leftNaturalWidth, leftNaturalHeight));
+
+        const rightArmTopOffset = 40;
+        const rightArmLeftOffset = 89;
+        const rightArmComponent = new Component(height - legNaturalHeight - bodyNaturalHeight + rightArmTopOffset, width / 2 - rightArmLeftOffset, rightNaturalWidth, rightNaturalHeight);
+        rightArmComponent.setBackgroundImage(new ImageComponent(rightImage, 0, 0, rightNaturalWidth, rightNaturalHeight, rightNaturalWidth, rightNaturalHeight, 0, 0, rightNaturalWidth, rightNaturalHeight));
+
+        return {
+            headComponent,
+            bodyComponent,
+            leftArmComponent,
+            rightArmComponent,
+            legComponent
+        };
+    }
+
+    initAnimationToHead(headComponent) {
+        const timeInSecond = 2;
+        const toMilliSecondScale = 1000;
+
+        const fullPathLength = 60;
+        const halfPathLength = Math.floor(fullPathLength / 2);
+
+        const downSpeed = -(halfPathLength  / (timeInSecond * toMilliSecondScale * 0.25)); 
+        const upSpeed = fullPathLength  / (timeInSecond * toMilliSecondScale * 0.5); 
+        const toInitialPosSpeed = -(halfPathLength  / (timeInSecond * toMilliSecondScale * 0.25)); 
+
+        headComponent.animations.setAnimation('headMoving', timeInSecond, 'infinite', (context, initialProperties, properties, elapseTime, component) => {
             let speed;
 
             if (elapseTime <= 0.25) {
@@ -49,7 +92,7 @@ export default class MonsterGraphicComponent extends CompositeComponent {
             } else if (elapseTime > 0.25 && elapseTime <= 0.75) {
                 speed = upSpeed;
             } else if (elapseTime > 0.75) {
-                speed = toInitialSpeed;
+                speed = toInitialPosSpeed;
             }
 
             properties.boundingClientRect.top += speed;

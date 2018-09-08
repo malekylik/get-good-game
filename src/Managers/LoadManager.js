@@ -13,38 +13,31 @@ export default class LoadManager {
     }
 
     addUrl(urlObject, nameObj) {
-        const soundUrlArray = urlObject.sound;
-        const imageUrlArray = urlObject.image;
+        const soundUrls = urlObject.sound;
+        const imageUrls = urlObject.image;
 
         const soundName = nameObj.sound;
         const imageName = nameObj.image;
-        let index = -1;
 
-        if (imageUrlArray) {
-            index = this.imageUrl.findIndex(({ name: urlName }) => urlName === imageName);
-
-
-            if (~index) {
-                this.imageUrl[index].urls = [...this.imageUrl[index].urls, ...imageUrlArray]
-            } else {
-                this.imageUrl.push({
-                    urls: [...imageUrlArray],
-                    name: imageName
-                });
-            }
+        if (imageUrls) {
+            this.updateArray(this.imageUrl, imageUrls, imageName);
         }
+        
+        if (soundUrls) {
+            this.updateArray(this.soundUrl, soundUrls, soundName);
+        }
+    }
 
-        if (soundUrlArray) {
-            index = this.soundUrl.findIndex(({ name: urlName }) => urlName === soundName);
+    updateArray(arrayForUpdating, updatingArray, name) {
+        let index = arrayForUpdating.findIndex(({ name: urlName }) => urlName === name);
 
-            if (~index) {
-                this.soundUrl[index].urls = [...this.soundUrl[index].urls, ...soundUrlArray]
-            } else {
-                this.soundUrl.push({
-                    urls: [...soundUrlArray],
-                    name: soundName
-                });
-            }
+        if (~index) {
+            arrayForUpdating[index].urls = [...arrayForUpdating[index].urls, ...updatingArray]
+        } else {
+            arrayForUpdating.push({
+                urls: [...updatingArray],
+                name: name
+            });
         }
     }
 
@@ -132,24 +125,33 @@ export default class LoadManager {
 
         const assetsPromise = [...imgPromise];
         let assets = await Promise.all(assetsPromise);
-        assets = [...assets, ...soundPromise];
 
+        const grouped = this.getGroupedLoadedAssets([...assets, ...soundPromise]);
+
+        this.imageUrl = [];
+        this.soundUrl = [];
+        this.loaded = {...this.loadedImages, ...grouped };        
+
+        return grouped;
+    }
+
+    getGroupedLoadedAssets(assets) {
         const grouped = {
             images: [],
             sound: []
         };
 
-        let k = 0;
+        let offset = 0;
         for (let i = 0; i < this.imageUrl.length; i++) {
             const length = this.imageUrl[i].urls.length;
             const name = this.imageUrl[i].name;
 
             grouped.images.push({
-                images: assets.slice(k, k + length),
+                images: assets.slice(offset, offset + length),
                 name: name
             });
 
-            k += length;
+            offset += length;
         }
 
         for (let i = 0; i < this.soundUrl.length; i++) {
@@ -157,16 +159,12 @@ export default class LoadManager {
             const name = this.soundUrl[i].name;
 
             grouped.sound.push({
-                sound: assets.slice(k, k + length),
+                sound: assets.slice(offset, offset + length),
                 name: name
             });
 
-            k += length;
+            offset += length;
         }
-
-        this.imageUrl = [];
-        this.soundUrl = [];
-        this.loaded = {...this.loadedImages, ...grouped };        
 
         return grouped;
     }

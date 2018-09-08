@@ -18,7 +18,7 @@ export default class Canvas {
         document.body.appendChild(this.htmlComponent);
 
         this.scenes = [];
-        this.ui = [];
+        this.uis = [];
     }
 
     getHtml() {
@@ -40,6 +40,13 @@ export default class Canvas {
         this.context.canvas.height = height;
     }
 
+    getSize() {
+        return {
+            width: this.width,
+            height: this.height
+        };
+    }
+
     clear(color = '#000000') {
         this.context.fillStyle = color;
         this.context.fillRect(0, 0, this.width, this.height);
@@ -50,7 +57,7 @@ export default class Canvas {
     }
 
     addUI(ui) {
-        this.ui.push(ui);
+        this.uis.push(ui);
     }
 
     removeScene(scene) {
@@ -68,16 +75,20 @@ export default class Canvas {
         this.scenes = [];
     }
 
+    resetUI() {
+        this.uis = [];
+    }
+
     draw(elapseTime) {
         this.clear();
 
-        for (let o of this.scenes) {
-            o.draw(this.context, elapseTime);
+        for (let scene of this.scenes) {
+            scene.draw(this.context, elapseTime);
         }
 
-        for (let o of this.ui) {
-            for (let i of o.uiComponents) {
-                i.draw(this.context, elapseTime);
+        for (let ui of this.uis) {
+            for (let uiComponent of ui.uiComponents) {
+                uiComponent.draw(this.context, elapseTime);
             }
         }
     }

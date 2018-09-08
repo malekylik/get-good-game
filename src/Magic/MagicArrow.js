@@ -6,6 +6,9 @@ export default class MagicArrow extends Magic {
         super(name, damage, magicGraphicComponent);
         this.attackAnimations = attackAnimations;
 
+        this.moveIndex = 0;
+        this.explosionIndex = 1;
+
         this.sound = sound;
     }
 
@@ -21,47 +24,58 @@ export default class MagicArrow extends Magic {
         return this.damage;
     }
 
-    async attack(character, enemy, canvas) {
-        const { left: characterLeft, width: characterWidth } = character.getGraphicComponent().getBoundingClientRect();
-        const { top, left, height } = enemy.getGraphicComponent().getBoundingClientRect();
+    arrowMove(enemyLeft, characterWidth, characterLeft, canvas) {
+        const moveAnimation = this.attackAnimations[this.moveIndex];
 
-        let dif = left - characterLeft + Math.floor(characterWidth / 4);
+        let dif = enemyLeft - characterLeft + Math.floor(characterWidth / 4);
 
-        this.attackAnimations[0].animations.setAnimation('asd', 0.924, 1, (context, initialProperties, properties, elapseTime, e) => {
-            e.backgroundImage.setFrame(elapseTime);
-            e.setBoundingClientRect(undefined, characterLeft + dif * elapseTime);
+        moveAnimation.animations.setAnimation('move', 0.924, 1, (context, initialProperties, properties, elapseTime, component) => {
+            component.backgroundImage.setFrame(elapseTime);
+            component.setBoundingClientRect(undefined, characterLeft + dif * elapseTime);
         });
 
-        const movingPromise = new Promise((resolve) => {
-            this.attackAnimations[0].addEventListener(events.ANIMATION.ANIMATION_END, (e) => {
-                canvas.removeScene(this.attackAnimations[0]);
+        return new Promise((resolve) => {
+            moveAnimation.addEventListener(events.ANIMATION.ANIMATION_END, () => {
+                canvas.removeScene(moveAnimation);
                 resolve();
             });
         });
+    }
 
-        this.attackAnimations[0].setBoundingClientRect(top + Math.floor(height / 2), characterLeft);
+    explode(canvas) {
+        const explosionAnimation = this.attackAnimations[this.explosionIndex];
 
-        canvas.addScene(this.attackAnimations[0]);
+        explosionAnimation.animations.setAnimation('explode', 0.924, 1, (context, initialProperties, properties, elapseTime, component) => {
+            component.backgroundImage.setFrame(elapseTime);
+        });
+
+        return new Promise((resolve) => {
+            explosionAnimation.addEventListener(events.ANIMATION.ANIMATION_END, () => {
+                canvas.removeScene(explosionAnimation);
+                resolve();
+            });
+        });
+    }
+
+    async attack(character, enemy, canvas) {
+        const moveAnimation = this.attackAnimations[this.moveIndex];
+        const explosionAnimation = this.attackAnimations[this.explosionIndex];
+
+        const { left: characterLeft, width: characterWidth } = character.getGraphicComponent().getBoundingClientRect();
+        const { top: enemyTop, left: enemyLeft, height: enemyHeight } = enemy.getGraphicComponent().getBoundingClientRect();
+
+        moveAnimation.setBoundingClientRect(enemyTop + Math.floor(enemyHeight / 2), characterLeft);
+
+        canvas.addScene(moveAnimation);
 
         this.sound.play();
 
-        await movingPromise;
+        await this.arrowMove(enemyLeft, characterWidth, characterLeft, canvas);
 
-        this.attackAnimations[1].animations.setAnimation('asd', 0.924, 1, (context, initialProperties, properties, elapseTime, e) => {
-            e.backgroundImage.setFrame(elapseTime);
-        });
+        explosionAnimation.setBoundingClientRect(enemyTop + Math.floor(enemyHeight / 2), enemyLeft + Math.floor(characterWidth / 4));
 
-        const attackPromise = new Promise((resolve) => {
-            this.attackAnimations[1].addEventListener(events.ANIMATION.ANIMATION_END, (e) => {
-                canvas.removeScene(this.attackAnimations[1]);
-                resolve();
-            });
-        });
+        canvas.addScene(explosionAnimation);
 
-        this.attackAnimations[1].setBoundingClientRect(top + Math.floor(height / 2), left + Math.floor(characterWidth / 4));
-
-        canvas.addScene(this.attackAnimations[1]);
-
-        await attackPromise;        
+        await this.explode(canvas);        
     }
 }

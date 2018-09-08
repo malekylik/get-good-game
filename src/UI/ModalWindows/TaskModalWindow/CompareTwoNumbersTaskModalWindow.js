@@ -16,18 +16,22 @@ export default class CompareTwoNumbersTaskModalWindow extends TaskModalWindow {
 
         const labelText = `${this.first} ? ${this.second}:`;
 
+        const halfTextFieldHeight = Math.round(textFieldHeight / 2);
+
         const halfHeight = Math.ceil(height / 2);
         const halfExpressionWidth = Math.ceil((getTextWidthWithCanvas(labelText, 'monospace', '16px') + 1) / 2);
-        const expression = new Label(halfHeight - textFieldHeight - 8, 5, halfExpressionWidth * 2, textFieldHeight, labelText);
-        const answer = new Label(halfHeight - 15, 5,textFieldWidth, textFieldHeight, '');
+        const expression = new Label(halfHeight - textFieldHeight - halfTextFieldHeight, 5, halfExpressionWidth * 2, textFieldHeight, labelText);
+        const answerInput = new Label(halfHeight - halfTextFieldHeight, 5,textFieldWidth, textFieldHeight, '');
 
-        answer.editable = true;
-        answer.setBackgroundColor('#bb0000');
+        answerInput.editable = true;
+        answerInput.tabable = true;
+        answerInput.drawBorder = true;
+        answerInput.setBackgroundColor('#bb0000');
 
-        answer.maxTextLength = 1;
-        answer.setBackgroundImage(new ImageComponent(textFieldImage, 0, 0, textFieldWidth, textFieldHeight, textFieldWidth, textFieldHeight, 0, 0, textFieldWidth, textFieldHeight));
-        answer.setTextColor('#FFFF00');
-        answer.cursor.setColor('#08B600');
+        answerInput.maxTextLength = 1;
+        answerInput.setBackgroundImage(new ImageComponent(textFieldImage, 0, 0, textFieldWidth, textFieldHeight, textFieldWidth, textFieldHeight, 0, 0, textFieldWidth, textFieldHeight));
+        answerInput.setTextColor('#FFFF00');
+        answerInput.cursor.setColor('#08B600');
         expression.setBackgroundColor('rgba(0, 0, 0, 0)');
         expression.setTextColor('#ffffff');
 
@@ -37,10 +41,14 @@ export default class CompareTwoNumbersTaskModalWindow extends TaskModalWindow {
         this.buttonKey = 'button';
 
         this.addComponent(expression, this.expressionKey);
-        this.addComponent(answer, this.answerKey);
-        answer.alignCenter();
+        this.addComponent(answerInput, this.answerKey);
+        answerInput.alignCenter();
 
-        expression.setBoundingClientRect(undefined, answer.getBoundingClientRect().left);
+        expression.setBoundingClientRect(undefined, answerInput.getBoundingClientRect().left);
+    }
+
+    getDefaultComponent() {
+        return this.getChildComponent(this.answerKey);
     }
 
     answerIsRight() {

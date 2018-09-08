@@ -18,13 +18,17 @@ export class Component {
         this.properties.drawBorder = false;
         this.properties.overflow = 'visible';
         this.hovered = false;
+        this.isSelected = false;
+        this.drawBorder = false;
+        this.tabable = false;
 
         this.properties.color = {
             backgroundColor: 'rgba(0,0,0,0)',
-            borderColor: '#000000',
+            borderColor: 'rgb(77, 144, 254)',
         };
 
         this.backgroundImage = null;
+        this.onremove = null;
 
         this.properties.top = top;
         this.properties.left = left;
@@ -61,6 +65,10 @@ export class Component {
 
     addEventListener(name, event) {
         this.handlers.addEventListener(name, event)
+    }
+
+    removeEventListener(name, event) {
+        this.handlers.removeEventListener(name, event)
     }
 
     convertFromPercentageToPixel(top, left, width, height) {
@@ -104,13 +112,21 @@ export class Component {
         return callback(this);
     }
 
-    alignCenter() {
+    alignCenter(relativeElementWidth, relativeElementHeight) {
         const parent = this.getParentComponent();
-        let parentWidth = window.innerWidth;
-        let parentHeight = window.innerHeight;
+        let parentWidth = 0;
+        let parentHeight = 0;
 
-        if (parent !== null) {
-            ({ width: parentWidth, height: parentHeight } = parent.getBoundingClientRect());
+        if (relativeElementWidth !== undefined && relativeElementHeight !== undefined) {
+            parentWidth = relativeElementWidth;
+            parentHeight = relativeElementHeight;
+        } else {
+            if (parent !== null) {
+                ({ width: parentWidth, height: parentHeight } = parent.getBoundingClientRect());
+            } else {
+                parentWidth = window.innerWidth;
+                parentHeight = window.innerHeight;
+            }
         }
 
         const { width, height } = this.getBoundingClientRect();
@@ -136,9 +152,9 @@ export class Component {
 
     handleHover(e) {
         const c = e.target;
-        const canvasHTML = document.querySelector('canvas');
-        if (canvasHTML.style.cursor !== c.properties.cursor) {
-            canvasHTML.style.cursor = c.properties.cursor;
+        const canvas = e.canvas;
+        if (canvas.style.cursor !== c.properties.cursor) {
+            canvas.style.cursor = c.properties.cursor;
         }
 
         if (c.hovered !== true) {
@@ -149,10 +165,6 @@ export class Component {
 
     getBoundingClientRect() {
         return this.animations.animatedProperties.boundingClientRect;
-    }
-
-    getClippedBoundingClientRect() {
-        return this.animations.animatedProperties.clippedBoundingClientRect;
     }
 
     setHovered(hovered) {
@@ -215,22 +227,6 @@ export class Component {
         merge(this.hoverProperties.boundingClientRect, this.properties.boundingClientRect);
     }
 
-    setBoundingClippedClientRect(top = 0, left = 0, width = 0, height = 0) {
-        this.properties.clippedBoundingClientRect = {
-            top,
-            left,
-            width,
-            height,
-            right: left + width,
-            bottom: top + height
-        };
-
-        this.animations.animatedProperties.clippedBoundingClientRect = {};
-        this.hoverProperties.clippedBoundingClientRect = {};
-        merge(this.animations.animatedProperties.clippedBoundingClientRect, this.properties.clippedBoundingClientRect);
-        merge(this.hoverProperties.clippedBoundingClientRect, this.properties.clippedBoundingClientRect);
-    }
-
     setBackgroundColor(color = '#000000') {
         this.properties.color.backgroundColor = color;
         this.hoverProperties.color.backgroundColor = color;
@@ -258,10 +254,6 @@ export class Component {
         this.hoverProperties.overflow = overflow;
         this.animations.animatedProperties.overflow = overflow;
 
-        if (overflow === 'overflow') {
-            this.calculateClippedSize();
-        }
-
         if (overflow === 'scroll') {
             const totalHeight = this.calculateTotalHeightComponent();
             const totalWidth = this.calculateTotalWidthComponent();
@@ -276,40 +268,6 @@ export class Component {
                 this.scrollX = new ScrollBar('horizontal', totalWidth, this);
             }
         }
-    }
-
-    calculateClippedSize() {
-        this.traverse((o) => {
-            const parent = o.getParentComponent();
-
-            let { top, right, bottom, left } = o.getBoundingClientRect();
-                if (parent !== null) {
-                    const parentBox = parent.getBoundingClientRect();
-    
-                    if (left < 0) {
-                        left = 0;
-                    }
-        
-                    if (top < 0) {
-                        top = 0;
-                    }
-        
-                    if (parentBox.width < right) {
-                        right = parentBox.width;
-                    }
-        
-                    if (parentBox.height < bottom) {
-                        if (top > parentBox.top) {
-                            bottom = top;
-                        } else {
-                            bottom = parentBox.height;
-                        }
-                    }
-                    
-                } 
-
-            o.setBoundingClippedClientRect(top, left, Math.abs(right - left), Math.abs(bottom - top));
-        });
     }
 
     getParentComponent() {
@@ -360,11 +318,6 @@ export class Component {
         let { top, left, width, height } = this.getBoundingClientRect();
         let color = this.animations.animatedProperties.color;
                 
-        if (this.drawBorder) {
-            context.strokeStyle = color.borderColor;
-            context.strokeRect(left, top, width, height);
-        }
-
         context.fillStyle = color.backgroundColor;
         context.fillRect(left, top, width, height);
 
@@ -376,6 +329,11 @@ export class Component {
 
         if (this.backgroundImage !== null) {
             this.backgroundImage.draw(context, left, top);
+        }
+
+        if (this.drawBorder && this.isSelected) {
+            context.strokeStyle = color.borderColor;
+            context.strokeRect(left, top, width, height);
         }
     }
 
@@ -432,6 +390,10 @@ export class CompositeComponent extends Component {
         const index = this.children.findIndex(({ component: childComponent }) => childComponent === component);
 
         if ((~index) !== 0) {
+            if (typeof this.children[index].component.onremove === 'function') {
+                this.children[index].component.onremove();
+            }
+
             this.children.splice(index, 1);
             return true;
         }
@@ -556,21 +518,40 @@ export class CompositeComponent extends Component {
         }
 
         return max;
-    } 
+    }
+
+    getAbsoluteCoord() {
+        let parent = this.getParentComponent();
+        let { top, left } = this.getBoundingClientRect();
+
+        while (parent !== null) {
+            const { top: parentTop, left: parentLeft } = parent.getBoundingClientRect();
+           
+            top += parentTop;
+            left += parentLeft;
+
+            parent = parent.getParentComponent();
+        }
+
+        return {
+            top,
+            left
+        }
+    }
 
     checkForCollision(objectMetric) {
         const elementInside = [];
         let biggestDepth = 1;
 
         this.traverse((o) => {
-            const { top, left, width, height } = o.getBoundingClientRect();
+            const { width, height } = o.getBoundingClientRect();
+            const { top: absoluteTop, left: absoluteLeft } = o.getAbsoluteCoord();
             const oCoord = {
+                top: absoluteTop,
+                left: absoluteLeft,
                 width,
                 height
             };
-
-            let absoluteTop = 0;
-            let absoluteLeft = 0;
 
             let depth = 1;
 
@@ -579,11 +560,6 @@ export class CompositeComponent extends Component {
             const parentOverflow = [];
 
             while (parent !== null) {
-                let { top, left } = parent.getBoundingClientRect();
-               
-                absoluteTop += top;
-                absoluteLeft += left;
-
                 depth += 1;
 
                 if (parent.getOverflow() === 'scroll' || parent.getOverflow() === 'overflow') {
@@ -593,40 +569,20 @@ export class CompositeComponent extends Component {
                 parent = parent.getParentComponent();
             }
 
-            absoluteTop += top;
-            absoluteLeft += left;
-
-            oCoord.top = absoluteTop;
-            oCoord.left = absoluteLeft;
-
             if (parentOverflow.length !== 0) {
                 for (let i = 0; i < parentOverflow.length; i++) {
-                    let { top, left, width, height } = parentOverflow[i].getBoundingClientRect();
+                    const { top: parentTop, left: parentLeft } = parentOverflow[i].getAbsoluteCoord();
+                    const { width, height } = parentOverflow[i].getBoundingClientRect();
 
-                    let parentTop = top;
-                    let parentLeft = left;
+                    if (!o.collision.isInside(
+                        oCoord,
+                        {
+                            top: parentTop,
+                            left: parentLeft,
+                            width,
+                            height
+                        })) {
 
-                    let p = parentOverflow[i].getParentComponent();
-
-                    while (p !== null) {
-                        let { top, left } = p.getBoundingClientRect();
-                       
-                        parentTop += top;
-                        parentLeft += left;
-            
-                        p = p.getParentComponent();
-                    }
- 
-                    const pBox = {
-                        top: parentTop,
-                        left: parentLeft,
-                        width,
-                        height
-                    };
-
-                    const isInsideParent = o.collision.isInside(pBox, oCoord);
-
-                    if (!isInsideParent) {
                         return null;
                     }
                 }
@@ -664,7 +620,6 @@ class ScrollBar extends CompositeComponent {
         }
 
         let width;
-
         if (orientation === 'vertical') {  
             width = parentHeight; 
             super(0, parentWidth - height, height, width, parentComponent);
@@ -673,10 +628,78 @@ class ScrollBar extends CompositeComponent {
             super(parentHeight - height, 0, width, height, parentComponent);
         }
 
+        this.prevButtonHandler = this.prevButtonHandler.bind(this);
+        this.nextButtonHandler = this.nextButtonHandler.bind(this);
+
         this.childWidth = childWidth;
+        this.orientation = orientation;
 
         this.setBackgroundColor('#F1F1F1');
 
+        const { prevButton, nextButton } = this.createScrollButtons(orientation, width, height);
+
+        if (orientation === 'vertical') {
+            this.partOfParent = parentHeight / childWidth;
+            this.parAndChildDif = childWidth - parentHeight;
+        } else {
+            this.partOfParent = parentWidth / childWidth;
+            this.parAndChildDif = childWidth - parentWidth;
+        }
+
+        this.scroll = this.createScroll(orientation, width, height, this.partOfParent);
+
+        this.currentChildPos = 0;
+        this.part = 10 / this.scrollPosMax;
+
+        this.scrollPos = 0;
+
+        prevButton.addEventListener(events.MOUSE.MOUSE_DOWN, this.prevButtonHandler);
+        nextButton.addEventListener(events.MOUSE.MOUSE_DOWN, this.nextButtonHandler);
+    }
+
+    prevButtonHandler(e) {
+        const parentComponent = this.getParentComponent();
+        const scroll = this.scroll;
+
+        if (this.scrollPos + 10 < 0) {
+            this.scrollPos += 10;
+            this.currentChildPos += this.part * this.parAndChildDif;
+        } else {
+            this.scrollPos = 0;
+            this.currentChildPos = 0;
+        }
+
+        if (this.orientation === 'vertical') {
+            scroll.setBoundingClientRect(-this.scrollPos);
+            parentComponent.setScrollYOffer(Math.round(this.currentChildPos));
+        } else {
+            scroll.setBoundingClientRect(undefined, -this.scrollPos);
+            parentComponent.setScrollXOffer(Math.round(this.currentChildPos));
+        }
+    }
+
+    nextButtonHandler(e) {
+        const parentComponent = this.getParentComponent();
+        const scroll = this.scroll;
+
+        if (this.scrollPos - 10 > -this.scrollPosMax) {
+            this.scrollPos -= 10;
+            this.currentChildPos -= this.part * this.parAndChildDif;
+        } else {
+            this.scrollPos = -this.scrollPosMax;
+            this.currentChildPos = -this.parAndChildDif;
+        }
+
+        if (this.orientation === 'vertical') {
+            scroll.setBoundingClientRect(-this.scrollPos);
+            parentComponent.setScrollYOffer(Math.round(this.currentChildPos));
+        } else {
+            scroll.setBoundingClientRect(undefined, -this.scrollPos);
+            parentComponent.setScrollXOffer(Math.round(this.currentChildPos));
+        }
+    }
+
+    getScrollButtonsChar(orientation) {
         let prevButtonText = String.fromCharCode(parseInt('25c4', 16));
         let nextButtonText = String.fromCharCode(parseInt('25ba', 16));
 
@@ -685,7 +708,40 @@ class ScrollBar extends CompositeComponent {
             nextButtonText = String.fromCharCode(parseInt('25bc', 16));
         }
 
-        this.orientation = orientation
+        return {
+            prevButtonText,
+            nextButtonText
+        }
+    }
+
+    createScroll(orientation, width, height, partOfParent) {
+        let scrollBackground;
+
+        const scrollBackgroundWidth = width - 3 * height;
+
+        if (orientation === 'vertical') {
+            scrollBackground = new CompositeComponent(height, 0, height, scrollBackgroundWidth, this);
+        } else {
+            scrollBackground = new CompositeComponent(0, height, scrollBackgroundWidth, height, this);
+        }
+
+        let scroll;
+
+        if (orientation === 'vertical') {
+            scroll = new Component(0, 2, height - 4, Math.floor(partOfParent * (scrollBackgroundWidth)), scrollBackground);
+        } else {
+            scroll = new Component(2, 0, Math.floor(partOfParent * (scrollBackgroundWidth)), height - 4, scrollBackground);
+        }
+
+        scroll.setBackgroundColor('#C1C1C1');
+
+        this.scrollPosMax = scrollBackgroundWidth - Math.floor(partOfParent * (scrollBackgroundWidth));
+
+        return scroll;
+    }
+
+    createScrollButtons(orientation, width, height) {
+        let { prevButtonText, nextButtonText } = this.getScrollButtonsChar(orientation);
 
         let nextButton;
         const prevButton = new Button(0, 0, height, height, prevButtonText, this);
@@ -702,95 +758,22 @@ class ScrollBar extends CompositeComponent {
         prevButton.hoverProperties.color.backgroundColor = '#D2D2D2';
         nextButton.hoverProperties.color.backgroundColor = '#D2D2D2';
 
-        let scrollBackground;
-
-        const scrollBackgroundWidth = width - 3 * height;
-
-        if (orientation === 'vertical') {
-            scrollBackground = new CompositeComponent(height, 0, height, scrollBackgroundWidth, this);
-        } else {
-            scrollBackground = new CompositeComponent(0, height, scrollBackgroundWidth, height, this);
-        }
-
-        let scroll;
-
-        let partOfParent;
-        
-        if (orientation === 'vertical') {
-            partOfParent = parentHeight / childWidth;
-        } else {
-            partOfParent = parentWidth / childWidth;
-        }
-
-        if (orientation === 'vertical') {
-            scroll = new Component(0, 2, height - 4, Math.floor(partOfParent * (scrollBackgroundWidth)), scrollBackground);
-        } else {
-            scroll = new Component(2, 0, Math.floor(partOfParent * (scrollBackgroundWidth)), height - 4, scrollBackground);
-        }
-
-        scroll.setBackgroundColor('#C1C1C1');
-
-        this.scrollPos = 0;
-        this.scrollPosMax = scrollBackgroundWidth - Math.floor(partOfParent * (scrollBackgroundWidth));
-
-        this.partOfParent = partOfParent;
-
-        let parAndChildDif;
-
-        if (orientation === 'vertical') {
-            parAndChildDif = childWidth - parentHeight;
-        } else {
-            parAndChildDif = childWidth - parentWidth;
-        }
-
-        let currentChildPos = 0;
-        let part = 10 / this.scrollPosMax;
-
-        prevButton.addEventListener(events.MOUSE.MOUSE_DOWN, (e) => {
-            if (this.scrollPos + 10 < 0) {
-                this.scrollPos += 10;
-                currentChildPos += part * parAndChildDif;
-            } else {
-                this.scrollPos = 0;
-                currentChildPos = 0;
-            }
-
-            if (this.orientation === 'vertical') {
-                scroll.setBoundingClientRect(-this.scrollPos);
-                parentComponent.setScrollYOffer(currentChildPos);
-            } else {
-                scroll.setBoundingClientRect(undefined, -this.scrollPos);
-                parentComponent.setScrollXOffer(currentChildPos);
-            }
-        });
-
-        nextButton.addEventListener(events.MOUSE.MOUSE_DOWN, (e) => {
-            if (this.scrollPos - 10 > -this.scrollPosMax) {
-                this.scrollPos -= 10;
-                currentChildPos -= part * parAndChildDif;
-            } else {
-                this.scrollPos = -this.scrollPosMax;
-                currentChildPos = -parAndChildDif;
-            }
-
-            if (this.orientation === 'vertical') {
-                scroll.setBoundingClientRect(-this.scrollPos);
-                parentComponent.setScrollYOffer(currentChildPos);
-            } else {
-                scroll.setBoundingClientRect(undefined, -this.scrollPos);
-                parentComponent.setScrollXOffer(currentChildPos);
-            }
-        });
-    }    
+        return {
+            prevButton,
+            nextButton
+        };
+    }
 }
 
-class Button extends Component {
+export class Button extends Component {
     constructor(top = 0, left = 0, width = 0, height = 0, text = '', parentComponent = null) {
         super(top, left, width, height, parentComponent);
 
-        const textWidth = getTextWidthWithCanvas(text, 'monospace', '16px')
+        const textHeight = 16;
 
-        this.label = new Label(Math.floor(height / 2) - 16 / 2, Math.floor(width / 2) - Math.floor(textWidth / 2), textWidth + 1, 16, text);
+        const textWidth = getTextWidthWithCanvas(text, 'monospace', textHeight)
+
+        this.label = new Label(Math.floor(height / 2) - textHeight / 2, Math.floor(width / 2) - Math.floor(textWidth / 2), textWidth + 1, textHeight, text);
         this.properties.cursor = 'pointer';
     }
 

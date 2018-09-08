@@ -13,50 +13,54 @@ export default class Chart extends Component {
 
         this.cellCount = cellCount;
 
+        const padding = 20;
+        const firstCathetus = 6;
+        const secondCathetus = 8;
+
         this.originCoord = {
-            x: left + 20,
-            y: bottom - 20
+            x: left + padding,
+            y: bottom - padding
         };
 
         this.xAxisCoord = {
-            x: right - 10,
+            x: right - padding / 2,
             y: this.originCoord.y,
         };
 
         this.yAxisCoord = {
             x: this.originCoord.x,
-            y: top + 10,
+            y: top + padding / 2,
         };
 
         this.lastCellXAxisCoord = {
-            x: this.xAxisCoord.x - 20,
+            x: this.xAxisCoord.x - padding,
             y: this.xAxisCoord.y
         };
 
         this.lastCellYAxisCoord = {
             x: this.yAxisCoord.x,
-            y: this.yAxisCoord.y + 20
+            y: this.yAxisCoord.y + padding
         };
 
         this.xAxisArrow = {
             leftPoint: {
-                x: this.xAxisCoord.x - 6,
-                y: this.xAxisCoord.y - 8
+                x: this.xAxisCoord.x - firstCathetus,
+                y: this.xAxisCoord.y - secondCathetus
             },
             rightPoint: {
-                x: this.xAxisCoord.x - 6,
-                y: this.xAxisCoord.y + 8
+                x: this.xAxisCoord.x - firstCathetus,
+                y: this.xAxisCoord.y + secondCathetus
             },
         }
 
         this.yAxisArrow = {
             leftPoint: {
-                x: this.yAxisCoord.x - 8,
-                y: this.yAxisCoord.y + 6
+                x: this.yAxisCoord.x - secondCathetus,
+                y: this.yAxisCoord.y + firstCathetus
             },
             rightPoint: {
-                x: this.yAxisCoord.x + 8,
-                y: this.yAxisCoord.y + 6
+                x: this.yAxisCoord.x + secondCathetus,
+                y: this.yAxisCoord.y + firstCathetus
             },
         }
 
@@ -67,6 +71,8 @@ export default class Chart extends Component {
         this.oneCellY = this.yAxisWidth / (cellCount + 1);
 
         this.point = null;
+
+        this.onchartchange = null;
 
         this.addEventListener(events.MOUSE.MOUSE_DOWN, this.handleClick);
     }
@@ -88,6 +94,10 @@ export default class Chart extends Component {
 
             target.setPoint(x, y);
         }
+
+        if (typeof target.onchartchange === 'function') {
+            target.onchartchange(target.point);
+        }
     }
 
     getPoint() {
@@ -101,17 +111,7 @@ export default class Chart extends Component {
         };
     }
 
-    paintComponent(context, elapsedTime) {
-        context.save();
-        super.paintComponent(context, elapsedTime);
-
-        const { top, left, width, height } = this.getBoundingClientRect();
-        const { x: originX, y: originY } = this.originCoord;
-
-        context.fillStyle = '#ffffff';
-
-        context.fillRect(left, top, width, height);
-
+    paintChartAxises(context, originX, originY) {
         context.strokeStyle = '#000000';
 
         context.lineWidth = 3;
@@ -142,14 +142,13 @@ export default class Chart extends Component {
         context.textAlign = 'center';
 
         context.fillText('0', originX, originY);
+    }
 
+    paintChartGrid(context, originX, originY) {
         context.strokeStyle = '#777777';
         context.lineWidth = 2;
 
         context.beginPath();
-
-        const lastCellX = this.lastCellXAxisCoord.x;
-        const lastCellY = this.lastCellYAxisCoord.y;
 
         const lastTenCellY = this.lastCellYAxisCoord.y + this.oneCellY;
         for (let i = 1; i < this.cellCount + 1; i++) {
@@ -172,32 +171,56 @@ export default class Chart extends Component {
         }
 
         context.stroke();
+    }
+
+    paintPoint(context) {
+        context.save();
+
+        context.strokeStyle = '#aa0000';
+        context.beginPath();
+        context.arc(this.point.pointCoord.x, this.point.pointCoord.y, 5, 0, 2 * Math.PI);
+        context.clip();
+        context.stroke();
+        
+        context.fillStyle = '#aa0000';
+        context.fillRect(this.point.pointCoord.x - 10, this.point.pointCoord.y - 10, 20, 20);
+        context.restore();
+    }
+
+    paintComponent(context, elapsedTime) {
+        context.save();
+        super.paintComponent(context, elapsedTime);
+
+        const { top, left, width, height } = this.getBoundingClientRect();
+        const { x: originX, y: originY } = this.originCoord;
+
+        context.fillStyle = '#ffffff';
+
+        context.fillRect(left, top, width, height);
+
+        this.paintChartAxises(context, originX, originY);
+
+        this.paintChartGrid(context, originX, originY);
 
         if (this.point !== null) {
-            context.save();
-
-            context.strokeStyle = '#aa0000';
-            context.beginPath();
-            context.arc(this.point.pointCoord.x, this.point.pointCoord.y, 5, 0, 2 * Math.PI);
-            context.clip();
-            context.stroke();
-            
-            context.fillStyle = '#aa0000';
-            context.fillRect(this.point.pointCoord.x - 10, this.point.pointCoord.y - 10, 20, 20);
-            context.restore();
+            this.paintPoint(context);
         }
 
         context.restore();
     };
 
     setPoint(x, y) {
-        this.point = {
-            x,
-            y,
-            pointCoord: {
-                x: this.originCoord.x + this.oneCellX * x,
-                y: this.originCoord.y - this.oneCellY * y
-            }
-        };
+        if (x > this.cellCount || x < 0 || y > this.cellCount || y < 0) {
+            this.point = null;
+        } else {
+            this.point = {
+                x,
+                y,
+                pointCoord: {
+                    x: this.originCoord.x + this.oneCellX * x,
+                    y: this.originCoord.y - this.oneCellY * y
+                }
+            };
+        }
     }
 } 

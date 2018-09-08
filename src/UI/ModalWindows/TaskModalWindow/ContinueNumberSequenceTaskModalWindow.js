@@ -11,37 +11,28 @@ export default class ContinueNumberSequenceTaskModalWindow extends TaskModalWind
         const textFieldImage = additionalResources.images.textFieldImage;
         const { naturalWidth: textFieldWidth, naturalHeight: textFieldHeight } = textFieldImage;
 
-        this.number = Math.round(Math.random() * (99 - 4)) + 4;
+        const minNumber = 4;
+        const maxNumber = 99;
+        this.number = Math.round(Math.random() * (maxNumber - minNumber)) + minNumber;
 
-        let maxDif = Math.floor(this.number / 4);
-        let dif = 0;
+        const labelText = this.createSequenceText();
 
-        if (maxDif > 10) {
-            dif = Math.round(Math.random() * (9 - 1)) + 1;
-        } else {
-            dif = Math.round(Math.random() * (maxDif - 1)) + 1;
-        }
-
-        let fourthNumber = this.number - dif * 1;
-        let thirdNumber = this.number - dif * 2;
-        let secondNumber = this.number - dif * 3;
-        let firstNumber = this.number - dif * 4;
-
-
-        const labelText = `${firstNumber}, ${secondNumber}, ${thirdNumber}, ${fourthNumber}, ?:`;
+        const halfTextFieldHeight = Math.round(textFieldHeight / 2);
 
         const halfHeight = Math.ceil(height / 2);
         const halfExpressionWidth = Math.ceil((getTextWidthWithCanvas(labelText, 'monospace', '16px') + 1) / 2);
-        const expression = new Label(halfHeight - textFieldHeight - 8, 5, halfExpressionWidth * 2, textFieldHeight, labelText);
-        const answer = new Label(halfHeight - 15, 5,textFieldWidth, textFieldHeight, '');
+        const expression = new Label(halfHeight - textFieldHeight - halfTextFieldHeight, 5, halfExpressionWidth * 2, textFieldHeight, labelText);
+        const answerInput = new Label(halfHeight - halfTextFieldHeight, 5,textFieldWidth, textFieldHeight, '');
 
-        answer.editable = true;
-        answer.setBackgroundColor('#bb0000');
+        answerInput.editable = true;
+        answerInput.tabable = true;
+        answerInput.drawBorder = true;
+        answerInput.setBackgroundColor('#bb0000');
 
-        answer.maxTextLength = 2;
-        answer.setBackgroundImage(new ImageComponent(textFieldImage, 0, 0, textFieldWidth, textFieldHeight, textFieldWidth, textFieldHeight, 0, 0, textFieldWidth, textFieldHeight));
-        answer.setTextColor('#FFFF00');
-        answer.cursor.setColor('#08B600');
+        answerInput.maxTextLength = 2;
+        answerInput.setBackgroundImage(new ImageComponent(textFieldImage, 0, 0, textFieldWidth, textFieldHeight, textFieldWidth, textFieldHeight, 0, 0, textFieldWidth, textFieldHeight));
+        answerInput.setTextColor('#FFFF00');
+        answerInput.cursor.setColor('#08B600');
         expression.setBackgroundColor('rgba(0, 0, 0, 0)');
         expression.setTextColor('#ffffff');
 
@@ -51,10 +42,34 @@ export default class ContinueNumberSequenceTaskModalWindow extends TaskModalWind
         this.buttonKey = 'button';
 
         this.addComponent(expression, this.expressionKey);
-        this.addComponent(answer, this.answerKey);
-        answer.alignCenter();
+        this.addComponent(answerInput, this.answerKey);
+        answerInput.alignCenter();
 
-        expression.setBoundingClientRect(undefined, answer.getBoundingClientRect().left);
+        expression.setBoundingClientRect(undefined, answerInput.getBoundingClientRect().left);
+    }
+
+    getDefaultComponent() {
+        return this.getChildComponent(this.answerKey);
+    }
+
+    createSequenceText() {
+        let maxDif = Math.floor(this.number / 4);
+        let dif = 0;
+        const minNumber = 1;
+        const maxNumber = 9;
+
+        if (maxDif > 10) {
+            dif = Math.round(Math.random() * (maxNumber - minNumber)) + minNumber;
+        } else {
+            dif = Math.round(Math.random() * (maxDif - minNumber)) + minNumber;
+        }
+
+        let fourthNumber = this.number - dif * 1;
+        let thirdNumber = this.number - dif * 2;
+        let secondNumber = this.number - dif * 3;
+        let firstNumber = this.number - dif * 4;
+
+        return `${firstNumber}, ${secondNumber}, ${thirdNumber}, ${fourthNumber}, ?:`;
     }
 
     answerIsRight() {

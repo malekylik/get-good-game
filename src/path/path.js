@@ -10,7 +10,8 @@ const PATH = {
         MAGIC: './assets/images/magic',
         UI: './assets/images/ui',
         TASK: {
-            NAME: './assets/images/task/name'
+            NAME: './assets/images/task/name',
+            NAME_COUNTRY_BY_FLAG: './assets/images/task/nameCountryByFlag',
         },
     },
     SOUND: {
